@@ -32,7 +32,7 @@ def _head(province: str, region: str = "09") -> list[tuple[int, int, object]]:
 def station_row(province, municipality, district, section, station, registered, blank, null, total):
     return _line(101, _head(province) + [
         (14, 16, municipality), (17, 18, district), (19, 22, section), (23, 23, station),
-        (24, 30, registered), (66, 72, blank), (73, 79, null), (80, 86, total), (101, 101, "S"),
+        (24, 30, registered), (31, 37, registered), (66, 72, blank), (73, 79, null), (80, 86, total), (101, 101, "S"),
     ])
 
 
@@ -115,6 +115,10 @@ def build(tmp_path: Path, *, stations=None, official_tweak=None, as_zip=True):
             (path / member).write_bytes(("\n".join(lines) + "\n").encode("iso-8859-1"))
         return path
 
-    mesa = write("02201911_MESA", {"09" + suffix: rows09, "10" + suffix: rows10})
+    # Like the real per-station ZIP, this one also carries the totals files.
+    mesa = write(
+        "02201911_MESA",
+        {"09" + suffix: rows09, "10" + suffix: rows10, "07" + suffix: rows07, "08" + suffix: rows08},
+    )
     tota = write("02201911_TOTA", {"07" + suffix: rows07, "08" + suffix: rows08})
     return mesa, tota

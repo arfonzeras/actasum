@@ -1,6 +1,6 @@
 """Command-line interface.
 
-    tallylog es replay   --mesa MESA.zip --tota TOTA.zip
+    tallylog es replay   --mesa MESA.zip [--tota TOTA.zip]
     tallylog es convert  --mesa MESA.zip --out statements.jsonl
     tallylog es official --tota TOTA.zip --out official.json
     tallylog verify      --statements statements.jsonl --official official.json
@@ -60,7 +60,9 @@ def _es_official(args) -> int:
 
 def _es_replay(args) -> int:
     statements = infoelectoral.read_statements(infoelectoral.load_dataset(args.mesa))
-    totals = infoelectoral.read_official_totals(infoelectoral.load_dataset(args.tota))
+    totals = infoelectoral.read_official_totals(
+        infoelectoral.load_dataset(args.tota or args.mesa)
+    )
     return _emit(verify(statements, totals), args.json)
 
 
@@ -100,7 +102,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     replay = es_commands.add_parser("replay", help="convert, aggregate and compare in one step")
     replay.add_argument("--mesa", required=True, help="the _MESA ZIP file or a directory")
-    replay.add_argument("--tota", required=True, help="the _TOTA ZIP file or a directory")
+    replay.add_argument(
+        "--tota",
+        help="the _TOTA ZIP file or a directory (default: read the totals from --mesa, "
+        "which also carries them)",
+    )
     replay.add_argument("--json", action="store_true", help="print the report as JSON")
     replay.set_defaults(run=_es_replay)
     return parser

@@ -56,7 +56,8 @@ Columnas leídas (desde 1, ambas incluidas):
 | todos | tipo de elección, año, mes | 1–2, 3–6, 7–8 |
 | todos | provincia | 12–13 |
 | 09, 10 | municipio, distrito, sección, mesa | 14–16, 17–18, 19–22, 23 |
-| 09 | electores censados (censo INE) | 24–30 |
+| 09 | electores censados (censo de escrutinio, o censo CERA en las filas de voto exterior) | 31–37 |
+| 09 | censo del INE (se guarda en `extra` cuando difiere) | 24–30 |
 | 09 | votos en blanco, nulos, a candidaturas | 66–72, 73–79, 80–86 |
 | 09 | indicador de datos oficiales | 101 |
 | 10 | código de candidatura, votos | 24–29, 30–36 |
@@ -71,14 +72,16 @@ exterior aparece además como una fila por provincia, con código de municipio
 `999`. Esas filas se conservan con `unit` igual a `aggregate`: suman votos a
 la provincia, pero el número de mesas del Ministerio no las incluye.
 
-En los ficheros de noviembre de 2019 el ZIP `_MESA` contiene también los
-ficheros `07` y `08` y una copia del documento de diseño de registro del
-Ministerio (`FICHEROS.doc`).
+El ZIP `_MESA` contiene también los ficheros `07` y `08`, de modo que basta
+por sí solo, y una copia del documento de diseño de registro del Ministerio
+(`FICHEROS.doc`).
 
-Estas posiciones se han tomado del diseño de registro tal como lo implementa
-el paquete de R [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral)
-de rOpenSpain (Meleiro, 2024), no del documento de diseño del propio
-Ministerio.
+Estas posiciones se tomaron primero del paquete de R
+[`infoelectoral`](https://github.com/rOpenSpain/infoelectoral) de rOpenSpain
+(Meleiro, 2024) y después se contrastaron con el documento de diseño de
+registro del propio Ministerio, *Ficheros de Carga de Datos de Elecciones*
+(2010), que viene dentro de los ZIP como `FICHEROS.doc`. Todas las posiciones
+de la tabla anterior coinciden con ese documento.
 
 ## 4. Correspondencia con el acta
 
@@ -95,8 +98,9 @@ papeletas nulas, votos en blanco y votos obtenidos por cada candidatura.
 | Votos en blanco | `counts.blank` | Sí |
 | Votos por candidatura | `counts.candidatures` | Sí (fichero 10) |
 
-Las cifras de voto exterior del fichero 09 (`censo_cera`, `censo_cere`,
-`votantes_cere`) se conservan en `extra` y no intervienen en la verificación.
+Otras cifras del fichero 09 (`censo_ine`, y las de residentes extranjeros
+`censo_cere` y `votantes_cere`) se conservan en `extra` y no intervienen en
+la verificación.
 
 ## 5. Lagunas conocidas y supuestos sin verificar
 

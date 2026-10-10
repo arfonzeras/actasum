@@ -53,14 +53,17 @@ Requires Python 3.10 or later. No dependencies.
 pip install -e .
 ```
 
-Download the per-station (`_MESA`) and totals (`_TOTA`) ZIP files of a
-Congreso election from the Spanish Ministry of the Interior's
+Download the per-station (`_MESA`) ZIP file of a Congreso election from the
+Spanish Ministry of the Interior's
 [download area](https://infoelectoral.interior.gob.es/es/elecciones-celebradas/area-de-descargas/),
 then:
 
 ```sh
-tallylog es replay --mesa 02201911_MESA.zip --tota 02201911_TOTA.zip
+tallylog es replay --mesa 02201911_MESA.zip
 ```
+
+That ZIP carries both the per-station files and the province totals. Pass
+`--tota` to read the totals from a separate file instead.
 
 The command prints how many constituencies match and lists every difference.
 It exits with `0` when everything matches, `1` when there are differences or
@@ -70,7 +73,7 @@ The same thing in separate steps, producing the neutral intermediate files:
 
 ```sh
 tallylog es convert  --mesa 02201911_MESA.zip --out statements.jsonl
-tallylog es official --tota 02201911_TOTA.zip --out official.json
+tallylog es official --tota 02201911_MESA.zip --out official.json
 tallylog verify --statements statements.jsonl --official official.json
 ```
 
@@ -116,9 +119,10 @@ pytest
 
 - Election results: Ministerio del Interior (Spain), *Área de descargas*.
   No election data is included in this repository.
-- The column layout of the Ministry's files was taken from the rOpenSpain
-  [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral) R package by
-  Héctor Meleiro. No code from that package is included here.
+- The column layout of the Ministry's files was first taken from the
+  rOpenSpain [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral)
+  R package by Héctor Meleiro, then checked against the Ministry's own layout
+  document. No code from that package is included here.
 
 ## License
 

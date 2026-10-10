@@ -12,9 +12,9 @@ Files used here:
 * ``_TOTA`` ZIP: 07 (one row per province or higher) and 08 (one row per
   province or higher and candidature).
 
-Column positions follow the record layout documented by the Ministry, as
-implemented in the rOpenSpain ``infoelectoral`` R package. They have been
-exercised here against synthetic files only; see docs/spec/profile-es.md.
+Column positions follow the Ministry's record-layout document, "Ficheros de
+Carga de Datos de Elecciones" (2010), which ships inside the ZIP files as
+``FICHEROS.doc``. See docs/spec/profile-es.md.
 """
 
 from __future__ import annotations
@@ -172,14 +172,18 @@ def read_statements(dataset: Dataset) -> list[Statement]:
         if key in seen:
             raise FormatError(f"{where}: polling station {station} appears twice")
         seen.add(key)
+        # "Censo de escrutinio", the roll used at the count; for overseas rows
+        # the same columns hold the CERA census. The INE census (24-30) can
+        # differ from it and is zero in some overseas rows.
+        registered = _number(line, 31, 37, where)
         extra: dict[str, object] = {}
         for label, start, end in (
-            ("censo_cera", 31, 37),
+            ("censo_ine", 24, 30),
             ("censo_cere", 38, 44),
             ("votantes_cere", 45, 51),
         ):
             value = _number(line, start, end, where)
-            if value:
+            if value and not (label == "censo_ine" and value == registered):
                 extra[label] = value
         flag = _field(line, 101, 101).strip()
         if flag:
@@ -190,7 +194,7 @@ def read_statements(dataset: Dataset) -> list[Statement]:
                 election=election,
                 station=station,
                 constituency=f"es/{_field(line, 12, 13)}",
-                registered=_number(line, 24, 30, where),
+                registered=registered,
                 blank=_number(line, 66, 72, where),
                 null=_number(line, 73, 79, where),
                 candidature_total=_number(line, 80, 86, where),

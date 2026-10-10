@@ -55,7 +55,8 @@ Columns read (1-based, inclusive):
 | all | election type, year, month | 1–2, 3–6, 7–8 |
 | all | province | 12–13 |
 | 09, 10 | municipality, district, section, station | 14–16, 17–18, 19–22, 23 |
-| 09 | registered voters (INE census) | 24–30 |
+| 09 | registered voters (*censo de escrutinio*, or CERA census in overseas rows) | 31–37 |
+| 09 | INE census (kept under `extra` when it differs) | 24–30 |
 | 09 | blank, null, candidature votes | 66–72, 73–79, 80–86 |
 | 09 | official-data flag | 101 |
 | 10 | candidature code, votes | 24–29, 30–36 |
@@ -70,12 +71,15 @@ province, with municipality code `999`. Those rows are kept, with
 `unit` set to `aggregate`: they add votes to the province, but the Ministry's
 station count does not include them.
 
-In the November 2019 files the `_MESA` ZIP also contains files `07` and `08`
-and a copy of the Ministry's record-layout document (`FICHEROS.doc`).
+The `_MESA` ZIP also contains files `07` and `08`, so it is enough on its
+own, and a copy of the Ministry's record-layout document (`FICHEROS.doc`).
 
-These positions were taken from the record layout as implemented in the
-rOpenSpain [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral)
-R package (Meleiro, 2024), not from the Ministry's own layout document.
+These positions were first taken from the rOpenSpain
+[`infoelectoral`](https://github.com/rOpenSpain/infoelectoral) R package
+(Meleiro, 2024) and then checked against the Ministry's own record-layout
+document, *Ficheros de Carga de Datos de Elecciones* (2010), which ships
+inside the ZIP files as `FICHEROS.doc`. Every position in the table above
+agrees with that document.
 
 ## 4. Mapping to the tally sheet
 
@@ -92,8 +96,9 @@ voters, null ballots, blank ballots and votes per candidature.
 | Blank ballots | `counts.blank` | Yes |
 | Votes per candidature | `counts.candidatures` | Yes (file 10) |
 
-Overseas-voter figures present in file 09 (`censo_cera`, `censo_cere`,
-`votantes_cere`) are kept under `extra` and do not take part in verification.
+Other figures present in file 09 (`censo_ine`, and the foreign-resident
+figures `censo_cere` and `votantes_cere`) are kept under `extra` and do not
+take part in verification.
 
 ## 5. Known gaps and unverified assumptions
 

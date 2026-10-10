@@ -193,6 +193,28 @@ def test_real_station_row_layout():
     assert overseas.station == "es/07/999/09/0000/U"
     assert (first.unit, overseas.unit) == ("station", "aggregate")
     assert (overseas.blank, overseas.null, overseas.candidature_total) == (6, 9, 1324)
+    assert overseas.registered == 28315
+
+
+def test_registered_is_the_count_roll_not_the_ine_census():
+    """Layout of an overseas row as in the 2008 files: INE census left at zero."""
+    row = synth._line(101, synth._head("11") + [
+        (14, 16, "999"), (17, 18, "09"), (19, 22, "0000"), (23, 23, "U"),
+        (24, 30, 0), (31, 37, 9000), (66, 72, 10), (73, 79, 5), (80, 86, 4221), (101, 101, "S"),
+    ])
+    dataset = infoelectoral.Dataset(
+        path="sample", sha256=None,
+        files={"09": ("09021911.DAT", [row]), "10": ("10021911.DAT", [])},
+    )
+    (statement,) = infoelectoral.read_statements(dataset)
+    assert statement.registered == 9000
+    assert "censo_ine" not in statement.extra
+
+
+def test_cli_replay_reads_totals_from_the_station_zip(tmp_path, capsys):
+    mesa, _ = synth.build(tmp_path)
+    assert main(["es", "replay", "--mesa", str(mesa)]) == 0
+    assert "2 match the official totals" in capsys.readouterr().out
 
 
 def test_overseas_row_adds_votes_but_is_not_a_station(tmp_path):

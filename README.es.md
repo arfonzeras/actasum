@@ -58,14 +58,16 @@ Requiere Python 3.10 o posterior. Sin dependencias.
 pip install -e .
 ```
 
-Descarga los ZIP de mesas (`_MESA`) y de totales (`_TOTA`) de una elección al
-Congreso desde el
+Descarga el ZIP de mesas (`_MESA`) de una elección al Congreso desde el
 [área de descargas](https://infoelectoral.interior.gob.es/es/elecciones-celebradas/area-de-descargas/)
 del Ministerio del Interior y ejecuta:
 
 ```sh
-tallylog es replay --mesa 02201911_MESA.zip --tota 02201911_TOTA.zip
+tallylog es replay --mesa 02201911_MESA.zip
 ```
+
+Ese ZIP contiene tanto los ficheros por mesa como los totales provinciales.
+Con `--tota` se pueden leer los totales de otro fichero.
 
 La orden indica cuántas circunscripciones cuadran y lista cada diferencia.
 Termina con `0` si todo cuadra, con `1` si hay diferencias o lagunas, y con
@@ -75,7 +77,7 @@ Lo mismo en pasos separados, generando los ficheros intermedios neutrales:
 
 ```sh
 tallylog es convert  --mesa 02201911_MESA.zip --out statements.jsonl
-tallylog es official --tota 02201911_TOTA.zip --out official.json
+tallylog es official --tota 02201911_MESA.zip --out official.json
 tallylog verify --statements statements.jsonl --official official.json
 ```
 
@@ -125,9 +127,10 @@ pytest
 
 - Resultados electorales: Ministerio del Interior, *Área de descargas*. Este
   repositorio no incluye datos electorales.
-- El diseño de columnas de los ficheros del Ministerio se ha tomado del
+- El diseño de columnas de los ficheros del Ministerio se tomó primero del
   paquete de R [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral)
-  de rOpenSpain, de Héctor Meleiro. No se incluye código de ese paquete.
+  de rOpenSpain, de Héctor Meleiro, y después se contrastó con el documento
+  de diseño del propio Ministerio. No se incluye código de ese paquete.
 
 ## Licencia
 
