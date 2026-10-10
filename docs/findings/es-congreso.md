@@ -81,9 +81,10 @@ Registered voters are taken from the count roll (*censo de escrutinio*).
 | July 2023 | `es/24/222/02/001/B` | 503 | 143 |
 | July 2023 | `es/24/222/02/001/C` | 436 | 89 |
 
-None in June 2016 or November 2019. Party agents accredited at a station may
-vote there without being on its roll, which can explain small excesses; it
-has not been checked whether that applies to any of these.
+None in June 2016 or November 2019. One possible explanation for small
+excesses is party agents voting at the station where they are accredited
+rather than where they are registered. Neither that rule nor whether it
+applies to any of these stations has been checked here.
 
 ## What is not known
 
