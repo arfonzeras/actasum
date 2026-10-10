@@ -65,7 +65,9 @@ Columns read (1-based, inclusive):
 Rows with province code `99` are subtotals and are ignored: national and
 regional totals in files `07` and `08`, and overseas-vote (CERA) totals per
 region in files `09` and `10`. The overseas votes also appear as one row per
-province, with municipality code `999`, and those rows are kept.
+province, with municipality code `999`. Those rows are kept, with
+`unit` set to `aggregate`: they add votes to the province, but the Ministry's
+station count does not include them.
 
 In the November 2019 files the `_MESA` ZIP also contains files `07` and `08`
 and a copy of the Ministry's record-layout document (`FICHEROS.doc`).

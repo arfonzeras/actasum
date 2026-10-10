@@ -191,4 +191,19 @@ def test_real_station_row_layout():
     assert first.station == "es/04/003/02/001/B"
     assert (first.registered, first.blank, first.null, first.candidature_total) == (446, 1, 0, 270)
     assert overseas.station == "es/07/999/09/0000/U"
+    assert (first.unit, overseas.unit) == ("station", "aggregate")
     assert (overseas.blank, overseas.null, overseas.candidature_total) == (6, 9, 1324)
+
+
+def test_overseas_row_adds_votes_but_is_not_a_station(tmp_path):
+    stations = dict(synth.STATIONS)
+    stations[("08", "999", "09", "0000", "U")] = (700, 1, 2, {"000001": 40})
+    mesa, tota = synth.build(tmp_path, stations=stations)
+    statements = infoelectoral.read_statements(infoelectoral.load_dataset(str(mesa)))
+    totals = infoelectoral.read_official_totals(infoelectoral.load_dataset(str(tota)))
+    report = verify(statements, totals)
+    assert report.ok, report.differences
+    assert (report.stations, report.aggregates) == (4, 1)
+    overseas = [s for s in statements if s.unit == "aggregate"]
+    assert [s.station for s in overseas] == ["es/08/999/09/0000/U"]
+    assert '"unit":"aggregate"' in overseas[0].canonical().decode()

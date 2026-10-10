@@ -12,6 +12,7 @@
     "election": { "type": "string", "minLength": 1 },
     "station": { "type": "string", "minLength": 1 },
     "constituency": { "type": "string", "minLength": 1 },
+    "unit": { "enum": ["station", "aggregate"] },
     "counts": {
       "type": "object",
       "required": ["blank", "null", "candidatures"],

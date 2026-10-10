@@ -49,6 +49,7 @@ RFC 8785 outright is an open question.
 | `election` | string | yes | Election identifier, defined by the profile |
 | `station` | string | yes | Polling-station identifier, defined by the profile. Stable and unique within the election |
 | `constituency` | string | yes | Constituency whose total this station counts towards |
+| `unit` | string | no | `station` (default) or `aggregate`. An aggregate carries votes but is not a polling station, for example overseas votes counted centrally. Omitted when it is `station` |
 | `counts.blank` | integer | yes | Blank votes |
 | `counts.null` | integer | yes | Null (spoilt) votes |
 | `counts.candidatures` | object | yes | Votes per candidature: candidature code → integer |
@@ -109,7 +110,8 @@ Input: a set of statements and one official-totals document.
    - `candidature_total` is present and differs from the sum of `candidatures`;
    - `registered` is present and is lower than blank + null + candidature votes.
 4. The verifier sums `blank`, `null` and each candidature's votes per
-   constituency, and counts stations.
+   constituency, and counts the statements whose `unit` is `station`.
+   Aggregates add their votes but are not counted as stations.
 5. For every constituency present on both sides it compares station count,
    blank, null, candidature total and each candidature. A candidature missing
    on one side counts as zero. Each mismatch is a *difference*.

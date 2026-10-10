@@ -17,6 +17,7 @@ from typing import Any, Iterable, Iterator, TextIO
 
 STATEMENT_SPEC = "tallylog/statement/v0.1"
 OFFICIAL_SPEC = "tallylog/official-totals/v0.1"
+UNITS = frozenset({"station", "aggregate"})
 
 
 class FormatError(ValueError):
@@ -72,6 +73,9 @@ class Statement:
     # Total of valid votes for candidatures as written on the sheet, when the
     # sheet (or the dataset) states it separately from the per-candidature rows.
     candidature_total: int | None = None
+    # "station" for a polling station. "aggregate" for a row that carries votes
+    # but is not a polling station, such as overseas votes counted centrally.
+    unit: str = "station"
     evidence: dict[str, Any] = field(default_factory=dict)
     extra: dict[str, Any] = field(default_factory=dict)
 
@@ -102,6 +106,8 @@ class Statement:
             "constituency": self.constituency,
             "counts": counts,
         }
+        if self.unit != "station":
+            doc["unit"] = self.unit
         if self.evidence:
             doc["evidence"] = self.evidence
         if self.extra:
@@ -123,6 +129,9 @@ class Statement:
         candidatures = counts.get("candidatures")
         if not isinstance(candidatures, dict):
             raise FormatError("counts.candidatures must be an object")
+        unit = doc.get("unit", "station")
+        if unit not in UNITS:
+            raise FormatError(f"unit must be one of {sorted(UNITS)}")
         return cls(
             profile=doc["profile"],
             election=doc["election"],
@@ -142,6 +151,7 @@ class Statement:
                 "counts.candidature_total",
                 optional=True,
             ),
+            unit=unit,
             evidence=doc.get("evidence") or {},
             extra=doc.get("extra") or {},
         )

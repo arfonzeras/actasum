@@ -36,6 +36,7 @@ class Difference:
 class Report:
     election: str
     stations: int = 0
+    aggregates: int = 0
     constituencies_checked: int = 0
     constituencies_matching: int = 0
     differences: list[Difference] = field(default_factory=list)
@@ -55,6 +56,7 @@ class Report:
             "election": self.election,
             "ok": self.ok,
             "stations": self.stations,
+            "aggregates": self.aggregates,
             "constituencies_checked": self.constituencies_checked,
             "constituencies_matching": self.constituencies_matching,
             "differences": [
@@ -114,7 +116,8 @@ def aggregate(statements: Iterable[Statement]) -> dict[str, ConstituencyTotals]:
         )
         bucket["blank"] += statement.blank
         bucket["null"] += statement.null
-        bucket["stations"] += 1
+        if statement.unit == "station":
+            bucket["stations"] += 1
         for code, votes in statement.candidatures.items():
             bucket["candidatures"][code] = bucket["candidatures"].get(code, 0) + votes
     return {
@@ -132,7 +135,11 @@ def aggregate(statements: Iterable[Statement]) -> dict[str, ConstituencyTotals]:
 def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
     """Compare the totals recomputed from ``statements`` with ``official``."""
     statements = list(statements)
-    report = Report(election=official.election, stations=len(statements))
+    report = Report(
+        election=official.election,
+        stations=sum(1 for s in statements if s.unit == "station"),
+        aggregates=sum(1 for s in statements if s.unit != "station"),
+    )
 
     seen: set[str] = set()
     for statement in statements:
@@ -183,6 +190,11 @@ def format_report(report: Report, *, limit: int = 20) -> str:
     lines = [
         f"Election: {report.election}",
         f"Polling stations read: {report.stations}",
+        *(
+            [f"Aggregate rows read (votes counted outside a polling station): {report.aggregates}"]
+            if report.aggregates
+            else []
+        ),
         f"Constituencies compared: {report.constituencies_checked} "
         f"({report.constituencies_matching} match the official totals)",
     ]

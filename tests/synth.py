@@ -75,7 +75,8 @@ def build(tmp_path: Path, *, stations=None, official_tweak=None, as_zip=True):
         for code, count in votes.items():
             rows10.append(station_candidature_row(*key, code, count))
         p = provinces.setdefault(key[0], {"stations": 0, "blank": 0, "null": 0, "votes": {}})
-        p["stations"] += 1
+        if key[1] != "999":
+            p["stations"] += 1
         p["blank"] += blank
         p["null"] += null
         for code, count in votes.items():

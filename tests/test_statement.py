@@ -95,3 +95,13 @@ def test_sheet_total_that_disagrees_with_rows_is_flagged():
     issues = check_station(make(candidature_total=321))
     assert [i.code for i in issues] == ["candidature-sum"]
     assert check_station(make()) == []
+
+
+def test_unit_defaults_to_station_and_is_omitted():
+    assert b'"unit"' not in make().canonical()
+    aggregate = make(unit="aggregate")
+    assert Statement.from_dict(json.loads(aggregate.canonical())) == aggregate
+    doc = json.loads(make().canonical())
+    doc["unit"] = "province"
+    with pytest.raises(FormatError):
+        Statement.from_dict(doc)

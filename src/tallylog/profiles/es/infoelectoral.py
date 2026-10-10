@@ -31,6 +31,11 @@ from . import PROFILE
 
 ENCODING = "iso-8859-1"
 
+# Municipality code used for the overseas-voter census (CERA). Each province
+# has one such row in the per-station files. It carries votes but the Ministry
+# does not count it as a polling station.
+OVERSEAS_MUNICIPALITY = "999"
+
 # Election types whose constituency is the province, which is the unit the
 # Ministry's totals files report. Other types need their own mapping.
 ELECTION_TYPES = {"02": "congreso"}
@@ -190,6 +195,9 @@ def read_statements(dataset: Dataset) -> list[Statement]:
                 null=_number(line, 73, 79, where),
                 candidature_total=_number(line, 80, 86, where),
                 candidatures=votes.pop(key, {}),
+                unit="aggregate"
+                if _field(line, 14, 16) == OVERSEAS_MUNICIPALITY
+                else "station",
                 evidence=dict(evidence),
                 extra=extra,
             )

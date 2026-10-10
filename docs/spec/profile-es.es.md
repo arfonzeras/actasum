@@ -68,7 +68,8 @@ Las filas con código de provincia `99` son subtotales y se ignoran: totales
 nacionales y autonómicos en los ficheros `07` y `08`, y totales del voto
 exterior (CERA) por comunidad autónoma en los ficheros `09` y `10`. El voto
 exterior aparece además como una fila por provincia, con código de municipio
-`999`, y esas filas sí se conservan.
+`999`. Esas filas se conservan con `unit` igual a `aggregate`: suman votos a
+la provincia, pero el número de mesas del Ministerio no las incluye.
 
 En los ficheros de noviembre de 2019 el ZIP `_MESA` contiene también los
 ficheros `07` y `08` y una copia del documento de diseño de registro del
