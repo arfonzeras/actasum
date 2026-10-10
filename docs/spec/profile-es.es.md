@@ -64,8 +64,15 @@ Columnas leídas (desde 1, ambas incluidas):
 | 07 | votos en blanco, nulos, a candidaturas | 126–133, 134–141, 142–149 |
 | 08 | código de candidatura, votos | 15–20, 21–28 |
 
-Las filas de los ficheros `07` y `08` con código de provincia `99` son
-subtotales nacionales o autonómicos y se ignoran.
+Las filas con código de provincia `99` son subtotales y se ignoran: totales
+nacionales y autonómicos en los ficheros `07` y `08`, y totales del voto
+exterior (CERA) por comunidad autónoma en los ficheros `09` y `10`. El voto
+exterior aparece además como una fila por provincia, con código de municipio
+`999`, y esas filas sí se conservan.
+
+En los ficheros de noviembre de 2019 el ZIP `_MESA` contiene también los
+ficheros `07` y `08` y una copia del documento de diseño de registro del
+Ministerio (`FICHEROS.doc`).
 
 Estas posiciones se han tomado del diseño de registro tal como lo implementa
 el paquete de R [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral)
@@ -92,10 +99,10 @@ Las cifras de voto exterior del fichero 09 (`censo_cera`, `censo_cere`,
 
 ## 5. Lagunas conocidas y supuestos sin verificar
 
-1. **Aún no se ha ejecutado con datos reales.** El lector solo se ha probado
-   con ficheros sintéticos construidos a partir de la tabla de columnas
-   anterior. La primera ejecución real puede revelar diferencias de diseño
-   entre elecciones.
+1. **Aún no hay una ejecución completa con datos reales.** Un primer intento
+   con los ficheros de noviembre de 2019 reveló las filas de provincia 99
+   descritas en el apartado 3. Por lo demás, el lector se ha probado con
+   ficheros sintéticos y con dos filas reales.
 2. Los artículos de la LOREG se han leído en una transcripción no oficial, no
    en el BOE. No se ha revisado una modificación publicada el 2 de julio de
    2026.
@@ -103,8 +110,10 @@ Las cifras de voto exterior del fichero 09 (`censo_cera`, `censo_cere`,
    son el mismo conjunto. Si el Ministerio agrupa candidaturas con códigos
    distintos a nivel provincial, la comparación necesita la correspondencia
    del fichero `03`.
-4. Se supone que el voto exterior (CERA) aparece como filas de mesa dentro de
-   su provincia, de modo que la suma de mesas alcanza el total provincial.
+4. El voto exterior (CERA) aparece como una fila por provincia, similar a una
+   mesa (municipio `999`). Se ha visto en los ficheros de noviembre de 2019;
+   falta confirmar que con esas filas la suma de mesas alcanza el total
+   provincial.
 5. No se sabe si los ficheros por mesa contienen resultados provisionales o
    definitivos, ni cómo tratan las correcciones del escrutinio general
    (arts. 103 a 108 de la LOREG). Por tanto, una diferencia puede ser

@@ -169,3 +169,26 @@ def test_cli_two_step_pipeline_matches_replay(tmp_path, capsys):
     assert main(["verify", "--statements", str(statements), "--official", str(official)]) == 0
     assert "Polling stations read: 4" in capsys.readouterr().out
     assert len(statements.read_text(encoding="utf-8").splitlines()) == 4
+
+
+def test_reader_ignores_overseas_subtotals_in_station_files(tmp_path):
+    statements, _ = load(tmp_path)
+    assert not [s for s in statements if s.station.startswith("es/99/")]
+    assert len(statements) == len(synth.STATIONS)
+
+
+def test_real_station_row_layout():
+    """Two rows copied from 09021911.DAT (Congreso, November 2019)."""
+    rows = [
+        "022019111010400302001 B00004460000446000000000000000000141000021500000010000000000027000000000000000S",
+        "0220191110407999090000U00283150028315000000000000000000000000000000000060000009000132400000000000000S",
+    ]
+    dataset = infoelectoral.Dataset(
+        path="sample", sha256=None,
+        files={"09": ("09021911.DAT", rows), "10": ("10021911.DAT", [])},
+    )
+    first, overseas = infoelectoral.read_statements(dataset)
+    assert first.station == "es/04/003/02/001/B"
+    assert (first.registered, first.blank, first.null, first.candidature_total) == (446, 1, 0, 270)
+    assert overseas.station == "es/07/999/09/0000/U"
+    assert (overseas.blank, overseas.null, overseas.candidature_total) == (6, 9, 1324)

@@ -35,7 +35,9 @@ ENCODING = "iso-8859-1"
 # Ministry's totals files report. Other types need their own mapping.
 ELECTION_TYPES = {"02": "congreso"}
 
-# In the totals files, province code 99 marks national and regional subtotals.
+# Province code 99 marks rows that are subtotals, not a province: national and
+# regional totals in files 07/08, and overseas-vote (CERA) totals per region in
+# the per-station files 09/10. The same votes also appear under their province.
 AGGREGATE_PROVINCE = "99"
 
 _MEMBER = re.compile(r"^(\d{2})(\d{2})(\d{2})(\d{2})\.DAT$", re.IGNORECASE)
@@ -108,6 +110,7 @@ def _number(line: str, start: int, end: int, where: str) -> int:
 
 
 def _rows(dataset: Dataset, number: str, min_length: int) -> Iterator[tuple[str, str]]:
+    """Yield (location, line) for every row that belongs to a province."""
     name = dataset.name(number)
     for index, line in enumerate(dataset.lines(number), start=1):
         if not line.strip():
@@ -117,6 +120,8 @@ def _rows(dataset: Dataset, number: str, min_length: int) -> Iterator[tuple[str,
             raise FormatError(
                 f"{where}: line has {len(line)} characters, expected at least {min_length}"
             )
+        if _field(line, 12, 13) == AGGREGATE_PROVINCE:
+            continue
         yield where, line
 
 
@@ -201,13 +206,8 @@ def read_statements(dataset: Dataset) -> list[Statement]:
 def read_official_totals(dataset: Dataset) -> OfficialTotals:
     """Turn the province-level files (07 and 08) into official totals."""
 
-    def is_province_row(line: str) -> bool:
-        return _field(line, 12, 13) != AGGREGATE_PROVINCE
-
     votes: dict[str, dict[str, int]] = {}
     for where, line in _rows(dataset, "08", 28):
-        if not is_province_row(line):
-            continue
         _election_id(line, where)
         per_province = votes.setdefault(_field(line, 12, 13), {})
         code = _field(line, 15, 20).strip()
@@ -218,8 +218,6 @@ def read_official_totals(dataset: Dataset) -> OfficialTotals:
     election: str | None = None
     constituencies: dict[str, ConstituencyTotals] = {}
     for where, line in _rows(dataset, "07", 149):
-        if not is_province_row(line):
-            continue
         this_election = _election_id(line, where)
         if election not in (None, this_election):
             raise FormatError(f"{where}: more than one election in the file")

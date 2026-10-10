@@ -62,8 +62,13 @@ Columns read (1-based, inclusive):
 | 07 | blank, null, candidature votes | 126–133, 134–141, 142–149 |
 | 08 | candidature code, votes | 15–20, 21–28 |
 
-Rows of files `07` and `08` with province code `99` are national or regional
-subtotals and are ignored.
+Rows with province code `99` are subtotals and are ignored: national and
+regional totals in files `07` and `08`, and overseas-vote (CERA) totals per
+region in files `09` and `10`. The overseas votes also appear as one row per
+province, with municipality code `999`, and those rows are kept.
+
+In the November 2019 files the `_MESA` ZIP also contains files `07` and `08`
+and a copy of the Ministry's record-layout document (`FICHEROS.doc`).
 
 These positions were taken from the record layout as implemented in the
 rOpenSpain [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral)
@@ -89,17 +94,18 @@ Overseas-voter figures present in file 09 (`censo_cera`, `censo_cere`,
 
 ## 5. Known gaps and unverified assumptions
 
-1. **No run against real data yet.** The reader has only been tested with
-   synthetic files built from the column table above. The first real run may
-   reveal layout differences between elections.
+1. **No complete run against real data yet.** A first attempt on the November
+   2019 files exposed the province-99 rows described in section 3. The reader
+   is otherwise tested with synthetic files and two real rows.
 2. The LOREG articles were read in an unofficial transcription, not in the
    official gazette (BOE). An amendment published on 2 July 2026 has not been
    reviewed.
 3. It is assumed that candidature codes in file 10 and file 08 are the same
    code set. If the Ministry aggregates candidatures under different codes at
    province level, the comparison needs the mapping in file `03`.
-4. It is assumed that overseas votes (CERA) appear as station rows inside
-   their province, so that station sums reach the province total.
+4. Overseas votes (CERA) appear as one station-like row per province
+   (municipality `999`). This was seen in the November 2019 files; whether
+   those rows make station sums reach the province total is not yet confirmed.
 5. It is not known whether the per-station files hold provisional or final
    results, nor how they treat corrections made during the general canvass
    (LOREG arts. 103–108). Differences may therefore be legitimate.

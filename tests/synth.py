@@ -24,9 +24,9 @@ def _line(length: int, fields: list[tuple[int, int, object]]) -> str:
     return "".join(buffer)
 
 
-def _head(province: str) -> list[tuple[int, int, object]]:
+def _head(province: str, region: str = "09") -> list[tuple[int, int, object]]:
     kind, year, month = ELECTION
-    return [(1, 2, kind), (3, 6, year), (7, 8, month), (9, 9, "1"), (10, 11, "09"), (12, 13, province)]
+    return [(1, 2, kind), (3, 6, year), (7, 8, month), (9, 9, "1"), (10, 11, region), (12, 13, province)]
 
 
 def station_row(province, municipality, district, section, station, registered, blank, null, total):
@@ -80,6 +80,15 @@ def build(tmp_path: Path, *, stations=None, official_tweak=None, as_zip=True):
         p["null"] += null
         for code, count in votes.items():
             p["votes"][code] = p["votes"].get(code, 0) + count
+    # Overseas-vote subtotals per region and for the whole country. The real
+    # per-station files carry them with province 99, municipality 999 and the
+    # same station key for every region; the reader must ignore them.
+    for region in ("09", "13", "99"):
+        aggregate = _head("99", region) + [
+            (14, 16, "999"), (17, 18, "09"), (19, 22, "0000"), (23, 23, "U"),
+        ]
+        rows09.append(_line(101, aggregate + [(24, 30, 9999), (80, 86, 77), (101, 101, "S")]))
+        rows10.append(_line(36, aggregate + [(24, 29, "000001"), (30, 36, 77)]))
     if official_tweak:
         official_tweak(provinces)
 
