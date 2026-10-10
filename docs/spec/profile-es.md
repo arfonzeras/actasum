@@ -4,7 +4,8 @@
 
 This English text is the normative one.
 
-Status: **draft, not validated against real files yet** (see section 5).
+Status: **draft, validated against one election only** (Congreso, November
+2019; see section 5).
 
 This profile maps Spanish general-election results onto the core format.
 The governing law is the Ley Orgánica 5/1985 del Régimen Electoral General
@@ -96,18 +97,18 @@ Overseas-voter figures present in file 09 (`censo_cera`, `censo_cere`,
 
 ## 5. Known gaps and unverified assumptions
 
-1. **No complete run against real data yet.** A first attempt on the November
-   2019 files exposed the province-99 rows described in section 3. The reader
-   is otherwise tested with synthetic files and two real rows.
+1. **One real run so far.** On the November 2019 Congreso files all 52
+   constituencies match (59,555 polling stations plus 52 overseas rows). Other
+   elections may use a different layout and have not been tried.
 2. The LOREG articles were read in an unofficial transcription, not in the
    official gazette (BOE). An amendment published on 2 July 2026 has not been
    reviewed.
-3. It is assumed that candidature codes in file 10 and file 08 are the same
-   code set. If the Ministry aggregates candidatures under different codes at
-   province level, the comparison needs the mapping in file `03`.
+3. Candidature codes in file 10 and file 08 are the same code set in the
+   November 2019 files, since every candidature total matches. This is not
+   confirmed for other elections; if it fails, the mapping is in file `03`.
 4. Overseas votes (CERA) appear as one station-like row per province
-   (municipality `999`). This was seen in the November 2019 files; whether
-   those rows make station sums reach the province total is not yet confirmed.
+   (municipality `999`). In the November 2019 files, station rows plus these
+   rows add up exactly to the province totals.
 5. It is not known whether the per-station files hold provisional or final
    results, nor how they treat corrections made during the general canvass
    (LOREG arts. 103–108). Differences may therefore be legitimate.

@@ -5,8 +5,8 @@
 Traducción informativa. Si difiere de la [versión inglesa](profile-es.md),
 manda la inglesa.
 
-Estado: **borrador, todavía sin validar con ficheros reales** (véase el
-apartado 5).
+Estado: **borrador, validado con una sola elección** (Congreso, noviembre de
+2019; véase el apartado 5).
 
 Este perfil traduce los resultados de las elecciones generales españolas al
 formato del núcleo. La norma aplicable es la Ley Orgánica 5/1985 del Régimen
@@ -100,21 +100,20 @@ Las cifras de voto exterior del fichero 09 (`censo_cera`, `censo_cere`,
 
 ## 5. Lagunas conocidas y supuestos sin verificar
 
-1. **Aún no hay una ejecución completa con datos reales.** Un primer intento
-   con los ficheros de noviembre de 2019 reveló las filas de provincia 99
-   descritas en el apartado 3. Por lo demás, el lector se ha probado con
-   ficheros sintéticos y con dos filas reales.
+1. **Una sola ejecución real hasta ahora.** Con los ficheros del Congreso de
+   noviembre de 2019 cuadran las 52 circunscripciones (59.555 mesas más 52
+   filas de voto exterior). Otras elecciones pueden usar un diseño distinto y
+   no se han probado.
 2. Los artículos de la LOREG se han leído en una transcripción no oficial, no
    en el BOE. No se ha revisado una modificación publicada el 2 de julio de
    2026.
-3. Se supone que los códigos de candidatura del fichero 10 y del fichero 08
-   son el mismo conjunto. Si el Ministerio agrupa candidaturas con códigos
-   distintos a nivel provincial, la comparación necesita la correspondencia
-   del fichero `03`.
+3. Los códigos de candidatura del fichero 10 y del fichero 08 son el mismo
+   conjunto en los ficheros de noviembre de 2019, puesto que cuadran todos
+   los totales por candidatura. No está confirmado para otras elecciones; si
+   falla, la correspondencia está en el fichero `03`.
 4. El voto exterior (CERA) aparece como una fila por provincia, similar a una
-   mesa (municipio `999`). Se ha visto en los ficheros de noviembre de 2019;
-   falta confirmar que con esas filas la suma de mesas alcanza el total
-   provincial.
+   mesa (municipio `999`). En los ficheros de noviembre de 2019, las filas de
+   mesa más estas filas suman exactamente los totales provinciales.
 5. No se sabe si los ficheros por mesa contienen resultados provisionales o
    definitivos, ni cómo tratan las correcciones del escrutinio general
    (arts. 103 a 108 de la LOREG). Por tanto, una diferencia puede ser

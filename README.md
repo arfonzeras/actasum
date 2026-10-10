@@ -13,8 +13,27 @@ It does not handle voting, voter identity or ballots. It audits the step
 between the polling station and the published result.
 
 > **Status: early draft (v0.1).** The format will change. The Spain reader has
-> been tested with synthetic files only and has not yet been run against a
-> real election. Do not rely on its output.
+> been run against one real election so far (see below). Do not rely on its
+> output for anything else yet.
+
+## First result
+
+On 11 October 2026 the verifier was run on the Ministry of the Interior's
+files for the Congreso election of November 2019 (`02201911_MESA.zip` and
+`02201911_TOTA.zip`).
+
+| | |
+| --- | --- |
+| Polling stations read | 59,555 |
+| Overseas-vote rows read (one per constituency) | 52 |
+| Constituencies compared | 52 |
+| Constituencies whose recomputed totals match | 52 |
+| Polling stations with internal inconsistencies | 0 |
+
+Blank votes, null votes, every candidature's votes and the number of polling
+stations all match in every constituency. This shows that the Ministry's
+per-station publication adds up to its province totals for that election. It
+does not show that the per-station figures match the paper tally sheets.
 
 ## What is here
 

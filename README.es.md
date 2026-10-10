@@ -14,11 +14,31 @@ No se ocupa de la votación, de la identidad del votante ni de las papeletas.
 Audita el tramo que va de la mesa al resultado publicado.
 
 > **Estado: borrador inicial (v0.1).** El formato va a cambiar. El lector de
-> España solo se ha probado con ficheros sintéticos y todavía no se ha
-> ejecutado con una elección real. No te fíes de su salida.
+> España se ha ejecutado hasta ahora con una sola elección real (véase más
+> abajo). No te fíes todavía de su salida para nada más.
 
 Esta página es una traducción informativa. Si difiere del
 [README en inglés](README.md), manda la versión inglesa.
+
+## Primer resultado
+
+El 11 de octubre de 2026 se ejecutó el verificador con los ficheros del
+Ministerio del Interior de las elecciones al Congreso de noviembre de 2019
+(`02201911_MESA.zip` y `02201911_TOTA.zip`).
+
+| | |
+| --- | --- |
+| Mesas leídas | 59.555 |
+| Filas de voto exterior leídas (una por circunscripción) | 52 |
+| Circunscripciones comparadas | 52 |
+| Circunscripciones cuyos totales recalculados cuadran | 52 |
+| Mesas con incoherencias internas | 0 |
+
+Los votos en blanco, los nulos, los votos de cada candidatura y el número de
+mesas cuadran en todas las circunscripciones. Esto demuestra que la
+publicación por mesa del Ministerio suma sus totales provinciales en esa
+elección. No demuestra que las cifras por mesa coincidan con las actas en
+papel.
 
 ## Qué hay aquí
 
