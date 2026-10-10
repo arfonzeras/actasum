@@ -5,8 +5,9 @@
 Traducción informativa. Si difiere de la [versión inglesa](profile-es.md),
 manda la inglesa.
 
-Estado: **borrador, validado con una sola elección** (Congreso, noviembre de
-2019; véase el apartado 5).
+Estado: **borrador, ejecutado con cinco elecciones al Congreso** (de 2008 a
+2023; véanse el apartado 5 y
+[`../findings/es-congreso.md`](../findings/es-congreso.md)).
 
 Este perfil traduce los resultados de las elecciones generales españolas al
 formato del núcleo. La norma aplicable es la Ley Orgánica 5/1985 del Régimen
@@ -129,10 +130,9 @@ la verificación.
 
 ## 5. Lagunas conocidas y supuestos sin verificar
 
-1. **Una sola ejecución real hasta ahora.** Con los ficheros del Congreso de
-   noviembre de 2019 cuadran las 52 circunscripciones (59.555 mesas más 52
-   filas de voto exterior). Otras elecciones pueden usar un diseño distinto y
-   no se han probado.
+1. **Cinco ejecuciones reales hasta ahora**, todas de elecciones al Congreso
+   entre 2008 y 2023. El diseño se mantuvo en todas. No se han probado
+   elecciones más antiguas ni otros tipos de elección.
 2. Los artículos de la LOREG se han leído en una transcripción no oficial, no
    en el BOE. No se ha revisado una modificación publicada el 2 de julio de
    2026.

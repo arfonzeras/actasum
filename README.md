@@ -13,27 +13,31 @@ It does not handle voting, voter identity or ballots. It audits the step
 between the polling station and the published result.
 
 > **Status: early draft (v0.1).** The format will change. The Spain reader has
-> been run against one real election so far (see below). Do not rely on its
+> been run against five real elections so far (see below). Do not rely on its
 > output for anything else yet.
 
-## First result
+## Results so far
 
 On 11 October 2026 the verifier was run on the Ministry of the Interior's
-files for the Congreso election of November 2019 (`02201911_MESA.zip` and
-`02201911_TOTA.zip`).
+per-station files for five Congreso elections.
 
-| | |
-| --- | --- |
-| Polling stations read | 59,555 |
-| Overseas-vote rows read (one per constituency) | 52 |
-| Constituencies compared | 52 |
-| Constituencies whose recomputed totals match | 52 |
-| Polling stations with internal inconsistencies | 0 |
+| Election | Polling stations | Constituencies whose recomputed totals match |
+| --- | --- | --- |
+| March 2008 | 59,346 | 50 of 52 |
+| June 2016 | 57,531 | 52 of 52 |
+| April 2019 | 60,038 | 52 of 52 |
+| November 2019 | 59,555 | 52 of 52 |
+| July 2023 | 60,314 | 50 of 52 |
 
-Blank votes, null votes, every candidature's votes and the number of polling
-stations all match in every constituency. This shows that the Ministry's
-per-station publication adds up to its province totals for that election. It
-does not show that the per-station figures match the paper tally sheets.
+Where totals match, blank votes, null votes, every candidature's votes and
+the number of polling stations all agree. In the four constituencies that
+differ, the municipalities still match their polling stations; the difference
+sits in the overseas-vote row. Details and caveats are in
+[`docs/findings/es-congreso.md`](docs/findings/es-congreso.md).
+
+These runs compare the Ministry's publications with each other. They do not
+show that the per-station figures match the paper tally sheets, and a
+difference does not say which published figure is right.
 
 ## What is here
 
@@ -41,6 +45,7 @@ does not show that the per-station figures match the paper tally sheets.
 | --- | --- |
 | [`docs/spec/core.md`](docs/spec/core.md) | Country-neutral format and verification procedure |
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](docs/spec/profile-es.es.md)) |
+| [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/tallylog/` | Reference implementation, Python standard library only |
 | `tests/` | Tests on synthetic data |

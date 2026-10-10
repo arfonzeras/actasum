@@ -4,8 +4,8 @@
 
 This English text is the normative one.
 
-Status: **draft, validated against one election only** (Congreso, November
-2019; see section 5).
+Status: **draft, run against five Congreso elections** (2008 to 2023; see
+section 5 and [`../findings/es-congreso.md`](../findings/es-congreso.md)).
 
 This profile maps Spanish general-election results onto the core format.
 The governing law is the Ley Orgánica 5/1985 del Régimen Electoral General
@@ -127,9 +127,9 @@ take part in verification.
 
 ## 5. Known gaps and unverified assumptions
 
-1. **One real run so far.** On the November 2019 Congreso files all 52
-   constituencies match (59,555 polling stations plus 52 overseas rows). Other
-   elections may use a different layout and have not been tried.
+1. **Five real runs so far**, all Congreso elections between 2008 and 2023.
+   The layout held in all of them. Older elections and other election types
+   have not been tried.
 2. The LOREG articles were read in an unofficial transcription, not in the
    official gazette (BOE). An amendment published on 2 July 2026 has not been
    reviewed.

@@ -14,31 +14,35 @@ No se ocupa de la votación, de la identidad del votante ni de las papeletas.
 Audita el tramo que va de la mesa al resultado publicado.
 
 > **Estado: borrador inicial (v0.1).** El formato va a cambiar. El lector de
-> España se ha ejecutado hasta ahora con una sola elección real (véase más
+> España se ha ejecutado hasta ahora con cinco elecciones reales (véase más
 > abajo). No te fíes todavía de su salida para nada más.
 
 Esta página es una traducción informativa. Si difiere del
 [README en inglés](README.md), manda la versión inglesa.
 
-## Primer resultado
+## Resultados hasta ahora
 
-El 11 de octubre de 2026 se ejecutó el verificador con los ficheros del
-Ministerio del Interior de las elecciones al Congreso de noviembre de 2019
-(`02201911_MESA.zip` y `02201911_TOTA.zip`).
+El 11 de octubre de 2026 se ejecutó el verificador con los ficheros por mesa
+del Ministerio del Interior de cinco elecciones al Congreso.
 
-| | |
-| --- | --- |
-| Mesas leídas | 59.555 |
-| Filas de voto exterior leídas (una por circunscripción) | 52 |
-| Circunscripciones comparadas | 52 |
-| Circunscripciones cuyos totales recalculados cuadran | 52 |
-| Mesas con incoherencias internas | 0 |
+| Elección | Mesas | Circunscripciones cuyos totales recalculados cuadran |
+| --- | --- | --- |
+| Marzo de 2008 | 59.346 | 50 de 52 |
+| Junio de 2016 | 57.531 | 52 de 52 |
+| Abril de 2019 | 60.038 | 52 de 52 |
+| Noviembre de 2019 | 59.555 | 52 de 52 |
+| Julio de 2023 | 60.314 | 50 de 52 |
 
-Los votos en blanco, los nulos, los votos de cada candidatura y el número de
-mesas cuadran en todas las circunscripciones. Esto demuestra que la
-publicación por mesa del Ministerio suma sus totales provinciales en esa
-elección. No demuestra que las cifras por mesa coincidan con las actas en
-papel.
+Donde los totales cuadran, coinciden los votos en blanco, los nulos, los
+votos de cada candidatura y el número de mesas. En las cuatro
+circunscripciones que difieren, los municipios siguen cuadrando con sus
+mesas; la diferencia está en la fila del voto exterior. Los detalles y las
+cautelas están en
+[`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) (en inglés).
+
+Estas ejecuciones comparan las publicaciones del Ministerio entre sí. No
+demuestran que las cifras por mesa coincidan con las actas en papel, y una
+diferencia no dice cuál de las dos cifras publicadas es la correcta.
 
 ## Qué hay aquí
 
