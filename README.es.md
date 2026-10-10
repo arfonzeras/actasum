@@ -111,4 +111,4 @@ pytest
 
 ## Licencia
 
-Por decidir antes de la primera versión publicada.
+[Apache License 2.0](LICENSE).
