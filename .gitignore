@@ -1,0 +1,10 @@
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+.venv/
+# election data is downloaded by the user, never committed
+data/
+*.zip
+*.DAT
