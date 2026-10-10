@@ -36,9 +36,9 @@ def test_reader_extracts_station_fields(tmp_path):
 
 def test_reader_ignores_national_subtotals(tmp_path):
     _, totals = load(tmp_path)
-    assert set(totals.constituencies) == {"es/08", "es/28"}
-    assert totals.constituencies["es/08"].stations == 3
-    assert totals.constituencies["es/08"].candidatures == {
+    assert set(totals.areas) == {"es/08", "es/28"}
+    assert totals.areas["es/08"].stations == 3
+    assert totals.areas["es/08"].candidatures == {
         "000001": 270,
         "000002": 350,
         "000003": 30,
@@ -58,7 +58,7 @@ def test_matching_data_verifies(tmp_path):
     report = verify(*load(tmp_path))
     assert report.ok
     assert report.stations == 4
-    assert (report.constituencies_checked, report.constituencies_matching) == (2, 2)
+    assert (report.areas_checked, report.areas_matching) == (2, 2)
     assert report.station_issues == []
 
 
@@ -68,8 +68,8 @@ def test_altered_official_total_is_reported(tmp_path):
 
     report = verify(*load(tmp_path, official_tweak=tweak))
     assert not report.ok
-    assert report.constituencies_matching == 1
-    assert {(d.constituency, d.item, d.delta) for d in report.differences} == {
+    assert report.areas_matching == 1
+    assert {(d.area, d.item, d.delta) for d in report.differences} == {
         ("es/08", "candidature:000001", -25),
         ("es/08", "candidature_total", -25),
     }
@@ -81,14 +81,14 @@ def test_candidature_only_on_one_side_is_reported(tmp_path):
 
     report = verify(*load(tmp_path, official_tweak=tweak))
     assert ("es/28", "candidature:000009", -5) in {
-        (d.constituency, d.item, d.delta) for d in report.differences
+        (d.area, d.item, d.delta) for d in report.differences
     }
 
 
 def test_missing_station_changes_count_and_totals(tmp_path):
     statements, totals = load(tmp_path)
     report = verify([s for s in statements if s.station != "es/08/101/02/010/U"], totals)
-    items = {d.item: d.delta for d in report.differences if d.constituency == "es/08"}
+    items = {d.item: d.delta for d in report.differences if d.area == "es/08"}
     assert items["stations"] == -1
     assert items["null"] == -5
     assert items["candidature:000003"] == -30
@@ -119,7 +119,7 @@ def test_wrong_election_is_refused(tmp_path):
     statements, totals = load(tmp_path)
     other = type(totals)(
         profile=totals.profile, election="es/congreso/2023-07",
-        constituencies=totals.constituencies,
+        areas=totals.areas,
     )
     with pytest.raises(VerificationError, match="belongs to election"):
         verify(statements, other)
@@ -155,7 +155,7 @@ def test_cli_replay_and_exit_codes(tmp_path, capsys):
     report = json.loads(capsys.readouterr().out)
     assert report["ok"] is False
     assert report["differences"] == [
-        {"constituency": "es/28", "item": "null", "recomputed": 7, "official": 8, "delta": -1}
+        {"area": "es/28", "item": "null", "recomputed": 7, "official": 8, "delta": -1}
     ]
     assert main(["es", "replay", "--mesa", str(tmp_path / "nope.zip"), "--tota", str(tota)]) == 2
 
@@ -229,3 +229,46 @@ def test_overseas_row_adds_votes_but_is_not_a_station(tmp_path):
     overseas = [s for s in statements if s.unit == "aggregate"]
     assert [s.station for s in overseas] == ["es/08/999/09/0000/U"]
     assert '"unit":"aggregate"' in overseas[0].canonical().decode()
+
+
+def municipal(tmp_path, **kwargs):
+    mesa, _ = synth.build(tmp_path, **kwargs)
+    dataset = infoelectoral.load_dataset(str(mesa))
+    return infoelectoral.read_statements(dataset), infoelectoral.read_municipal_totals(dataset)
+
+
+def test_municipal_totals_use_whole_municipality_rows_only(tmp_path):
+    _, totals = municipal(tmp_path)
+    assert (totals.level, totals.grouping) == ("municipality", "station-prefix/3")
+    assert set(totals.areas) == {"es/08/019", "es/08/101", "es/28/079"}
+    assert totals.areas["es/08/019"].stations == 2
+    assert totals.areas["es/08/019"].candidatures == {"000001": 210, "000002": 350}
+
+
+def test_municipal_level_matches_and_leaves_overseas_rows_out(tmp_path):
+    stations = dict(synth.STATIONS)
+    stations[("08", "999", "09", "0000", "U")] = (700, 1, 2, {"000001": 40})
+    report = verify(*municipal(tmp_path, stations=stations))
+    assert report.ok, (report.differences, report.missing_official)
+    assert report.level == "municipality"
+    assert (report.areas_checked, report.areas_matching) == (3, 3)
+    assert (report.aggregates, report.aggregates_left_out) == (1, 1)
+
+
+def test_municipal_level_locates_a_difference(tmp_path):
+    def tweak(municipalities):
+        municipalities[("08", "101")]["votes"]["000003"] += 7
+
+    report = verify(*municipal(tmp_path, municipal_tweak=tweak))
+    assert report.areas_differing == ["es/08/101"]
+    assert ("es/08/101", "candidature:000003", -7) in {
+        (d.area, d.item, d.delta) for d in report.differences
+    }
+
+
+def test_cli_municipality_level(tmp_path, capsys):
+    mesa, _ = synth.build(tmp_path)
+    assert main(["es", "replay", "--mesa", str(mesa), "--level", "municipality"]) == 0
+    out = capsys.readouterr().out
+    assert "Level: municipality" in out
+    assert "Municipalities compared: 3 (3 match the official totals)" in out

@@ -26,7 +26,7 @@ import zipfile
 from dataclasses import dataclass
 from typing import Iterator
 
-from ...statement import ConstituencyTotals, FormatError, OfficialTotals, Statement
+from ...statement import AreaTotals, FormatError, OfficialTotals, Statement
 from . import PROFILE
 
 ENCODING = "iso-8859-1"
@@ -114,8 +114,14 @@ def _number(line: str, start: int, end: int, where: str) -> int:
     return int(text)
 
 
-def _rows(dataset: Dataset, number: str, min_length: int) -> Iterator[tuple[str, str]]:
-    """Yield (location, line) for every row that belongs to a province."""
+def _rows(
+    dataset: Dataset, number: str, min_length: int, province_at: tuple[int, int] = (12, 13)
+) -> Iterator[tuple[str, str]]:
+    """Yield (location, line) for every row that belongs to a province.
+
+    ``province_at`` is where the province code sits; file 06 has no region
+    column, so its province is two columns to the left.
+    """
     name = dataset.name(number)
     for index, line in enumerate(dataset.lines(number), start=1):
         if not line.strip():
@@ -125,7 +131,7 @@ def _rows(dataset: Dataset, number: str, min_length: int) -> Iterator[tuple[str,
             raise FormatError(
                 f"{where}: line has {len(line)} characters, expected at least {min_length}"
             )
-        if _field(line, 12, 13) == AGGREGATE_PROVINCE:
+        if _field(line, *province_at) == AGGREGATE_PROVINCE:
             continue
         yield where, line
 
@@ -228,7 +234,7 @@ def read_official_totals(dataset: Dataset) -> OfficialTotals:
         per_province[code] = _number(line, 21, 28, where)
 
     election: str | None = None
-    constituencies: dict[str, ConstituencyTotals] = {}
+    constituencies: dict[str, AreaTotals] = {}
     for where, line in _rows(dataset, "07", 149):
         this_election = _election_id(line, where)
         if election not in (None, this_election):
@@ -238,7 +244,7 @@ def read_official_totals(dataset: Dataset) -> OfficialTotals:
         key = f"es/{province}"
         if key in constituencies:
             raise FormatError(f"{where}: province {province} appears twice")
-        constituencies[key] = ConstituencyTotals(
+        constituencies[key] = AreaTotals(
             stations=_number(line, 73, 77, where),
             blank=_number(line, 126, 133, where),
             null=_number(line, 134, 141, where),
@@ -251,5 +257,62 @@ def read_official_totals(dataset: Dataset) -> OfficialTotals:
     if dataset.sha256:
         source["sha256"] = dataset.sha256
     return OfficialTotals(
-        profile=PROFILE, election=election, constituencies=constituencies, source=source
+        profile=PROFILE, election=election, areas=constituencies, source=source
+    )
+
+
+# In the municipal files, district 99 marks the row for the whole municipality.
+WHOLE_MUNICIPALITY = "99"
+
+
+def read_municipal_totals(dataset: Dataset) -> OfficialTotals:
+    """Turn the municipality-level files (05 and 06) into official totals.
+
+    Used to locate a difference: the constituency is still the province, but
+    comparing per municipality shows where the station sums and the published
+    totals part ways. Overseas rows belong to no municipality and are left out.
+    """
+    votes: dict[str, dict[str, int]] = {}
+    for where, line in _rows(dataset, "06", 30, province_at=(10, 11)):
+        if _field(line, 15, 16) != WHOLE_MUNICIPALITY:
+            continue
+        _election_id(line, where)
+        key = f"es/{_field(line, 10, 11)}/{_field(line, 12, 14)}"
+        per_municipality = votes.setdefault(key, {})
+        code = _field(line, 17, 22).strip()
+        if code in per_municipality:
+            raise FormatError(f"{where}: candidature {code} repeated")
+        per_municipality[code] = _number(line, 23, 30, where)
+
+    election: str | None = None
+    municipalities: dict[str, AreaTotals] = {}
+    for where, line in _rows(dataset, "05", 213):
+        if _field(line, 17, 18) != WHOLE_MUNICIPALITY:
+            continue
+        this_election = _election_id(line, where)
+        if election not in (None, this_election):
+            raise FormatError(f"{where}: more than one election in the file")
+        election = this_election
+        key = f"es/{_field(line, 12, 13)}/{_field(line, 14, 16)}"
+        if key in municipalities:
+            raise FormatError(f"{where}: municipality {key} appears twice")
+        municipalities[key] = AreaTotals(
+            stations=_number(line, 137, 141, where),
+            blank=_number(line, 190, 197, where),
+            null=_number(line, 198, 205, where),
+            candidature_total=_number(line, 206, 213, where),
+            candidatures=votes.get(key, {}),
+        )
+    if election is None:
+        raise FormatError(f"{dataset.name('05')}: no municipality rows found")
+    source: dict[str, object] = {"kind": "official-dataset"}
+    if dataset.sha256:
+        source["sha256"] = dataset.sha256
+    return OfficialTotals(
+        profile=PROFILE,
+        election=election,
+        areas=municipalities,
+        level="municipality",
+        grouping="station-prefix/3",
+        source=source,
     )

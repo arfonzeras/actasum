@@ -1,4 +1,4 @@
-"""The verifier: recompute constituency totals and compare with the official ones.
+"""The verifier: recompute area totals and compare with the official ones.
 
 The verifier reports *differences*. It does not say why a difference exists:
 a transcription slip, a correction made lawfully during the official canvass
@@ -10,7 +10,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from .statement import ConstituencyTotals, OfficialTotals, Statement
+from .statement import (
+    GROUP_BY_CONSTITUENCY,
+    AreaTotals,
+    OfficialTotals,
+    Statement,
+    area_of,
+)
 
 
 @dataclass(frozen=True)
@@ -22,7 +28,7 @@ class StationIssue:
 
 @dataclass(frozen=True)
 class Difference:
-    constituency: str
+    area: str
     item: str  # "blank", "null", "candidature_total", "stations" or "candidature:<code>"
     recomputed: int
     official: int
@@ -35,10 +41,13 @@ class Difference:
 @dataclass
 class Report:
     election: str
+    level: str = "constituency"
     stations: int = 0
     aggregates: int = 0
-    constituencies_checked: int = 0
-    constituencies_matching: int = 0
+    # Aggregates left out because they do not belong to any area at this level.
+    aggregates_left_out: int = 0
+    areas_checked: int = 0
+    areas_matching: int = 0
     differences: list[Difference] = field(default_factory=list)
     station_issues: list[StationIssue] = field(default_factory=list)
     missing_official: list[str] = field(default_factory=list)  # in statements only
@@ -46,22 +55,28 @@ class Report:
 
     @property
     def ok(self) -> bool:
-        """True when every constituency was covered on both sides and matched."""
+        """True when every area was covered on both sides and matched."""
         return not (
             self.differences or self.missing_official or self.missing_statements
         )
 
+    @property
+    def areas_differing(self) -> list[str]:
+        return sorted({d.area for d in self.differences})
+
     def to_dict(self) -> dict:
         return {
             "election": self.election,
+            "level": self.level,
             "ok": self.ok,
             "stations": self.stations,
             "aggregates": self.aggregates,
-            "constituencies_checked": self.constituencies_checked,
-            "constituencies_matching": self.constituencies_matching,
+            "aggregates_left_out": self.aggregates_left_out,
+            "areas_checked": self.areas_checked,
+            "areas_matching": self.areas_matching,
             "differences": [
                 {
-                    "constituency": d.constituency,
+                    "area": d.area,
                     "item": d.item,
                     "recomputed": d.recomputed,
                     "official": d.official,
@@ -73,8 +88,8 @@ class Report:
                 {"station": i.station, "code": i.code, "detail": i.detail}
                 for i in self.station_issues
             ],
-            "constituencies_without_official_totals": self.missing_official,
-            "constituencies_without_statements": self.missing_statements,
+            "areas_without_official_totals": self.missing_official,
+            "areas_without_statements": self.missing_statements,
         }
 
 
@@ -106,12 +121,14 @@ def check_station(statement: Statement) -> list[StationIssue]:
     return issues
 
 
-def aggregate(statements: Iterable[Statement]) -> dict[str, ConstituencyTotals]:
-    """Sum statements by constituency."""
+def aggregate(
+    statements: Iterable[Statement], grouping: str = GROUP_BY_CONSTITUENCY
+) -> dict[str, AreaTotals]:
+    """Sum statements by area."""
     sums: dict[str, dict] = {}
     for statement in statements:
         bucket = sums.setdefault(
-            statement.constituency,
+            area_of(statement, grouping),
             {"blank": 0, "null": 0, "stations": 0, "candidatures": {}},
         )
         bucket["blank"] += statement.blank
@@ -121,7 +138,7 @@ def aggregate(statements: Iterable[Statement]) -> dict[str, ConstituencyTotals]:
         for code, votes in statement.candidatures.items():
             bucket["candidatures"][code] = bucket["candidatures"].get(code, 0) + votes
     return {
-        key: ConstituencyTotals(
+        key: AreaTotals(
             blank=value["blank"],
             null=value["null"],
             stations=value["stations"],
@@ -137,6 +154,7 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
     statements = list(statements)
     report = Report(
         election=official.election,
+        level=official.level,
         stations=sum(1 for s in statements if s.unit == "station"),
         aggregates=sum(1 for s in statements if s.unit != "station"),
     )
@@ -156,12 +174,18 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         seen.add(statement.station)
         report.station_issues.extend(check_station(statement))
 
-    recomputed = aggregate(statements)
-    report.missing_official = sorted(set(recomputed) - set(official.constituencies))
-    report.missing_statements = sorted(set(official.constituencies) - set(recomputed))
+    if official.grouping != GROUP_BY_CONSTITUENCY:
+        # An aggregate is assigned to a constituency only. Below that level it
+        # belongs to no area, so it is left out and counted.
+        report.aggregates_left_out = report.aggregates
+        statements = [s for s in statements if s.unit == "station"]
 
-    for key in sorted(set(recomputed) & set(official.constituencies)):
-        mine, theirs = recomputed[key], official.constituencies[key]
+    recomputed = aggregate(statements, official.grouping)
+    report.missing_official = sorted(set(recomputed) - set(official.areas))
+    report.missing_statements = sorted(set(official.areas) - set(recomputed))
+
+    for key in sorted(set(recomputed) & set(official.areas)):
+        mine, theirs = recomputed[key], official.areas[key]
         found: list[Difference] = []
 
         def compare(item: str, a: int | None, b: int | None) -> None:
@@ -178,46 +202,59 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
                 mine.candidatures.get(code, 0),
                 theirs.candidatures.get(code, 0),
             )
-        report.constituencies_checked += 1
+        report.areas_checked += 1
         if not found:
-            report.constituencies_matching += 1
+            report.areas_matching += 1
         report.differences.extend(found)
     return report
 
 
-def format_report(report: Report, *, limit: int = 20) -> str:
+def _plural(noun: str) -> str:
+    return noun[:-1] + "ies" if noun.endswith("y") else noun + "s"
+
+
+def format_report(report: Report, *, limit: int = 20, station_issues: bool = True) -> str:
     """Human-readable summary, in deliberately neutral wording."""
+    areas = _plural(report.level)
     lines = [
         f"Election: {report.election}",
+        f"Level: {report.level}",
         f"Polling stations read: {report.stations}",
-        *(
-            [f"Aggregate rows read (votes counted outside a polling station): {report.aggregates}"]
-            if report.aggregates
-            else []
-        ),
-        f"Constituencies compared: {report.constituencies_checked} "
-        f"({report.constituencies_matching} match the official totals)",
     ]
-    if report.missing_statements:
+    if report.aggregates:
         lines.append(
-            "Constituencies with official totals but no statements: "
-            + ", ".join(report.missing_statements)
+            f"Aggregate rows read (votes counted outside a polling station): {report.aggregates}"
         )
-    if report.missing_official:
+    if report.aggregates_left_out:
         lines.append(
-            "Constituencies with statements but no official totals: "
-            + ", ".join(report.missing_official)
+            f"Aggregate rows left out at this level: {report.aggregates_left_out}"
         )
+    lines.append(
+        f"{areas.capitalize()} compared: {report.areas_checked} "
+        f"({report.areas_matching} match the official totals)"
+    )
+
+    def listing(title: str, names: list[str]) -> None:
+        if names:
+            shown = ", ".join(names[:limit])
+            more = f" ... and {len(names) - limit} more" if len(names) > limit else ""
+            lines.append(f"{title} ({len(names)}): {shown}{more}")
+
+    listing(f"{areas.capitalize()} with official totals but no statements", report.missing_statements)
+    listing(f"{areas.capitalize()} with statements but no official totals", report.missing_official)
     if report.differences:
-        lines.append(f"Unexplained differences: {len(report.differences)}")
+        lines.append(
+            f"Unexplained differences: {len(report.differences)} "
+            f"in {len(report.areas_differing)} {areas}"
+        )
         for d in report.differences[:limit]:
             lines.append(
-                f"  {d.constituency} {d.item}: recomputed {d.recomputed}, "
+                f"  {d.area} {d.item}: recomputed {d.recomputed}, "
                 f"official {d.official} ({d.delta:+d})"
             )
         if len(report.differences) > limit:
             lines.append(f"  ... and {len(report.differences) - limit} more")
-    if report.station_issues:
+    if station_issues and report.station_issues:
         lines.append(
             f"Polling stations with internal inconsistencies: {len(report.station_issues)}"
         )

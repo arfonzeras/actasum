@@ -69,6 +69,12 @@ tallylog es replay --mesa 02201911_MESA.zip
 Ese ZIP contiene tanto los ficheros por mesa como los totales provinciales.
 Con `--tota` se pueden leer los totales de otro fichero.
 
+Para ver en qué municipios nace una diferencia, compara un nivel más abajo:
+
+```sh
+tallylog es replay --mesa 02202307_MESA.zip --level municipality
+```
+
 La orden indica cuántas circunscripciones cuadran y lista cada diferencia.
 Termina con `0` si todo cuadra, con `1` si hay diferencias o lagunas, y con
 `2` si no puede leer la entrada.

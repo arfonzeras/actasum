@@ -1,6 +1,6 @@
 """Command-line interface.
 
-    tallylog es replay   --mesa MESA.zip [--tota TOTA.zip]
+    tallylog es replay   --mesa MESA.zip [--tota TOTA.zip] [--level municipality]
     tallylog es convert  --mesa MESA.zip --out statements.jsonl
     tallylog es official --tota TOTA.zip --out official.json
     tallylog verify      --statements statements.jsonl --official official.json
@@ -25,12 +25,12 @@ def _open_out(path: str):
     return sys.stdout if path == "-" else open(path, "w", encoding="utf-8", newline="\n")
 
 
-def _emit(report, as_json: bool) -> int:
-    if as_json:
+def _emit(report, args) -> int:
+    if args.json:
         json.dump(report.to_dict(), sys.stdout, indent=2, ensure_ascii=False)
         sys.stdout.write("\n")
     else:
-        print(format_report(report))
+        print(format_report(report, limit=args.limit))
     return 0 if report.ok else 1
 
 
@@ -60,10 +60,12 @@ def _es_official(args) -> int:
 
 def _es_replay(args) -> int:
     statements = infoelectoral.read_statements(infoelectoral.load_dataset(args.mesa))
-    totals = infoelectoral.read_official_totals(
-        infoelectoral.load_dataset(args.tota or args.mesa)
-    )
-    return _emit(verify(statements, totals), args.json)
+    official = infoelectoral.load_dataset(args.tota or args.mesa)
+    if args.level == "municipality":
+        totals = infoelectoral.read_municipal_totals(official)
+    else:
+        totals = infoelectoral.read_official_totals(official)
+    return _emit(verify(statements, totals), args)
 
 
 def _verify(args) -> int:
@@ -71,7 +73,7 @@ def _verify(args) -> int:
         statements = list(read_jsonl(handle))
     with open(args.official, encoding="utf-8") as handle:
         totals = OfficialTotals.from_dict(json.load(handle))
-    return _emit(verify(statements, totals), args.json)
+    return _emit(verify(statements, totals), args)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -85,6 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--statements", required=True, help="JSON Lines file of statements")
     check.add_argument("--official", required=True, help="official totals (JSON)")
     check.add_argument("--json", action="store_true", help="print the report as JSON")
+    check.add_argument("--limit", type=int, default=20, help="lines to list per section")
     check.set_defaults(run=_verify)
 
     es = commands.add_parser("es", help="Spain profile: Ministry of the Interior files")
@@ -107,7 +110,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="the _TOTA ZIP file or a directory (default: read the totals from --mesa, "
         "which also carries them)",
     )
+    replay.add_argument(
+        "--level",
+        choices=["constituency", "municipality"],
+        default="constituency",
+        help="compare per constituency (default) or per municipality, to locate differences",
+    )
     replay.add_argument("--json", action="store_true", help="print the report as JSON")
+    replay.add_argument("--limit", type=int, default=20, help="lines to list per section")
     replay.set_defaults(run=_es_replay)
     return parser
 

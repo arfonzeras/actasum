@@ -84,10 +84,12 @@ A later version will define `image`, for a photograph of the tally sheet.
 | `spec` | string | yes | Always `tallylog/official-totals/v0.1` |
 | `profile` | string | yes | Profile and version |
 | `election` | string | yes | Election identifier |
-| `constituencies` | object | yes | Constituency identifier → totals |
+| `level` | string | no | What an area is, for display: `constituency` (default), `municipality`… |
+| `grouping` | string | no | How statements are assigned to areas (section 4.1). Default `constituency` |
+| `areas` | object | yes | Area identifier → totals |
 | `source` | object | no | Where the totals come from |
 
-Totals for one constituency:
+Totals for one area:
 
 | Field | Type | Required | Meaning |
 | --- | --- | --- | --- |
@@ -97,9 +99,24 @@ Totals for one constituency:
 | `candidature_total` | integer | no | Total votes for candidatures |
 | `stations` | integer | no | Number of polling stations |
 
+### 4.1 Grouping
+
+The result of an election is decided per constituency, but authorities often
+publish totals at other levels too. Comparing at a lower level shows *where*
+station sums and published totals part ways.
+
+- `constituency`: a statement counts towards its own `constituency`.
+- `station-prefix/N`: a statement counts towards the area named by the first
+  N `/`-separated parts of its `station` identifier. Profiles define
+  hierarchical station identifiers so that this is meaningful.
+
+An aggregate (section 3, `unit`) is assigned to a constituency only. Under any
+other grouping it belongs to no area: it is left out and counted as such.
+
 ## 5. Verification procedure
 
-Input: a set of statements and one official-totals document.
+Input: a set of statements and one official-totals document. Below, *area*
+means whatever the document's `grouping` defines.
 
 1. Every statement MUST belong to the election of the official totals.
    Otherwise verification stops with an error.
@@ -109,20 +126,20 @@ Input: a set of statements and one official-totals document.
    an *issue* (it does not stop) when:
    - `candidature_total` is present and differs from the sum of `candidatures`;
    - `registered` is present and is lower than blank + null + candidature votes.
-4. The verifier sums `blank`, `null` and each candidature's votes per
-   constituency, and counts the statements whose `unit` is `station`.
-   Aggregates add their votes but are not counted as stations.
-5. For every constituency present on both sides it compares station count,
-   blank, null, candidature total and each candidature. A candidature missing
-   on one side counts as zero. Each mismatch is a *difference*.
-6. A constituency present on only one side is a *gap*.
+4. The verifier sums `blank`, `null` and each candidature's votes per area,
+   and counts the statements whose `unit` is `station`. Aggregates add their
+   votes but are not counted as stations.
+5. For every area present on both sides it compares station count, blank,
+   null, candidature total and each candidature. A candidature missing on one
+   side counts as zero. Each mismatch is a *difference*.
+6. An area present on only one side is a *gap*.
 
 The result is **matching** only if there are no differences and no gaps.
 Station issues are reported but do not change the result.
 
 ### 5.1 What a result means
 
-- *Matching* means: the published constituency totals are the sum of these
+- *Matching* means: the published totals are the sum of these
   statements. It says nothing about whether the statements are true.
 - A *difference* means the two do not add up. It does not say why. Lawful
   corrections during the official canvass, transcription slips and fraud all

@@ -54,6 +54,22 @@ def province_candidature_row(province, code, votes):
     return _line(33, _head(province) + [(14, 14, "9"), (15, 20, code), (21, 28, votes)])
 
 
+def municipality_row(province, municipality, district, stations, blank, null, total):
+    return _line(233, _head(province) + [
+        (14, 16, municipality), (17, 18, district), (19, 118, "MUNICIPIO " + municipality),
+        (137, 141, stations), (190, 197, blank), (198, 205, null), (206, 213, total), (233, 233, "S"),
+    ])
+
+
+def municipality_candidature_row(province, municipality, district, code, votes):
+    # File 06 has no region column: the province starts at column 10.
+    kind, year, month = ELECTION
+    return _line(33, [
+        (1, 2, kind), (3, 6, year), (7, 8, month), (9, 9, "1"), (10, 11, province),
+        (12, 14, municipality), (15, 16, district), (17, 22, code), (23, 30, votes),
+    ])
+
+
 # (province, municipality, district, section, station) -> (registered, blank, null, {code: votes})
 STATIONS = {
     ("08", "019", "01", "001 ", "A"): (500, 4, 3, {"000001": 120, "000002": 200}),
@@ -63,7 +79,7 @@ STATIONS = {
 }
 
 
-def build(tmp_path: Path, *, stations=None, official_tweak=None, as_zip=True):
+def build(tmp_path: Path, *, stations=None, official_tweak=None, municipal_tweak=None, as_zip=True):
     """Write a synthetic MESA and TOTA dataset. Returns (mesa_path, tota_path)."""
     stations = STATIONS if stations is None else stations
     suffix = ELECTION[0] + ELECTION[1][2:] + ELECTION[2] + ".DAT"
@@ -102,6 +118,28 @@ def build(tmp_path: Path, *, stations=None, official_tweak=None, as_zip=True):
     rows07.append(province_row("99", 9999, 1, 1, 1))
     rows08.append(province_candidature_row("99", "000001", 1))
 
+    # Municipality totals (district 99) plus one per-district row that the
+    # reader must ignore. Overseas rows (municipality 999) have none.
+    municipalities: dict[tuple[str, str], dict] = {}
+    for key, (registered, blank, null, votes) in stations.items():
+        if key[1] == "999":
+            continue
+        m = municipalities.setdefault(key[:2], {"stations": 0, "blank": 0, "null": 0, "votes": {}})
+        m["stations"] += 1
+        m["blank"] += blank
+        m["null"] += null
+        for code, count in votes.items():
+            m["votes"][code] = m["votes"].get(code, 0) + count
+    if municipal_tweak:
+        municipal_tweak(municipalities)
+    rows05, rows06 = [], []
+    for (province, municipality), m in municipalities.items():
+        rows05.append(municipality_row(province, municipality, "99", m["stations"], m["blank"], m["null"], sum(m["votes"].values())))
+        rows05.append(municipality_row(province, municipality, "01", 1, 0, 0, 1))
+        for code, count in m["votes"].items():
+            rows06.append(municipality_candidature_row(province, municipality, "99", code, count))
+        rows06.append(municipality_candidature_row(province, municipality, "01", "000001", 1))
+
     def write(name: str, members: dict[str, list[str]]) -> Path:
         if as_zip:
             path = tmp_path / f"{name}.zip"
@@ -118,7 +156,11 @@ def build(tmp_path: Path, *, stations=None, official_tweak=None, as_zip=True):
     # Like the real per-station ZIP, this one also carries the totals files.
     mesa = write(
         "02201911_MESA",
-        {"09" + suffix: rows09, "10" + suffix: rows10, "07" + suffix: rows07, "08" + suffix: rows08},
+        {
+            "09" + suffix: rows09, "10" + suffix: rows10,
+            "07" + suffix: rows07, "08" + suffix: rows08,
+            "05" + suffix: rows05, "06" + suffix: rows06,
+        },
     )
     tota = write("02201911_TOTA", {"07" + suffix: rows07, "08" + suffix: rows08})
     return mesa, tota

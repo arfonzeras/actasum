@@ -45,6 +45,8 @@ Each ZIP contains fixed-width text files, ISO-8859-1 encoded, named
 | --- | --- | --- | --- |
 | `…_MESA.zip` | `09` | One row per polling station | Statement header and totals |
 | `…_MESA.zip` | `10` | One row per station and candidature | `counts.candidatures` |
+| `…_MESA.zip` | `05` | One row per municipality and per municipal district | Official totals per municipality |
+| `…_MESA.zip` | `06` | One row per municipality (or district) and candidature | Official candidature totals per municipality |
 | `…_TOTA.zip` | `07` | One row per province or higher | Official totals |
 | `…_TOTA.zip` | `08` | One row per province (or higher) and candidature | Official candidature totals |
 
@@ -63,6 +65,11 @@ Columns read (1-based, inclusive):
 | 07 | number of stations | 73–77 |
 | 07 | blank, null, candidature votes | 126–133, 134–141, 142–149 |
 | 08 | candidature code, votes | 15–20, 21–28 |
+| 05 | municipality, district (`99` = whole municipality) | 14–16, 17–18 |
+| 05 | number of stations | 137–141 |
+| 05 | blank, null, candidature votes | 190–197, 198–205, 206–213 |
+| 06 | province, municipality, district | 10–11, 12–14, 15–16 |
+| 06 | candidature code, votes | 17–22, 23–30 |
 
 Rows with province code `99` are subtotals and are ignored: national and
 regional totals in files `07` and `08`, and overseas-vote (CERA) totals per
@@ -80,6 +87,15 @@ These positions were first taken from the rOpenSpain
 document, *Ficheros de Carga de Datos de Elecciones* (2010), which ships
 inside the ZIP files as `FICHEROS.doc`. Every position in the table above
 agrees with that document.
+
+### 3.1 Municipality level
+
+The constituency is the province, but the same ZIP publishes totals per
+municipality. The reader can compare at that level too
+(`grouping: station-prefix/3`, areas such as `es/45/168`), which shows in
+which municipalities a province-level difference arises. Only rows for the
+whole municipality (district `99`) are used. Overseas rows belong to no
+municipality and are left out of this comparison.
 
 ## 4. Mapping to the tally sheet
 

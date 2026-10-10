@@ -46,6 +46,8 @@ y con nombre `NNTTAAMM.DAT`.
 | --- | --- | --- | --- |
 | `…_MESA.zip` | `09` | Una fila por mesa | Cabecera y totales de la declaración |
 | `…_MESA.zip` | `10` | Una fila por mesa y candidatura | `counts.candidatures` |
+| `…_MESA.zip` | `05` | Una fila por municipio y por distrito municipal | Totales oficiales por municipio |
+| `…_MESA.zip` | `06` | Una fila por municipio (o distrito) y candidatura | Totales oficiales por candidatura y municipio |
 | `…_TOTA.zip` | `07` | Una fila por provincia o ámbito superior | Totales oficiales |
 | `…_TOTA.zip` | `08` | Una fila por provincia (o superior) y candidatura | Totales oficiales por candidatura |
 
@@ -64,6 +66,11 @@ Columnas leídas (desde 1, ambas incluidas):
 | 07 | número de mesas | 73–77 |
 | 07 | votos en blanco, nulos, a candidaturas | 126–133, 134–141, 142–149 |
 | 08 | código de candidatura, votos | 15–20, 21–28 |
+| 05 | municipio, distrito (`99` = total municipal) | 14–16, 17–18 |
+| 05 | número de mesas | 137–141 |
+| 05 | votos en blanco, nulos, a candidaturas | 190–197, 198–205, 206–213 |
+| 06 | provincia, municipio, distrito | 10–11, 12–14, 15–16 |
+| 06 | código de candidatura, votos | 17–22, 23–30 |
 
 Las filas con código de provincia `99` son subtotales y se ignoran: totales
 nacionales y autonómicos en los ficheros `07` y `08`, y totales del voto
@@ -82,6 +89,15 @@ Estas posiciones se tomaron primero del paquete de R
 registro del propio Ministerio, *Ficheros de Carga de Datos de Elecciones*
 (2010), que viene dentro de los ZIP como `FICHEROS.doc`. Todas las posiciones
 de la tabla anterior coinciden con ese documento.
+
+### 3.1 Nivel municipal
+
+La circunscripción es la provincia, pero el mismo ZIP publica totales por
+municipio. El lector puede comparar también a ese nivel
+(`grouping: station-prefix/3`, áreas como `es/45/168`), lo que muestra en qué
+municipios nace una diferencia provincial. Solo se usan las filas del total
+municipal (distrito `99`). Las filas de voto exterior no pertenecen a ningún
+municipio y quedan fuera de esta comparación.
 
 ## 4. Correspondencia con el acta
 

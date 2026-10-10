@@ -65,6 +65,12 @@ tallylog es replay --mesa 02201911_MESA.zip
 That ZIP carries both the per-station files and the province totals. Pass
 `--tota` to read the totals from a separate file instead.
 
+To see in which municipalities a difference arises, compare one level down:
+
+```sh
+tallylog es replay --mesa 02202307_MESA.zip --level municipality
+```
+
 The command prints how many constituencies match and lists every difference.
 It exits with `0` when everything matches, `1` when there are differences or
 gaps, and `2` when the input cannot be read.

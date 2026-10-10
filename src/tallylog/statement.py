@@ -185,8 +185,8 @@ def read_jsonl(src: TextIO) -> Iterator[Statement]:
 
 
 @dataclass(frozen=True)
-class ConstituencyTotals:
-    """Totals published by the electoral authority for one constituency."""
+class AreaTotals:
+    """Totals published by the electoral authority for one area."""
 
     blank: int
     null: int
@@ -207,11 +207,11 @@ class ConstituencyTotals:
         return doc
 
     @classmethod
-    def from_dict(cls, doc: dict[str, Any]) -> "ConstituencyTotals":
+    def from_dict(cls, doc: dict[str, Any]) -> "AreaTotals":
         if not isinstance(doc, dict) or not isinstance(
             doc.get("candidatures"), dict
         ):
-            raise FormatError("constituency totals need a candidatures object")
+            raise FormatError("area totals need a candidatures object")
         return cls(
             blank=_count(doc.get("blank"), "blank"),
             null=_count(doc.get("null"), "null"),
@@ -226,13 +226,37 @@ class ConstituencyTotals:
         )
 
 
+GROUP_BY_CONSTITUENCY = "constituency"
+_STATION_PREFIX = "station-prefix/"
+
+
+def area_of(statement: Statement, grouping: str) -> str:
+    """The area a statement counts towards under ``grouping``.
+
+    ``constituency`` uses the statement's own constituency. ``station-prefix/N``
+    uses the first N ``/``-separated parts of the station identifier, which
+    works because profiles define hierarchical station identifiers.
+    """
+    if grouping == GROUP_BY_CONSTITUENCY:
+        return statement.constituency
+    if grouping.startswith(_STATION_PREFIX):
+        tail = grouping[len(_STATION_PREFIX) :]
+        if tail.isdigit() and int(tail) > 0:
+            return "/".join(statement.station.split("/")[: int(tail)])
+    raise FormatError(f"unknown grouping: {grouping!r}")
+
+
 @dataclass(frozen=True)
 class OfficialTotals:
-    """What the electoral authority published, per constituency."""
+    """What the electoral authority published, per area."""
 
     profile: str
     election: str
-    constituencies: dict[str, ConstituencyTotals]
+    areas: dict[str, AreaTotals]
+    # What an area is ("constituency", "municipality"...), for display only.
+    level: str = "constituency"
+    # How statements are assigned to areas. See ``area_of``.
+    grouping: str = GROUP_BY_CONSTITUENCY
     source: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -240,10 +264,9 @@ class OfficialTotals:
             "spec": OFFICIAL_SPEC,
             "profile": self.profile,
             "election": self.election,
-            "constituencies": {
-                key: value.to_dict()
-                for key, value in sorted(self.constituencies.items())
-            },
+            "level": self.level,
+            "grouping": self.grouping,
+            "areas": {key: value.to_dict() for key, value in sorted(self.areas.items())},
         }
         if self.source:
             doc["source"] = self.source
@@ -253,15 +276,14 @@ class OfficialTotals:
     def from_dict(cls, doc: dict[str, Any]) -> "OfficialTotals":
         if not isinstance(doc, dict) or doc.get("spec") != OFFICIAL_SPEC:
             raise FormatError("not an official-totals document")
-        constituencies = doc.get("constituencies")
-        if not isinstance(constituencies, dict):
-            raise FormatError("constituencies must be an object")
+        areas = doc.get("areas")
+        if not isinstance(areas, dict):
+            raise FormatError("areas must be an object")
         return cls(
             profile=str(doc.get("profile", "")),
             election=str(doc.get("election", "")),
-            constituencies={
-                key: ConstituencyTotals.from_dict(value)
-                for key, value in constituencies.items()
-            },
+            areas={key: AreaTotals.from_dict(value) for key, value in areas.items()},
+            level=str(doc.get("level", "constituency")),
+            grouping=str(doc.get("grouping", GROUP_BY_CONSTITUENCY)),
             source=doc.get("source") or {},
         )
