@@ -44,6 +44,7 @@ difference does not say which published figure is right.
 | Path | Content |
 | --- | --- |
 | [`docs/spec/core.md`](docs/spec/core.md) | Country-neutral format and verification procedure |
+| [`docs/spec/log.md`](docs/spec/log.md) | Append-only log: checkpoints, inclusion and consistency proofs |
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](docs/spec/profile-es.es.md)) |
 | [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
@@ -88,6 +89,25 @@ tallylog es official --tota 02201911_MESA.zip --out official.json
 tallylog verify --statements statements.jsonl --official official.json
 ```
 
+## The log
+
+Statements can be loaded into an append-only log. A checkpoint of three lines
+commits to every entry, and short proofs show that one polling station's
+statement is in the log, or that the log has only grown.
+
+```sh
+tallylog es convert --mesa 02201911_MESA.zip --out statements.jsonl
+tallylog log build --statements statements.jsonl --out log-2019-11 > checkpoint.txt
+
+tallylog log prove --log log-2019-11 --station es/08/019/01/001/A --out proof.json
+tallylog log check-proof --proof proof.json --checkpoint checkpoint.txt
+```
+
+Anyone who builds the log from the same ZIP file obtains the same checkpoint.
+Checkpoints are not signed yet and there are no witnesses, so for now the log
+detects accidental change but does not protect against a dishonest operator.
+See [`docs/spec/log.md`](docs/spec/log.md).
+
 ## What a result means, and what it does not
 
 - **Matching** means the published constituency totals equal the sum of the
@@ -107,13 +127,13 @@ verification rules. A profile per country maps local law and data onto the
 core. Spain is the first profile because its results are public down to the
 polling station. Later milestones add an append-only transparency log
 (a Merkle tree with independent witnesses, as used for web certificates),
-signed statements from accredited observers using W3C Verifiable Credentials,
+signed checkpoints, signed statements from accredited observers using W3C Verifiable Credentials,
 and several independent captures per station.
 
 ## Roadmap
 
-1. **Format and verifier** on a past election, from public data. *(this repository, in progress)*
-2. Load a full election into a transparency log and serve inclusion proofs.
+1. **Format and verifier** on a past election, from public data. *(done for five Congreso elections)*
+2. **Load a full election into a log** and serve inclusion proofs. *(first version, unsigned)*
 3. Replay the 2026 Colombian presidential runoff from the published E-14 forms.
 4. An external witness that cosigns the log state.
 5. Credentials and a capture app, with on-device signing and offline use.

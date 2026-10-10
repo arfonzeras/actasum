@@ -49,6 +49,7 @@ diferencia no dice cuál de las dos cifras publicadas es la correcta.
 | Ruta | Contenido |
 | --- | --- |
 | [`docs/spec/core.md`](docs/spec/core.md) | Formato y procedimiento de verificación, independientes del país (en inglés) |
+| [`docs/spec/log.md`](docs/spec/log.md) | Registro de solo añadir: puntos de control y pruebas de inclusión y de consistencia (en inglés) |
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Perfil España: identificadores, fuente de datos, lagunas conocidas ([traducción](docs/spec/profile-es.es.md)) |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | Esquema JSON de una declaración de acta |
 | `src/tallylog/` | Implementación de referencia, solo con la biblioteca estándar de Python |
@@ -93,6 +94,26 @@ tallylog verify --statements statements.jsonl --official official.json
 
 La salida del programa está en inglés.
 
+## El registro
+
+Las declaraciones se pueden cargar en un registro de solo añadir. Un punto de
+control de tres líneas compromete todas las entradas, y unas pruebas breves
+demuestran que la declaración de una mesa está en el registro, o que el
+registro solo ha crecido.
+
+```sh
+tallylog es convert --mesa 02201911_MESA.zip --out statements.jsonl
+tallylog log build --statements statements.jsonl --out log-2019-11 > checkpoint.txt
+
+tallylog log prove --log log-2019-11 --station es/08/019/01/001/A --out proof.json
+tallylog log check-proof --proof proof.json --checkpoint checkpoint.txt
+```
+
+Quien construya el registro a partir del mismo ZIP obtiene el mismo punto de
+control. Los puntos de control aún no van firmados y no hay testigos, así que
+por ahora el registro detecta cambios accidentales pero no protege frente a
+un operador deshonesto. Véase [`docs/spec/log.md`](docs/spec/log.md).
+
 ## Qué significa un resultado y qué no
 
 - **Cuadra** significa que los totales publicados de la circunscripción son
@@ -119,8 +140,8 @@ y varias capturas independientes por mesa.
 
 ## Hoja de ruta
 
-1. **Formato y verificador** sobre una elección pasada, con datos públicos. *(este repositorio, en curso)*
-2. Cargar una elección completa en un registro de transparencia y servir pruebas de inclusión.
+1. **Formato y verificador** sobre una elección pasada, con datos públicos. *(hecho para cinco elecciones al Congreso)*
+2. **Cargar una elección completa en un registro** y servir pruebas de inclusión. *(primera versión, sin firmar)*
 3. Reproducir la segunda vuelta presidencial de Colombia de 2026 con los formularios E-14 publicados.
 4. Un testigo externo que cofirme el estado del registro.
 5. Credenciales y una aplicación de captura, con firma en el dispositivo y uso sin conexión.

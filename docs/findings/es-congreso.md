@@ -53,6 +53,35 @@ that differ do so only in the overseas row.
 Candidature codes are the Ministry's codes for that election; their names are
 in file `03` of the same ZIP and have not been looked up here.
 
+### Comparison with the proclaimed results
+
+The results proclaimed by the electoral boards were published in the official
+gazette (Resolution of 30 August 2023 of the Presidency of the Junta Electoral
+Central, [BOE-A-2023-18907](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2023-18907)).
+For Toledo it gives:
+
+| Candidature (as named in the gazette) | Proclaimed | Ministry totals file | Sum of the per-station file |
+| --- | --- | --- | --- |
+| PP | 146,533 | 146,533 | 146,813 |
+| PSOE | 126,072 | 126,072 | 126,131 |
+| VOX | 76,044 | 76,044 | 76,112 |
+| SUMAR | 31,876 | 31,876 | 31,863 |
+| PACMA | 2,024 | 2,024 | 2,027 |
+| FO | 985 | 985 | 764 |
+| PUM+J | 499 | 499 | 498 |
+
+So in Toledo the Ministry's **totals file agrees with the proclaimed
+results**, and the overseas row of the **per-station file is the figure that
+differs**. The pairing of gazette names with Ministry codes is inferred from
+the vote figures, not read from file `03`.
+
+Applying the D'Hondt rule to either column gives the same six seats (3, 2, 1).
+That calculation was done here and is not an official one.
+
+The gazette page was read through an automatic extract. Blank and null votes
+are in a table published as an image, so Cantabria, which differs only in
+those, could not be compared.
+
 ## March 2008
 
 | Where | What differs |
@@ -92,5 +121,8 @@ applies to any of these stations has been checked here.
 - Whether the per-station files hold provisional or final results, and
   whether the totals were updated after the general canvass while the
   per-station files were not, or the other way round.
-- Whether the results proclaimed by the electoral boards and published in the
-  official gazette agree with either figure.
+- For Cantabria (2023) and for the 2008 cases, whether the results proclaimed
+  by the electoral boards agree with either figure. For Toledo (2023) they
+  agree with the totals file.
+- Why the per-station file's overseas row for Toledo differs from the
+  proclaimed overseas vote.
