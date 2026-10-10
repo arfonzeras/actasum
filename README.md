@@ -1,5 +1,7 @@
 # tallylog
 
+**English** · [Español](README.es.md)
+
 An open format and a verifier for polling-station tally sheets.
 
 After an election, each polling station records its result on a tally sheet.
@@ -19,7 +21,7 @@ between the polling station and the published result.
 | Path | Content |
 | --- | --- |
 | [`docs/spec/core.md`](docs/spec/core.md) | Country-neutral format and verification procedure |
-| [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps |
+| [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](docs/spec/profile-es.es.md)) |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/tallylog/` | Reference implementation, Python standard library only |
 | `tests/` | Tests on synthetic data |

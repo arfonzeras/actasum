@@ -1,5 +1,9 @@
 # Spain profile (draft `es/loreg/v0.1`)
 
+**English** · [Español](profile-es.es.md)
+
+This English text is the normative one.
+
 Status: **draft, not validated against real files yet** (see section 5).
 
 This profile maps Spanish general-election results onto the core format.
