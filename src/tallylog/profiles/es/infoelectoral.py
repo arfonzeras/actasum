@@ -316,3 +316,48 @@ def read_municipal_totals(dataset: Dataset) -> OfficialTotals:
         grouping="station-prefix/3",
         source=source,
     )
+
+
+def read_overseas_residuals(dataset: Dataset) -> OfficialTotals:
+    """What the official totals imply for each province's overseas row.
+
+    The Ministry publishes province totals and municipality totals, but no
+    separate overseas (CERA) total per province in those files. The province
+    total minus the sum of its municipalities is what is left for the overseas
+    vote. Comparing that residual with the overseas row of the per-station
+    file tells whether a province-level difference sits in that row.
+
+    A residual can be negative when the two official levels disagree with each
+    other; that is reported as a difference like any other.
+    """
+    provinces = read_official_totals(dataset)
+    municipalities = read_municipal_totals(dataset)
+    sums: dict[str, dict] = {}
+    for key, totals in municipalities.areas.items():
+        province = "/".join(key.split("/")[:2])
+        bucket = sums.setdefault(province, {"blank": 0, "null": 0, "total": 0, "votes": {}})
+        bucket["blank"] += totals.blank
+        bucket["null"] += totals.null
+        bucket["total"] += totals.candidature_total or 0
+        for code, count in totals.candidatures.items():
+            bucket["votes"][code] = bucket["votes"].get(code, 0) + count
+    residuals: dict[str, AreaTotals] = {}
+    for key, totals in provinces.areas.items():
+        inner = sums.get(key, {"blank": 0, "null": 0, "total": 0, "votes": {}})
+        codes = set(totals.candidatures) | set(inner["votes"])
+        residuals[key] = AreaTotals(
+            blank=totals.blank - inner["blank"],
+            null=totals.null - inner["null"],
+            candidature_total=(totals.candidature_total or 0) - inner["total"],
+            candidatures={
+                code: totals.candidatures.get(code, 0) - inner["votes"].get(code, 0)
+                for code in codes
+            },
+        )
+    return OfficialTotals(
+        profile=PROFILE,
+        election=provinces.election,
+        areas=residuals,
+        level="overseas row",
+        source=dict(provinces.source, derived="province total minus municipalities"),
+    )

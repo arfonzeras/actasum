@@ -1,6 +1,6 @@
 """Command-line interface.
 
-    tallylog es replay   --mesa MESA.zip [--tota TOTA.zip] [--level municipality]
+    tallylog es replay   --mesa MESA.zip [--tota TOTA.zip] [--level municipality|overseas]
     tallylog es convert  --mesa MESA.zip --out statements.jsonl
     tallylog es official --tota TOTA.zip --out official.json
     tallylog verify      --statements statements.jsonl --official official.json
@@ -63,6 +63,9 @@ def _es_replay(args) -> int:
     official = infoelectoral.load_dataset(args.tota or args.mesa)
     if args.level == "municipality":
         totals = infoelectoral.read_municipal_totals(official)
+    elif args.level == "overseas":
+        totals = infoelectoral.read_overseas_residuals(official)
+        statements = [s for s in statements if s.unit == "aggregate"]
     else:
         totals = infoelectoral.read_official_totals(official)
     return _emit(verify(statements, totals), args)
@@ -112,9 +115,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     replay.add_argument(
         "--level",
-        choices=["constituency", "municipality"],
+        choices=["constituency", "municipality", "overseas"],
         default="constituency",
-        help="compare per constituency (default) or per municipality, to locate differences",
+        help="compare per constituency (default); per municipality, to locate a difference; "
+        "or the overseas row of each constituency against what the official totals leave for it",
     )
     replay.add_argument("--json", action="store_true", help="print the report as JSON")
     replay.add_argument("--limit", type=int, default=20, help="lines to list per section")

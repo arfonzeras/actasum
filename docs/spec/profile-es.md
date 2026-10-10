@@ -97,6 +97,15 @@ which municipalities a province-level difference arises. Only rows for the
 whole municipality (district `99`) are used. Overseas rows belong to no
 municipality and are left out of this comparison.
 
+### 3.2 Overseas residual
+
+The files carry no separate official overseas total per province. The
+province total minus the sum of its municipalities is what the official
+figures leave for the overseas vote. `--level overseas` compares that
+residual with the overseas row of the per-station file. Together with the
+municipality level it tells whether a province-level difference sits in the
+polling stations or in the overseas row.
+
 ## 4. Mapping to the tally sheet
 
 Article 97.2 LOREG lists what the polling station's tally sheet (*acta de

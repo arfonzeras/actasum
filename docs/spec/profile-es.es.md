@@ -99,6 +99,15 @@ municipios nace una diferencia provincial. Solo se usan las filas del total
 municipal (distrito `99`). Las filas de voto exterior no pertenecen a ningún
 municipio y quedan fuera de esta comparación.
 
+### 3.2 Residuo del voto exterior
+
+Los ficheros no traen un total oficial del voto exterior por provincia. El
+total provincial menos la suma de sus municipios es lo que las cifras
+oficiales dejan para el voto exterior. `--level overseas` compara ese residuo
+con la fila de voto exterior del fichero por mesa. Junto con el nivel
+municipal, indica si una diferencia provincial está en las mesas o en la fila
+de voto exterior.
+
 ## 4. Correspondencia con el acta
 
 El artículo 97.2 de la LOREG enumera lo que recoge el acta de escrutinio de

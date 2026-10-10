@@ -272,3 +272,36 @@ def test_cli_municipality_level(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "Level: municipality" in out
     assert "Municipalities compared: 3 (3 match the official totals)" in out
+
+
+OVERSEAS = {("08", "999", "09", "0000", "U"): (700, 1, 2, {"000001": 40, "000002": 5})}
+
+
+def test_overseas_residual_matches_the_overseas_row(tmp_path, capsys):
+    mesa, _ = synth.build(tmp_path, stations={**synth.STATIONS, **OVERSEAS})
+    residuals = infoelectoral.read_overseas_residuals(infoelectoral.load_dataset(str(mesa)))
+    assert residuals.areas["es/08"].candidatures["000001"] == 40
+    assert residuals.areas["es/08"].blank == 1
+    assert residuals.areas["es/28"].candidature_total == 0
+    # Province 28 has no overseas row in the synthetic data: that is a gap.
+    assert main(["es", "replay", "--mesa", str(mesa), "--level", "overseas"]) == 1
+    out = capsys.readouterr().out
+    assert "Overseas rows compared: 1 (1 match the official totals)" in out
+    assert "es/28" in out
+
+
+def test_overseas_residual_exposes_a_province_only_change(tmp_path, capsys):
+    def tweak(provinces):
+        provinces["08"]["votes"]["000001"] -= 9
+
+    mesa, _ = synth.build(
+        tmp_path, stations={**synth.STATIONS, **OVERSEAS}, official_tweak=tweak
+    )
+    dataset = infoelectoral.load_dataset(str(mesa))
+    statements = [
+        s for s in infoelectoral.read_statements(dataset) if s.unit == "aggregate"
+    ]
+    report = verify(statements, infoelectoral.read_overseas_residuals(dataset))
+    assert ("es/08", "candidature:000001", 9) in {
+        (d.area, d.item, d.delta) for d in report.differences
+    }
