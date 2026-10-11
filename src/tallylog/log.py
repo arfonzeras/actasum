@@ -9,8 +9,9 @@ A *checkpoint* commits to the whole log. An *inclusion proof* shows that one
 statement is in the log a checkpoint describes. A *consistency proof* shows
 that a later checkpoint only added entries to an earlier one.
 
-This version does not sign checkpoints and has no witnesses yet, so it only
-protects against accidental change. See docs/spec/log.md.
+The log can sign its checkpoint and collect cosignatures from witnesses (see
+``note.py`` and ``witness.py``). Without them it only protects against
+accidental change. See docs/spec/log.md.
 """
 
 from __future__ import annotations
@@ -83,10 +84,13 @@ class Checkpoint:
 class Log:
     """A log held in memory and mirrored to a directory."""
 
-    def __init__(self, path: str, origin: str, leaves: list[bytes]):
+    def __init__(
+        self, path: str, origin: str, leaves: list[bytes], signatures: str = ""
+    ):
         self.path = path
         self.origin = origin
         self.leaves = leaves
+        self.signatures = signatures  # signature lines for the current checkpoint
         self.hashes = [merkle.leaf_hash(leaf) for leaf in leaves]
         self._ids = {merkle.leaf_hash(leaf) for leaf in leaves}
 
@@ -108,11 +112,17 @@ class Log:
         """Load a log and check it against its own checkpoint."""
         try:
             with open(os.path.join(path, CHECKPOINT), encoding="utf-8", newline="") as handle:
-                recorded = Checkpoint.parse(handle.read())
+                stored = handle.read()
             with open(os.path.join(path, LEAVES), "rb") as handle:
                 raw = handle.read()
         except FileNotFoundError as exc:
             raise FormatError(f"{path}: not a log directory") from exc
+        body, separator, signatures = stored.partition("\n\n")
+        recorded = Checkpoint.parse(body + "\n" if separator else stored)
+        if separator:
+            from .note import parse_signature_lines
+
+            parse_signature_lines(signatures)  # refuse a damaged checkpoint file
         leaves = raw.split(b"\n")
         if leaves.pop() != b"":
             raise FormatError(f"{path}: {LEAVES} does not end with a newline")
@@ -123,7 +133,7 @@ class Log:
                 raise FormatError(f"{path}: entry {number}: {exc}") from exc
             if statement.canonical() != leaf:
                 raise FormatError(f"{path}: entry {number} is not in canonical form")
-        log = cls(path, recorded.origin, leaves)
+        log = cls(path, recorded.origin, leaves, signatures)
         if log.checkpoint() != recorded:
             raise FormatError(
                 f"{path}: the entries do not match the checkpoint "
@@ -141,13 +151,53 @@ class Log:
             open(os.path.join(self.path, LEAVES), "wb").close()
         temporary = os.path.join(self.path, CHECKPOINT + ".tmp")
         with open(temporary, "w", encoding="utf-8", newline="") as handle:
-            handle.write(self.checkpoint().text())
+            handle.write(self.signed_checkpoint())
         os.replace(temporary, os.path.join(self.path, CHECKPOINT))
 
     # -- operations ------------------------------------------------------
 
     def checkpoint(self) -> Checkpoint:
         return Checkpoint(self.origin, len(self.leaves), merkle.root(self.hashes))
+
+    def signed_checkpoint(self) -> str:
+        """The checkpoint as stored: a signed note once it has signatures."""
+        text = self.checkpoint().text()
+        return text + "\n" + self.signatures if self.signatures else text
+
+    def sign(self, signer) -> None:
+        """Sign the current checkpoint with the log's own key."""
+        if signer.name != self.origin:
+            raise FormatError(
+                f"the key is named {signer.name!r} but the log's origin is {self.origin!r}"
+            )
+        self.add_signatures(signer.sign(self.checkpoint().text()))
+
+    def add_signatures(self, lines: str) -> int:
+        """Attach signature lines to the current checkpoint. Returns how many were new."""
+        from .note import parse_signature_lines
+
+        have = {(s.name, s.id) for s in parse_signature_lines(self.signatures)} if self.signatures else set()
+        added = 0
+        for signature in parse_signature_lines(lines):
+            if (signature.name, signature.id) not in have:
+                have.add((signature.name, signature.id))
+                self.signatures += signature.line
+                added += 1
+        self._write([])
+        return added
+
+    def witness_request(self, old_size: int) -> str:
+        """The body of an add-checkpoint request, per c2sp.org/tlog-witness."""
+        size = len(self.leaves)
+        if not 0 <= old_size <= size:
+            raise FormatError(f"old size must be between 0 and {size}, got {old_size}")
+        if not self.signatures:
+            raise FormatError("sign the checkpoint before asking a witness to cosign it")
+        proof = (
+            merkle.consistency_proof(self.hashes, old_size) if 0 < old_size < size else []
+        )
+        lines = [f"old {old_size}"] + [_b64(h) for h in proof]
+        return "\n".join(lines) + "\n\n" + self.signed_checkpoint()
 
     def append(self, statements: Iterable[Statement]) -> tuple[int, int]:
         """Append statements. Returns (added, skipped as already present)."""
@@ -163,6 +213,8 @@ class Log:
             self.leaves.append(leaf)
             self.hashes.append(digest)
             added.append(leaf)
+        if added:
+            self.signatures = ""  # they belonged to the previous checkpoint
         self._write(added)
         return len(added), skipped
 
@@ -196,6 +248,32 @@ class Log:
             "new": self.checkpoint().to_dict(),
             "path": [_b64(h) for h in merkle.consistency_proof(self.hashes, old_size)],
         }
+
+
+def check_checkpoint(data: str, log_key, witness_keys=(), quorum: int = 0):
+    """Check a signed checkpoint against a trust policy.
+
+    The log's own signature must verify, and at least ``quorum`` of the given
+    witnesses must have cosigned. Returns the checkpoint and the verifications.
+    """
+    from .note import COSIGNATURE, LOG_SIGNATURE, SignatureError, open_note
+
+    if log_key.kind != LOG_SIGNATURE:
+        raise FormatError("the log key must be a log-signature key")
+    if any(key.kind != COSIGNATURE for key in witness_keys):
+        raise FormatError("witness keys must be cosignature keys")
+    note, verified = open_note(data, [log_key, *witness_keys])
+    checkpoint = Checkpoint.parse(note.text)
+    if log_key.name != checkpoint.origin:
+        raise SignatureError("the log key does not belong to this log's origin")
+    if not any(v.verifier == log_key for v in verified):
+        raise SignatureError("the checkpoint is not signed by the log's key")
+    witnesses = {v.verifier.name for v in verified if v.verifier != log_key}
+    if len(witnesses) < quorum:
+        raise SignatureError(
+            f"{len(witnesses)} trusted witness(es) cosigned, the policy requires {quorum}"
+        )
+    return checkpoint, verified
 
 
 def _path(doc: dict[str, Any]) -> list[bytes]:

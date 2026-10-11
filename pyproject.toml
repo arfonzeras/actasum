@@ -11,6 +11,10 @@ requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 dependencies = []
 
+[project.optional-dependencies]
+# Only needed to sign checkpoints, run a witness or check signatures.
+sign = ["cryptography>=42"]
+
 [project.scripts]
 tallylog = "tallylog.cli:main"
 

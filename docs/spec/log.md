@@ -1,8 +1,9 @@
 # Log specification (draft v0.1)
 
-Status: **draft**. Checkpoints are not signed and there are no witnesses yet.
-In this state the log detects accidental change and lets third parties repeat
-the computation. It does **not** yet protect against a dishonest operator.
+Status: **draft**. On its own the log detects accidental change and lets
+third parties repeat the computation. Protection against a dishonest operator
+comes from signed checkpoints and independent witnesses, described in
+[`witness.md`](witness.md).
 
 ## 1. What the log is for
 
@@ -41,8 +42,10 @@ Three lines, each ended by a newline (`\n`):
 ```
 
 `origin` names the log; `size` is the number of entries, in decimal without
-leading zeros. This is the body of a C2SP checkpoint without extension lines
-and without signatures.
+leading zeros. This is the text of a C2SP checkpoint without extension lines.
+Once signed, signature lines follow after an empty line (see
+[`witness.md`](witness.md)). Appending entries produces a new checkpoint and
+discards the signatures of the previous one.
 
 ## 4. Proofs
 
@@ -78,18 +81,16 @@ The reference implementation keeps a log as a directory:
 | File | Content |
 | --- | --- |
 | `leaves.jsonl` | One entry per line, in log order |
-| `checkpoint` | The current checkpoint |
+| `checkpoint` | The current checkpoint, with its signatures if any |
 
 Opening a log recomputes the root and refuses to continue if it differs from
 the stored checkpoint.
 
 ## 6. What is missing
 
-1. **Signatures.** Anyone can write a checkpoint. A later version will sign
-   checkpoints in the C2SP signed-note format.
-2. **Witnesses.** Independent parties that verify consistency and cosign each
-   checkpoint, so that an operator cannot show different logs to different
-   people. This is the property that matters most and it is not here yet.
+1. **Independent witnesses.** The mechanism exists (see
+   [`witness.md`](witness.md)), but no outside organization runs one.
+2. **A network protocol** between log and witnesses.
 3. **Static serving.** The layout above is not the C2SP `tlog-tiles` layout,
    which is the intended target so that existing tooling and mirrors work.
 4. **Evidence.** Entries built from an official dataset carry the hash of
@@ -100,6 +101,5 @@ the stored checkpoint.
 
 - RFC 6962, *Certificate Transparency*, section 2.1.
 - RFC 9162, *Certificate Transparency Version 2.0*, section 2.1.
-- C2SP, *tlog-checkpoint*, *tlog-tiles*, *tlog-cosignature* and *signed-note*.
-  These were consulted through search summaries only and have not been read
-  in full for this draft.
+- C2SP, *signed-note*, *tlog-checkpoint*, *tlog-cosignature* and
+  *tlog-witness*, read in full. *tlog-tiles* has not been read yet.

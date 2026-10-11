@@ -45,15 +45,17 @@ difference does not say which published figure is right.
 | --- | --- |
 | [`docs/spec/core.md`](docs/spec/core.md) | Country-neutral format and verification procedure |
 | [`docs/spec/log.md`](docs/spec/log.md) | Append-only log: checkpoints, inclusion and consistency proofs |
+| [`docs/spec/witness.md`](docs/spec/witness.md) | Signed checkpoints and witnesses that cosign them |
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](docs/spec/profile-es.es.md)) |
 | [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
-| `src/tallylog/` | Reference implementation, Python standard library only |
+| `src/tallylog/` | Reference implementation, Python; standard library only except for signatures |
 | `tests/` | Tests on synthetic data |
 
 ## Quick start
 
-Requires Python 3.10 or later. No dependencies.
+Requires Python 3.10 or later. No dependencies, except `cryptography` for
+signing and witnesses.
 
 ```sh
 pip install -e .
@@ -104,9 +106,36 @@ tallylog log check-proof --proof proof.json --checkpoint checkpoint.txt
 ```
 
 Anyone who builds the log from the same ZIP file obtains the same checkpoint.
-Checkpoints are not signed yet and there are no witnesses, so for now the log
-detects accidental change but does not protect against a dishonest operator.
 See [`docs/spec/log.md`](docs/spec/log.md).
+
+### Signing and witnesses
+
+The log can sign its checkpoint, and a witness can cosign it after checking
+that the log only grew. This needs the optional `cryptography` package
+(`pip install -e '.[sign]'`).
+
+```sh
+# the log operator
+tallylog key new --name tallylog/es/congreso/2019-11 --out log.key      # prints the log's public key
+tallylog log sign --log log-2019-11 --key log.key
+tallylog log witness-request --log log-2019-11 --old-size 0 --out request.txt
+
+# the witness, ideally another organization on another machine
+tallylog witness init --dir witness --name witness.example/w1           # prints the witness's public key
+tallylog witness trust --dir witness --log-key '<the log public key>'
+tallylog witness add-checkpoint --dir witness --request request.txt --out cosignature.txt
+
+# back at the log, then anyone
+tallylog log cosign --log log-2019-11 --signatures cosignature.txt
+tallylog log check-checkpoint --checkpoint log-2019-11/checkpoint \
+    --log-key '<the log public key>' --witness-key '<the witness public key>' --quorum 1
+```
+
+A witness refuses to cosign a log that changed or dropped an entry it had
+seen. That only means something when the witness is run by someone
+independent of the log operator; running both yourself shows that the
+mechanism works and nothing else. Formats follow the C2SP specifications; see
+[`docs/spec/witness.md`](docs/spec/witness.md) for what is and is not done.
 
 ## What a result means, and what it does not
 
@@ -133,9 +162,9 @@ and several independent captures per station.
 ## Roadmap
 
 1. **Format and verifier** on a past election, from public data. *(done for five Congreso elections)*
-2. **Load a full election into a log** and serve inclusion proofs. *(first version, unsigned)*
+2. **Load a full election into a log** and serve inclusion proofs. *(first version)*
 3. Replay the 2026 Colombian presidential runoff from the published E-14 forms.
-4. An external witness that cosigns the log state.
+4. **A witness that cosigns the log state.** *(mechanism done; no external witness yet)*
 5. Credentials and a capture app, with on-device signing and offline use.
 6. A small real pilot together with a local election-observation organization.
 

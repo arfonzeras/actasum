@@ -13,8 +13,19 @@
     tallylog log consistency --log LOGDIR --old-size N
     tallylog log check-consistency --proof proof.json [--old FILE] [--new FILE]
 
-Exit status: 0 when the recomputed totals match, 1 when there are differences
-or gaps, 2 when the input could not be read.
+    tallylog key new --name NAME --out FILE          (a log's signing key)
+    tallylog log sign --log LOGDIR --key FILE
+    tallylog witness init --dir WDIR --name NAME
+    tallylog witness trust --dir WDIR --log-key VKEY
+    tallylog log witness-request --log LOGDIR --old-size N --out request.txt
+    tallylog witness add-checkpoint --dir WDIR --request request.txt --out cosig.txt
+    tallylog log cosign --log LOGDIR --signatures cosig.txt
+    tallylog log check-checkpoint --checkpoint FILE --log-key VKEY
+                                  [--witness-key VKEY ...] [--quorum N]
+
+Exit status: 0 when the check passes, 1 when it does not (differences, gaps,
+a signature that does not verify, a witness that refuses), 2 when the input
+could not be read.
 """
 
 from __future__ import annotations
@@ -24,7 +35,14 @@ import json
 import sys
 from typing import Sequence
 
-from .log import Checkpoint, Log, verify_consistency_proof, verify_inclusion_proof
+from .log import (
+    Checkpoint,
+    Log,
+    check_checkpoint,
+    verify_consistency_proof,
+    verify_inclusion_proof,
+)
+from .note import SignatureError
 from .profiles.es import infoelectoral
 from .statement import FormatError, OfficialTotals, read_jsonl, write_jsonl
 from .verify import VerificationError, format_report, verify
@@ -96,7 +114,11 @@ def _read_checkpoint(path: str | None) -> Checkpoint | None:
     if path is None:
         return None
     with open(path, encoding="utf-8", newline="") as handle:
-        return Checkpoint.parse(handle.read())
+        text = handle.read()
+    # A signed checkpoint is accepted too; its signatures are not checked here
+    # (use `log check-checkpoint` for that).
+    body, separator, _ = text.partition("\n\n")
+    return Checkpoint.parse(body + "\n" if separator else text)
 
 
 def _write_json(doc, path: str) -> None:
@@ -185,6 +207,118 @@ def _log_check_consistency(args) -> int:
     return 0
 
 
+def _read_text(path: str) -> str:
+    with open(path, encoding="utf-8", newline="") as handle:
+        return handle.read()
+
+
+def _write_text(text: str, path: str) -> None:
+    if path == "-":
+        sys.stdout.write(text)
+    else:
+        with open(path, "w", encoding="utf-8", newline="") as handle:
+            handle.write(text)
+
+
+def _key_new(args) -> int:
+    import os
+
+    from .note import LOG_SIGNATURE, Signer
+
+    signer = Signer.generate(args.name, LOG_SIGNATURE)
+    descriptor = os.open(args.out, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        handle.write(signer.encode() + "\n")
+    print(f"private key written to {args.out}; keep it secret", file=sys.stderr)
+    print(signer.verifier.vkey())
+    return 0
+
+
+def _log_sign(args) -> int:
+    from .note import Signer
+
+    log = Log.open(args.log)
+    log.sign(Signer.parse(_read_text(args.key)))
+    sys.stdout.write(log.signed_checkpoint())
+    return 0
+
+
+def _log_witness_request(args) -> int:
+    _write_text(Log.open(args.log).witness_request(args.old_size), args.out)
+    return 0
+
+
+def _log_cosign(args) -> int:
+    log = Log.open(args.log)
+    added = log.add_signatures(_read_text(args.signatures))
+    print(f"{added} signature line(s) added", file=sys.stderr)
+    sys.stdout.write(log.signed_checkpoint())
+    return 0
+
+
+def _log_check_checkpoint(args) -> int:
+    from .note import Verifier
+
+    checkpoint, verified = check_checkpoint(
+        _read_text(args.checkpoint),
+        Verifier.parse(args.log_key),
+        [Verifier.parse(key) for key in args.witness_key],
+        args.quorum,
+    )
+    print(f"OK: {checkpoint.origin} at size {checkpoint.size}")
+    for item in verified:
+        when = f", cosigned at Unix time {item.timestamp}" if item.timestamp is not None else ""
+        print(f"  valid signature: {item.verifier.name}{when}")
+    return 0
+
+
+def _witness_init(args) -> int:
+    from .witness import Witness
+
+    witness = Witness.create(args.dir, args.name)
+    print(f"witness created in {args.dir}; its key file must stay private", file=sys.stderr)
+    print(witness.signer.verifier.vkey())
+    return 0
+
+
+def _witness_trust(args) -> int:
+    from .note import Verifier
+    from .witness import Witness
+
+    key = Verifier.parse(args.log_key)
+    Witness(args.dir).trust(key)
+    print(f"now following the log {key.name}", file=sys.stderr)
+    return 0
+
+
+def _witness_add_checkpoint(args) -> int:
+    from .witness import Witness
+
+    status, body = Witness(args.dir).add_checkpoint(_read_text(args.request))
+    if status == 200:
+        _write_text(body, args.out)
+        return 0
+    meaning = {
+        400: "bad request",
+        403: "the log's signature is missing or invalid",
+        404: "this witness does not follow that log",
+        409: "the witness last cosigned a different size; retry from that size",
+        422: "the log is not consistent with what this witness cosigned before",
+    }[status]
+    print(f"tallylog: witness refused ({status}, {meaning}): {body.strip()}", file=sys.stderr)
+    return 1
+
+
+def _witness_status(args) -> int:
+    from .witness import Witness
+
+    witness = Witness(args.dir)
+    print(f"witness key: {witness.signer.verifier.vkey()}")
+    for origin, entry in sorted(witness.status()["logs"].items()):
+        print(f"{origin}: last cosigned size {entry['size']}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="tallylog",
@@ -242,6 +376,62 @@ def build_parser() -> argparse.ArgumentParser:
     check_consistency.add_argument("--new", help="the later checkpoint")
     check_consistency.set_defaults(run=_log_check_consistency)
 
+    sign = log_commands.add_parser("sign", help="sign the current checkpoint")
+    sign.add_argument("--log", required=True)
+    sign.add_argument("--key", required=True, help="the log's private key file")
+    sign.set_defaults(run=_log_sign)
+
+    request = log_commands.add_parser(
+        "witness-request", help="request asking a witness to cosign the checkpoint"
+    )
+    request.add_argument("--log", required=True)
+    request.add_argument(
+        "--old-size", type=int, required=True,
+        help="size of the last checkpoint that witness cosigned (0 the first time)",
+    )
+    request.add_argument("--out", default="-")
+    request.set_defaults(run=_log_witness_request)
+
+    cosign = log_commands.add_parser("cosign", help="attach a witness's cosignature")
+    cosign.add_argument("--log", required=True)
+    cosign.add_argument("--signatures", required=True, help="the witness's answer")
+    cosign.set_defaults(run=_log_cosign)
+
+    check_cp = log_commands.add_parser(
+        "check-checkpoint", help="check a signed checkpoint against a trust policy"
+    )
+    check_cp.add_argument("--checkpoint", required=True)
+    check_cp.add_argument("--log-key", required=True, help="the log's verifier key")
+    check_cp.add_argument("--witness-key", action="append", default=[], help="repeatable")
+    check_cp.add_argument("--quorum", type=int, default=0, help="witnesses required")
+    check_cp.set_defaults(run=_log_check_checkpoint)
+
+    key = commands.add_parser("key", help="signing keys")
+    key_commands = key.add_subparsers(dest="key_command", required=True)
+    key_new = key_commands.add_parser("new", help="create a log signing key")
+    key_new.add_argument("--name", required=True, help="the log's origin")
+    key_new.add_argument("--out", required=True, help="file for the private key")
+    key_new.set_defaults(run=_key_new)
+
+    witness = commands.add_parser("witness", help="cosign checkpoints of logs that only grow")
+    witness_commands = witness.add_subparsers(dest="witness_command", required=True)
+    w_init = witness_commands.add_parser("init", help="create a witness and its key")
+    w_init.add_argument("--dir", required=True)
+    w_init.add_argument("--name", required=True, help="e.g. witness.example/w1")
+    w_init.set_defaults(run=_witness_init)
+    w_trust = witness_commands.add_parser("trust", help="start following a log")
+    w_trust.add_argument("--dir", required=True)
+    w_trust.add_argument("--log-key", required=True, help="the log's verifier key")
+    w_trust.set_defaults(run=_witness_trust)
+    w_add = witness_commands.add_parser("add-checkpoint", help="check a request and cosign")
+    w_add.add_argument("--dir", required=True)
+    w_add.add_argument("--request", required=True)
+    w_add.add_argument("--out", default="-")
+    w_add.set_defaults(run=_witness_add_checkpoint)
+    w_status = witness_commands.add_parser("status", help="what this witness has cosigned")
+    w_status.add_argument("--dir", required=True)
+    w_status.set_defaults(run=_witness_status)
+
     es = commands.add_parser("es", help="Spain profile: Ministry of the Interior files")
     es_commands = es.add_subparsers(dest="es_command", required=True)
 
@@ -279,6 +469,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.run(args)
+    except SignatureError as exc:
+        # The input was readable but is not validly signed, or not by enough
+        # trusted parties: a negative result, not a usage problem.
+        print(f"tallylog: not verified: {exc}", file=sys.stderr)
+        return 1
     except (FormatError, VerificationError, OSError, json.JSONDecodeError) as exc:
         print(f"tallylog: error: {exc}", file=sys.stderr)
         return 2

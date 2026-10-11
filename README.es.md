@@ -50,14 +50,16 @@ diferencia no dice cuál de las dos cifras publicadas es la correcta.
 | --- | --- |
 | [`docs/spec/core.md`](docs/spec/core.md) | Formato y procedimiento de verificación, independientes del país (en inglés) |
 | [`docs/spec/log.md`](docs/spec/log.md) | Registro de solo añadir: puntos de control y pruebas de inclusión y de consistencia (en inglés) |
+| [`docs/spec/witness.md`](docs/spec/witness.md) | Puntos de control firmados y testigos que los cofirman (en inglés) |
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Perfil España: identificadores, fuente de datos, lagunas conocidas ([traducción](docs/spec/profile-es.es.md)) |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | Esquema JSON de una declaración de acta |
-| `src/tallylog/` | Implementación de referencia, solo con la biblioteca estándar de Python |
+| `src/tallylog/` | Implementación de referencia en Python; solo biblioteca estándar, salvo para las firmas |
 | `tests/` | Pruebas con datos sintéticos |
 
 ## Inicio rápido
 
-Requiere Python 3.10 o posterior. Sin dependencias.
+Requiere Python 3.10 o posterior. Sin dependencias, salvo `cryptography`
+para las firmas y los testigos.
 
 ```sh
 pip install -e .
@@ -110,9 +112,37 @@ tallylog log check-proof --proof proof.json --checkpoint checkpoint.txt
 ```
 
 Quien construya el registro a partir del mismo ZIP obtiene el mismo punto de
-control. Los puntos de control aún no van firmados y no hay testigos, así que
-por ahora el registro detecta cambios accidentales pero no protege frente a
-un operador deshonesto. Véase [`docs/spec/log.md`](docs/spec/log.md).
+control. Véase [`docs/spec/log.md`](docs/spec/log.md).
+
+### Firma y testigos
+
+El registro puede firmar su punto de control, y un testigo puede cofirmarlo
+tras comprobar que el registro solo ha crecido. Hace falta el paquete opcional
+`cryptography` (`pip install -e '.[sign]'`).
+
+```sh
+# quien opera el registro
+tallylog key new --name tallylog/es/congreso/2019-11 --out log.key      # muestra la clave pública del registro
+tallylog log sign --log log-2019-11 --key log.key
+tallylog log witness-request --log log-2019-11 --old-size 0 --out request.txt
+
+# el testigo, idealmente otra organización en otra máquina
+tallylog witness init --dir witness --name witness.example/w1           # muestra la clave pública del testigo
+tallylog witness trust --dir witness --log-key '<clave pública del registro>'
+tallylog witness add-checkpoint --dir witness --request request.txt --out cosignature.txt
+
+# de vuelta en el registro, y después cualquiera
+tallylog log cosign --log log-2019-11 --signatures cosignature.txt
+tallylog log check-checkpoint --checkpoint log-2019-11/checkpoint \
+    --log-key '<clave pública del registro>' --witness-key '<clave pública del testigo>' --quorum 1
+```
+
+Un testigo se niega a cofirmar un registro que cambió o eliminó una entrada
+que ya había visto. Eso solo significa algo cuando el testigo lo opera alguien
+independiente de quien opera el registro; ejecutar ambos uno mismo demuestra
+que el mecanismo funciona y nada más. Los formatos siguen las especificaciones
+C2SP; véase [`docs/spec/witness.md`](docs/spec/witness.md) para lo que está
+hecho y lo que no.
 
 ## Qué significa un resultado y qué no
 
@@ -141,9 +171,9 @@ y varias capturas independientes por mesa.
 ## Hoja de ruta
 
 1. **Formato y verificador** sobre una elección pasada, con datos públicos. *(hecho para cinco elecciones al Congreso)*
-2. **Cargar una elección completa en un registro** y servir pruebas de inclusión. *(primera versión, sin firmar)*
+2. **Cargar una elección completa en un registro** y servir pruebas de inclusión. *(primera versión)*
 3. Reproducir la segunda vuelta presidencial de Colombia de 2026 con los formularios E-14 publicados.
-4. Un testigo externo que cofirme el estado del registro.
+4. **Un testigo que cofirme el estado del registro.** *(mecanismo hecho; aún sin testigo externo)*
 5. Credenciales y una aplicación de captura, con firma en el dispositivo y uso sin conexión.
 6. Un piloto real y pequeño junto a una organización local de observación electoral.
 
