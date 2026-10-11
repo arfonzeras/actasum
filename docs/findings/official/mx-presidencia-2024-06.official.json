@@ -1,7 +1,6 @@
 {
   "areas": {
     "mx": {
-      "blank": 0,
       "candidature_total": 58631926,
       "candidatures": {
         "MC": 6204710,
@@ -33,7 +32,7 @@
   },
   "profile": "mx/lgipe/v0.1",
   "source": {
-    "blank": "the statement gives no figure for blank votes; 0 is written because the format requires one",
+    "blank": "the statement gives no figure for blank votes, and none is written here",
     "candidature_total": "not given in the statement; the sum of the three candidatures",
     "document": "Instituto Nacional Electoral, Comunicado de prensa 368, 9 June 2024: \"Informa INE que se computaron 60 millones 115 mil 184 votos en la elección presidencial\"",
     "kind": "official-publication",

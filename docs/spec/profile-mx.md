@@ -8,9 +8,10 @@ for them. Nothing has been checked against the law, no tally sheet has been
 looked at, and no Mexican organisation has reviewed it.
 
 This profile was written to find out whether a third country fits the core
-format without changing it. It does not: figures the source could not read
-needed a change to the core (core, section 3.4). Section 6 lists that change
-and what else did not fit and was left as a limit of the profile.
+format without changing it. It does not: it needed three changes, for
+figures the source could not read, for a figure the tally sheet does not
+have, and for lower bounds in official totals (core, section 8). Section 6
+lists them and what else did not fit and was left as a limit of the profile.
 
 ## 1. How the count travels
 
@@ -78,8 +79,9 @@ of votes and registered voters. The reader recomputes all three from the rows
 | PREP: `TIPO_DOCUMENTO` | `extra.document`: which copy was captured |
 | Cómputos: `OBSERVACIONES` | `extra.observation`, and `extra.recount`: `true` for a *recuento*, `false` for a *cotejo* (the key shared across profiles: core, section 7) |
 
-`counts.blank` is always `0`: these tally sheets have no figure for blank
-votes, and the core requires one.
+These tally sheets have no figure for blank votes. Every statement says so
+with `counts.not_on_sheet: {"blank": "no-field"}` and carries no `blank`
+(core, section 3.5).
 
 A coalition's candidate receives the votes of each of its parties and of
 every combination of them. Statements keep one figure per column.
@@ -121,7 +123,7 @@ silently.
 
 ## 6. What did not fit the core
 
-One case changed the core. The others were worked around and are limits of
+Two cases changed the core. The others were worked around and are limits of
 this profile, in the order of how much they matter.
 
 1. **A figure that could not be read is not a zero.** *Changed the core.* The
@@ -129,9 +131,9 @@ this profile, in the order of how much they matter.
    others `Sin dato` or `Ilegible`, and adds them up as zero. The core only
    had non-negative integers. It now has `counts.unread`, and a sum that
    includes an unread figure is a lower bound (core, sections 3.4 and 5).
-2. **No blank-vote figure.** `counts.blank` is required by the core. It is
-   written as `0`, which says something the tally sheet does not say. A
-   change to the core for this is under discussion.
+2. **No blank-vote figure.** *Changed the core.* `counts.blank` was required,
+   and writing `0` would say something the tally sheet does not say. The
+   core now has `counts.not_on_sheet` (core, section 3.5).
 3. **One earlier row, several later ones.** The PREP gives the vote from
    abroad as one row per state; the Cómputos file gives it per counting
    table, under other keys. The core replaces one statement by one statement.
@@ -144,9 +146,10 @@ this profile, in the order of how much they matter.
 5. **A count that nothing replaced.** For 16 stations the PREP has a tally
    sheet and the Cómputos file has a row with `-` in every vote cell and
    `Paquete no recibido` as its observation. Such a row gives no statement,
-   so nothing replaces the count and the core leaves it standing: the
-   standing sum is the canvass plus those 16 counts, and does not equal the
-   official result, which does not include them. Known limit; the core has
+   so nothing replaces the count and the core leaves it standing. The
+   standing sum therefore includes 5,265 ballots of 16 stations whose
+   package was not received according to the Cómputos file, and for that
+   reason it cannot equal that file's total nor the official result. Known limit; the core has
    no way for a later act to say "no figures".
 6. **Totals printed in the files are only a grand total.** The core's
    official totals need figures per candidature, so the files' own headers

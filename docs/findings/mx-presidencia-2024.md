@@ -42,7 +42,7 @@ for null votes.
 | The PREP's rows add up to the totals it prints | Yes |
 | The Cómputos rows add up to the totals it prints | Yes |
 | The statements of the canvass add up to the INE's press statement | Yes, in the three candidatures, unregistered candidates and null votes |
-| The core's standing sum equals that press statement | No: it also holds the count of 16 stations the canvass file has no figures for |
+| The core's standing sum equals that press statement | No, and it cannot: it includes 5,265 ballots of 16 stations whose package was not received according to the Cómputos file |
 | Stations with a statement of both acts | 158,956 |
 | Of them, with no figure changed among those both acts read | 56,681 |
 | Of them, with at least one figure changed | 102,275 |
@@ -95,9 +95,10 @@ The verifier's own answer is that the official totals match **neither** sum:
   above.
 - **As standing**, every figure is above the official one, by 5,265 ballots
   in all: 203 null votes and 512 for `MC`, and at least 1,305, 3,235 and 10
-  for the other three items, which are lower bounds. The standing sum holds
-  the canvass and, in addition, the PREP count of the 16 stations listed
-  below.
+  for the other three items, which are lower bounds. The standing sum
+  includes 5,265 ballots of 16 stations whose package was not received
+  according to the Cómputos file, listed below. For that reason it cannot
+  equal the total of that file, nor the press statement that agrees with it.
 
 ## Stations with a count and no figures in the canvass
 
@@ -190,8 +191,12 @@ for unregistered candidates, where a sheet often has nothing written.
 | As counted (PREP statements) | 158,972 | at least 55,923,497 |
 | As standing | 170,637 | at least 60,120,449 |
 
+The standing sum includes 5,265 ballots of 16 stations whose package was not
+received according to the Cómputos file. For that reason it cannot equal the
+total of that file, 60,115,184.
+
 Both are lower bounds. The count has unread cells in 20,160 statements; the
-standing sum in 3, among the 16 stations listed above. The
+standing sum in 3, among those 16 stations. The
 two sums are over different sets of stations and cannot be subtracted from
 each other.
 
@@ -264,11 +269,12 @@ The 32 rows give no statement: see the profile, section 6, point 3.
 
 ## What this run says about the format
 
-Mexico did not enter without changing the core. The PREP's unread cells
-needed `counts.unread` and lower bounds in the verifier (core, sections 3.4
-and 5). The rest of the run came out of the core as it was written for Spain
-and Colombia, and it is the first run with real statements of both a count
-and a later act.
+Mexico did not enter without changing the core. It needed three changes
+(core, section 8): `counts.unread` for the PREP's unread cells, with lower
+bounds in the verifier; `counts.not_on_sheet` for blank votes, which these
+tally sheets do not have; and lower bounds in official totals. The rest of
+the run came out of the core as it was written for Spain and Colombia, and
+it is the first run with real statements of both a count and a later act.
 
 What else did not fit, and was left as a limit, is in
 [`../spec/profile-mx.md`](../spec/profile-mx.md), section 6.

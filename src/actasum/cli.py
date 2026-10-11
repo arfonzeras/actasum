@@ -242,6 +242,16 @@ def _mx_replay(args) -> int:
 
     report["as_counted"] = totals(resolution.counted)
     report["as_standing"] = totals(resolution.standing)
+    unreplaced = [s for s in resolution.standing if s.stage == "count"] if args.computos else []
+    if unreplaced:
+        said = sorted({no_figures.get(s.station, "no row for this station") for s in unreplaced})
+        report["as_standing"]["includes"] = {
+            "stations_whose_count_no_later_act_replaced": len(unreplaced),
+            "their_ballots": sum(s.ballots for s in unreplaced),
+            "what_the_canvass_file_says_of_them": said,
+            "so": "this sum cannot equal the total of the canvass file, which has no "
+            "figures for those stations",
+        }
     report["between_the_two_acts"] = mx_ine.describe(resolution, merge)
     report["unread_figures_against_the_canvass"] = mx_ine.unread_against_canvass(resolution)
     # Their count is left standing by the core: nothing replaces it.

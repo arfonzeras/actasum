@@ -260,8 +260,9 @@ def _statement(table, row, election, station, known, unread=None, **more) -> Sta
         election=election,
         station=station,
         constituency=COUNTRY,
-        # These tally sheets have no blank-vote figure; the core requires one.
-        blank=0,
+        # These tally sheets have no figure for blank votes (core, section 3.5).
+        blank=None,
+        not_on_sheet={"blank": "no-field"},
         null=known.get("null"),
         candidatures={item: votes for item, votes in known.items() if item in codes},
         other={} if other is None else {UNREGISTERED: other},

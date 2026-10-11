@@ -123,7 +123,8 @@ def test_a_statement_of_the_count(tmp_path):
     assert statement.election == "mx/presidencia/2024-06"
     assert statement.stage == "count" and statement.constituency == "mx"
     assert statement.candidatures["PVEM-MORENA"] == 10 and statement.null == 12
-    assert statement.other == {"unregistered": 0} and statement.blank == 0
+    assert statement.other == {"unregistered": 0}
+    assert statement.blank is None and statement.not_on_sheet == {"blank": "no-field"}
     assert statement.registered == 500
     assert statement.evidence == {"kind": "official-dataset", "sha256": table.sha256}
     assert statement.extra == {"document": "Acta PREP", "image_sha256": HASH, "stated_total": 350}
@@ -327,7 +328,7 @@ def test_cli_replay_compares_with_official_totals_from_another_source(tmp_path, 
     totals = OfficialTotals(
         profile="mx/lgipe/v0.1", election="mx/presidencia/2024-06", merge=MERGE,
         areas={"mx": AreaTotals(
-            blank=0, null=both[8], other={"unregistered": both[7]},
+            blank=None, null=both[8], other={"unregistered": both[7]},
             candidatures={"MC": both[3], "PAN-PRI": both[0] + both[1] + both[5],
                           "PVEM-MORENA": both[2] + both[4] + both[6]},
         )},
@@ -337,6 +338,12 @@ def test_cli_replay_compares_with_official_totals_from_another_source(tmp_path, 
     code = main(["mx", "replay", "--prep", prep, "--computos", computos,
                  "--election", "2024-06", "--official", str(path)])  # fmt: skip
     report = json.loads(capsys.readouterr().out)
+    assert report["as_standing"]["includes"] == {
+        "stations_whose_count_no_later_act_replaced": 1, "their_ballots": sum(VOTES_A),
+        "what_the_canvass_file_says_of_them": ["Paquete no recibido"],
+        "so": "this sum cannot equal the total of the canvass file, which has no figures "
+        "for those stations",
+    }  # fmt: skip
     assert report["stations_with_a_count_but_no_canvass"] == [
         {"station": "mx/01/0339/B0100", "ballots_read_in_the_count": sum(VOTES_A),
          "figures_unread_in_the_count": 0, "the_canvass_file_says": "Paquete no recibido"}
