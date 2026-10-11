@@ -93,6 +93,12 @@ the stored checkpoint.
 2. **A network protocol** between log and witnesses.
 3. **Static serving.** The layout above is not the C2SP `tlog-tiles` layout,
    which is the intended target so that existing tooling and mirrors work.
+   Three things follow from that specification and are already respected or
+   noted here: entries travel in bundles with a 16-bit length prefix, so an
+   entry cannot exceed 65,535 bytes (statements are a few hundred); a log
+   without a retention policy must not be pruned, and an election log should
+   never be; and the origin should be the URL the log is served from, which
+   the current `actasum/<election>` origins are not.
 4. **Evidence.** Entries built from an official dataset carry the hash of
    that dataset. Entries built from a photograph of a tally sheet are not
    specified yet.
@@ -101,5 +107,5 @@ the stored checkpoint.
 
 - RFC 6962, *Certificate Transparency*, section 2.1.
 - RFC 9162, *Certificate Transparency Version 2.0*, section 2.1.
-- C2SP, *signed-note*, *tlog-checkpoint*, *tlog-cosignature* and
-  *tlog-witness*, read in full. *tlog-tiles* has not been read yet.
+- C2SP, *signed-note*, *tlog-checkpoint*, *tlog-cosignature*, *tlog-witness*
+  and *tlog-tiles*, read in full at commit `0b976ab` (8 October 2026).
