@@ -51,13 +51,16 @@ class Conflict:
 
 @dataclass(frozen=True)
 class Change:
-    """A station whose standing figures are not the ones counted there."""
+    """A station whose standing figures are not those of its earliest act."""
 
     station: str
     stage: str  # the act the standing figures come from
     source: str  # evidence.kind of the standing statement, "" if not given
-    # item -> (as counted, as standing), for the items that differ
+    # item -> (earlier, standing), for the items that differ
     items: dict[str, tuple[int, int]]
+    # the act the earlier figures come from: "count" when the station's own
+    # count is among the statements, otherwise the first act of the chain
+    from_stage: str = STAGE_COUNT
 
 
 @dataclass
@@ -65,11 +68,13 @@ class Resolution:
     """Which statement speaks for each station, as counted and as standing.
 
     Several statements may exist for one station. Those about the same act
-    (same ``stage``) are captures of one thing and must agree; if they do
-    not, that act is in conflict and counts for nothing, the way contradictory
-    copies of a tally sheet count for nothing. Statements about different
-    acts may differ lawfully: a later act replaces an earlier one when it
-    names it in ``supersedes``.
+    (same ``stage``) are captures of one thing and must agree, unless one of
+    them says it replaces the other (``supersedes``): a board may correct its
+    own figures. Statements of the same act that differ and do not refer to
+    each other put that act in conflict, and it counts for nothing, the way
+    contradictory copies of a tally sheet count for nothing. Statements about
+    different acts may differ lawfully; a later act replaces an earlier one
+    when it names it in ``supersedes``.
     """
 
     statements: int = 0  # distinct statements read
@@ -105,57 +110,102 @@ def resolve(statements: Iterable[Statement]) -> Resolution:
         by_id.setdefault(statement.statement_id(), statement)
     result = Resolution(statements=len(by_id))
 
-    acts: dict[str, dict[str, list[tuple[str, Statement]]]] = {}
+    # station -> stage -> figures -> [(identifier, statement)]
+    acts: dict[str, dict[str, dict[tuple, list[tuple[str, Statement]]]]] = {}
     for identifier, statement in by_id.items():
-        acts.setdefault(statement.station, {}).setdefault(statement.stage, []).append(
-            (identifier, statement)
-        )
-    superseded = {s.supersedes for s in by_id.values() if s.supersedes is not None}
+        acts.setdefault(statement.station, {}).setdefault(statement.stage, {}).setdefault(
+            statement.figures, []
+        ).append((identifier, statement))
+    # identifier -> stages of the statements that say they replace it
+    replaced_by: dict[str, set[str]] = {}
+    for statement in by_id.values():
+        if statement.supersedes is not None:
+            replaced_by.setdefault(statement.supersedes, set()).add(statement.stage)
     result.dangling = sorted(
         s.station for s in by_id.values() if s.supersedes and s.supersedes not in by_id
     )
 
     for station in sorted(acts):
-        clean: dict[str, list[tuple[str, Statement]]] = {}
+        clean: dict[str, Statement] = {}  # stage -> the statement that speaks for it
+        first: dict[str, Statement] = {}  # stage -> its earliest version
+        left: list[str] = []  # stages no statement of another stage replaces
         for stage in sorted(acts[station]):
-            group = acts[station][stage]
-            versions = {statement.figures for _, statement in group}
-            if len(versions) > 1:
-                result.conflicts.append(Conflict(station, stage, len(group), len(versions)))
+            versions = acts[station][stage]
+            # A version stays unless a statement of the same act replaces it.
+            live = [
+                group
+                for group in versions.values()
+                if not any(stage in replaced_by.get(identifier, ()) for identifier, _ in group)
+            ]
+            if len(live) == 1:
+                clean[stage] = min(live[0], key=lambda pair: pair[0])[1]
+                roots = [
+                    group
+                    for group in versions.values()
+                    if not any(s.supersedes in by_id and by_id[s.supersedes].stage == stage
+                               for _, s in group)
+                ]
+                first[stage] = min(roots[0] if roots else live[0], key=lambda pair: pair[0])[1]
             else:
-                clean[stage] = sorted(group, key=lambda pair: pair[0])
-        counted = clean[STAGE_COUNT][0][1] if STAGE_COUNT in clean else None
+                result.conflicts.append(
+                    Conflict(
+                        station,
+                        stage,
+                        sum(len(group) for group in versions.values()),
+                        max(len(live), 2),
+                    )
+                )
+            if not any(
+                other != stage
+                for group in versions.values()
+                for identifier, _ in group
+                for other in replaced_by.get(identifier, ())
+            ):
+                left.append(stage)
+        counted = clean.get(STAGE_COUNT)
         if counted is not None:
             result.counted.append(counted)
-        # An act is replaced when any statement names one of its statements,
-        # whether or not the act itself is in conflict.
-        left = [
-            stage
-            for stage, group in acts[station].items()
-            if not any(identifier in superseded for identifier, _ in group)
-        ]
         if len(left) > 1:
             result.undetermined.append(station)
         elif len(left) == 1 and left[0] in clean:
-            standing = clean[left[0]][0][1]
+            standing = clean[left[0]]
             result.standing.append(standing)
             if counted is None:
                 result.without_count.append(station)
-            elif standing.figures != counted.figures:
-                result.changes.append(_change(counted, standing))
+            earliest = counted if counted is not None else _earliest(first, by_id, standing)
+            if earliest.figures != standing.figures:
+                result.changes.append(_change(earliest, standing))
         # Otherwise the one act left is in conflict (already listed) and
         # nothing stands for this station.
     return result
 
 
-def _change(counted: Statement, standing: Statement) -> Change:
+def _earliest(
+    first: dict[str, Statement], by_id: dict[str, Statement], standing: Statement
+) -> Statement:
+    """Follow ``supersedes`` back from the standing act to the first one known."""
+    current, seen = standing, set()
+    while True:
+        current = first.get(current.stage, current)
+        identifier = current.statement_id()
+        if identifier in seen or current.supersedes not in by_id:
+            return current
+        seen.add(identifier)
+        current = by_id[current.supersedes]
+
+
+def _change(earlier: Statement, standing: Statement) -> Change:
     items: dict[str, tuple[int, int]] = {}
-    if counted.blank != standing.blank:
-        items["blank"] = (counted.blank, standing.blank)
-    if counted.null != standing.null:
-        items["null"] = (counted.null, standing.null)
-    for code in sorted(set(counted.candidatures) | set(standing.candidatures)):
-        a, b = counted.candidatures.get(code, 0), standing.candidatures.get(code, 0)
+    if earlier.blank != standing.blank:
+        items["blank"] = (earlier.blank, standing.blank)
+    if earlier.null != standing.null:
+        items["null"] = (earlier.null, standing.null)
+    for name in sorted(set(earlier.other) | set(standing.other)):
+        a, b = earlier.other.get(name, 0), standing.other.get(name, 0)
+        if a != b:
+            items[f"other:{name}"] = (a, b)
+    for code in sorted(set(earlier.candidatures) | set(standing.candidatures)):
+        a, b = earlier.candidatures.get(code, 0), standing.candidatures.get(code, 0)
         if a != b:
             items[f"candidature:{code}"] = (a, b)
     return Change(
@@ -163,6 +213,7 @@ def _change(counted: Statement, standing: Statement) -> Change:
         stage=standing.stage,
         source=str(standing.evidence.get("kind", "")),
         items=items,
+        from_stage=earlier.stage,
     )
 
 
@@ -263,10 +314,12 @@ def aggregate(
     for statement in statements:
         bucket = sums.setdefault(
             area_of(statement, grouping),
-            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}},
+            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}},
         )
         bucket["blank"] += statement.blank
         bucket["null"] += statement.null
+        for name, count in statement.other.items():
+            bucket["other"][name] = bucket["other"].get(name, 0) + count
         if statement.unit == "station":
             bucket["stations"] += 1
         for code, votes in statement.candidatures.items():
@@ -279,6 +332,7 @@ def aggregate(
             stations=value["stations"],
             candidatures=value["candidatures"],
             candidature_total=sum(value["candidatures"].values()),
+            other=value["other"],
         )
         for key, value in sums.items()
     }
@@ -335,9 +389,10 @@ class Comparison:
                 {
                     "station": c.station,
                     "stage": c.stage,
+                    "from_stage": c.from_stage,
                     "source": c.source,
                     "items": {
-                        item: {"counted": a, "standing": b} for item, (a, b) in c.items.items()
+                        item: {"earlier": a, "standing": b} for item, (a, b) in c.items.items()
                     },
                 }
                 for c in resolution.changes
@@ -424,6 +479,9 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         compare("blank", mine.blank, theirs.blank)
         compare("null", mine.null, theirs.null)
         compare("candidature_total", mine.candidature_total, theirs.candidature_total)
+        if theirs.other is not None:
+            for name in sorted(set(mine.other or {}) | set(theirs.other)):
+                compare(f"other:{name}", (mine.other or {}).get(name, 0), theirs.other.get(name, 0))
         for code in sorted(set(mine.candidatures) | set(theirs.candidatures)):
             compare(
                 f"candidature:{code}",
@@ -542,14 +600,18 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
     listing("Stations whose statement replaces one that was not provided", resolution.dangling)
     if resolution.changes:
         lines.append(
-            f"Stations whose standing figures differ from the count: {len(resolution.changes)}"
+            "Stations whose standing figures differ from an earlier act: "
+            f"{len(resolution.changes)}"
         )
         for change in resolution.changes[:limit]:
             source = f", source {change.source}" if change.source else ""
-            lines.append(f"  {change.station} [{change.stage}{source}]")
-            for item, (counted, standing) in list(change.items.items())[:limit]:
+            lines.append(
+                f"  {change.station} [{change.from_stage} -> {change.stage}{source}]"
+            )
+            word = "counted" if change.from_stage == STAGE_COUNT else "earlier"
+            for item, (earlier, standing) in list(change.items.items())[:limit]:
                 lines.append(
-                    f"    {item}: counted {counted}, standing {standing} ({standing - counted:+d})"
+                    f"    {item}: {word} {earlier}, standing {standing} ({standing - earlier:+d})"
                 )
         if len(resolution.changes) > limit:
             lines.append(f"  ... and {len(resolution.changes) - limit} more")

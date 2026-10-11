@@ -78,6 +78,9 @@ class Statement:
     # Total of valid votes for candidatures as written on the sheet, when the
     # sheet (or the dataset) states it separately from the per-candidature rows.
     candidature_total: int | None = None
+    # Ballots that are neither blank, null nor for a candidature, by category.
+    # Profiles define the categories, for example ballots left unmarked.
+    other: dict[str, int] = field(default_factory=dict)
     # "station" for a polling station. "aggregate" for a row that carries votes
     # but is not a polling station, such as overseas votes counted centrally.
     unit: str = "station"
@@ -96,8 +99,8 @@ class Statement:
 
     @property
     def ballots(self) -> int:
-        """Ballots counted: candidature votes plus blank plus null."""
-        return self.candidature_sum + self.blank + self.null
+        """Ballots counted: candidature votes, blank, null and other categories."""
+        return self.candidature_sum + self.blank + self.null + sum(self.other.values())
 
     @property
     def figures(self) -> tuple:
@@ -111,6 +114,7 @@ class Statement:
             self.blank,
             self.null,
             tuple(sorted((code, votes) for code, votes in self.candidatures.items() if votes)),
+            tuple(sorted((name, count) for name, count in self.other.items() if count)),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -123,6 +127,8 @@ class Statement:
             counts["registered"] = self.registered
         if self.candidature_total is not None:
             counts["candidature_total"] = self.candidature_total
+        if self.other:
+            counts["other"] = dict(sorted(self.other.items()))
         doc: dict[str, Any] = {
             "spec": STATEMENT_SPEC,
             "profile": self.profile,
@@ -158,6 +164,9 @@ class Statement:
         candidatures = counts.get("candidatures")
         if not isinstance(candidatures, dict):
             raise FormatError("counts.candidatures must be an object")
+        other = counts.get("other") or {}
+        if not isinstance(other, dict):
+            raise FormatError("counts.other must be an object")
         unit = doc.get("unit", "station")
         if unit not in UNITS:
             raise FormatError(f"unit must be one of {sorted(UNITS)}")
@@ -189,6 +198,10 @@ class Statement:
                 "counts.candidature_total",
                 optional=True,
             ),
+            other={
+                str(name): _count(count, f"counts.other[{name}]")
+                for name, count in other.items()
+            },
             unit=unit,
             stage=stage,
             supersedes=supersedes,
@@ -240,6 +253,8 @@ class AreaTotals:
     candidatures: dict[str, int]
     stations: int | None = None
     candidature_total: int | None = None
+    # Other categories of ballots; None when the authority does not give them.
+    other: dict[str, int] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         doc: dict[str, Any] = {
@@ -251,6 +266,8 @@ class AreaTotals:
             doc["stations"] = self.stations
         if self.candidature_total is not None:
             doc["candidature_total"] = self.candidature_total
+        if self.other is not None:
+            doc["other"] = dict(sorted(self.other.items()))
         return doc
 
     @classmethod
@@ -270,6 +287,12 @@ class AreaTotals:
             candidature_total=_count(
                 doc.get("candidature_total"), "candidature_total", optional=True
             ),
+            other=None
+            if doc.get("other") is None
+            else {
+                str(name): _count(count, f"other[{name}]")
+                for name, count in doc["other"].items()
+            },
         )
 
 

@@ -82,6 +82,13 @@
             "type": "integer",
             "minimum": 0
           }
+        },
+        "other": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
         }
       }
     },

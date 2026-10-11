@@ -156,7 +156,7 @@ def test_cli_shows_both_sums_and_says_which_one_matches(tmp_path, capsys):
     doc = json.loads(capsys.readouterr().out)
     assert doc["official_matches"] == "as standing"
     assert doc["as_counted"]["ok"] is False
-    assert doc["stations_changed"][0]["items"]["candidature:p"] == {"counted": 7, "standing": 9}
+    assert doc["stations_changed"][0]["items"]["candidature:p"] == {"earlier": 7, "standing": 9}
 
 
 def test_the_log_keeps_every_statement_of_a_station(tmp_path):

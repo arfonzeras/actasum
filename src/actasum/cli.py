@@ -8,6 +8,9 @@
     actasum es official --tota TOTA.zip --out official.json
     actasum verify      --statements statements.jsonl --official official.json
 
+    actasum co convert  --mmv MMV.csv --election 2026-05 [--age-text AGE.txt]
+                        --out statements.jsonl
+
     actasum log build       --statements statements.jsonl --out LOGDIR
     actasum log append      --log LOGDIR --statements more.jsonl
     actasum log checkpoint  --log LOGDIR
@@ -46,6 +49,7 @@ from .log import (
     verify_inclusion_proof,
 )
 from .note import SignatureError
+from .profiles.co import escrutinio as co_escrutinio
 from .profiles.es import infoelectoral, seats as es_seats
 from .statement import FormatError, OfficialTotals, read_jsonl, write_jsonl
 from .verify import VerificationError, aggregate, compare, format_comparison
@@ -101,6 +105,49 @@ def _es_replay(args) -> int:
     else:
         totals = infoelectoral.read_official_totals(official)
     return _emit(compare(statements, totals), args)
+
+
+def _co_convert(args) -> int:
+    """MMV file, and optionally the text of the AGE, to statements."""
+    table = co_escrutinio.load_mmv(args.mmv)
+    statements = co_escrutinio.read_statements(table, args.election)
+    summary: dict = {
+        "file": table.path,
+        "sha256": table.sha256,
+        "lines_before_the_header": table.leading_lines,
+        "last_row_cut_short": table.truncated,
+        "stations": len(statements),
+    }
+    if args.age_text:
+        places = {(row["DEP"], row["MUN"]) for row in table.rows}
+        if len(places) != 1:
+            raise FormatError(
+                f"{table.path}: the record of changes can only be applied to a file "
+                "with a single municipality"
+            )
+        (dep, mun), = places
+        with open(args.age_text, encoding="utf-8") as handle:
+            changes, unparsed = co_escrutinio.read_modifications(handle.read())
+        chained = co_escrutinio.chain(statements, changes, dep, mun)
+        statements = chained.statements
+        summary.update(
+            {
+                "changes_recorded": len(changes),
+                "changes_not_parsed": unparsed,
+                "stations_changed": chained.stations_changed,
+                "changes_not_matching_the_file": len(chained.inconsistent),
+                "changes_for_stations_not_in_the_file": len(chained.unknown_station),
+            }
+        )
+    out = _open_out(args.out)
+    try:
+        summary["statements_written"] = write_jsonl(statements, out)
+    finally:
+        if out is not sys.stdout:
+            out.close()
+    json.dump(summary, sys.stderr, indent=2, ensure_ascii=False)
+    sys.stderr.write("\n")
+    return 0
 
 
 def _es_describe(args) -> int:
@@ -509,6 +556,21 @@ def build_parser() -> argparse.ArgumentParser:
     w_status = witness_commands.add_parser("status", help="what this witness has cosigned")
     w_status.add_argument("--dir", required=True)
     w_status.set_defaults(run=_witness_status)
+
+    co = commands.add_parser("co", help="Colombia profile: Registraduría scrutiny files")
+    co_commands = co.add_subparsers(dest="co_command", required=True)
+    co_convert = co_commands.add_parser(
+        "convert", help="per-station MMV file (and the changes in an AGE) -> statements"
+    )
+    co_convert.add_argument("--mmv", required=True, help="the MMV .csv file as downloaded")
+    co_convert.add_argument("--election", required=True, help="election date as YYYY-MM")
+    co_convert.add_argument(
+        "--age-text",
+        help="text of the Acta General de Escrutinio of the same commission, "
+        "as produced by `pdftotext -layout`",
+    )
+    co_convert.add_argument("--out", default="-", help="output file (default: stdout)")
+    co_convert.set_defaults(run=_co_convert)
 
     es = commands.add_parser("es", help="Spain profile: Ministry of the Interior files")
     es_commands = es.add_subparsers(dest="es_command", required=True)

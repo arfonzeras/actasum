@@ -57,6 +57,7 @@ RFC 8785 outright is an open question.
 | `counts.candidatures` | object | yes | Votes per candidature: candidature code → integer |
 | `counts.registered` | integer | no | Registered voters at the station |
 | `counts.candidature_total` | integer | no | Total votes for candidatures, when the sheet states it separately |
+| `counts.other` | object | no | Ballots that are neither blank, null nor for a candidature: category → integer. Profiles define the categories, for example ballots left unmarked. Omitted when empty |
 | `evidence` | object | no | Where the figures come from (section 3.2) |
 | `extra` | object | no | Profile-specific fields that do not take part in verification |
 
@@ -140,6 +141,7 @@ Totals for one area:
 | `null` | integer | yes | Null votes |
 | `candidatures` | object | yes | Candidature code → votes |
 | `candidature_total` | integer | no | Total votes for candidatures |
+| `other` | object | no | Other categories of ballots, as in `counts.other`. Compared only when present |
 | `stations` | integer | no | Number of polling stations |
 
 ### 4.1 Grouping
@@ -201,19 +203,24 @@ makes no assumption about which of the two an official file contains.
 Statements with the same identifier are one statement.
 
 1. Statements are grouped by station and `stage`. A group whose statements
-   all give the same blank votes, null votes and votes per candidature (a
-   candidature with zero votes and a missing one being the same) counts as
-   one. A group whose statements differ is an act **in conflict**: it enters
-   no sum and is listed. Contradictory copies count for nothing.
+   all give the same figures (blank, null, other categories and votes per
+   candidature, a zero and a missing entry being the same) counts as one.
+   When they differ, a version stays only if no statement of the same
+   `stage` names it in `supersedes`: an authority may correct its own
+   figures, and the corrected version then speaks for the act. A group left
+   with more than one version is an act **in conflict**: it enters no sum
+   and is listed. Contradictory copies count for nothing.
 2. **As counted**: for each station, its `count` act, unless in conflict.
-3. An act is *replaced* when any statement names one of its statements in
-   `supersedes`. **As standing**: for each station, the one act that is not
-   replaced, unless it is in conflict.
+3. An act is *replaced* when a statement of another `stage` names one of its
+   statements in `supersedes`. **As standing**: for each station, the one
+   act that is not replaced, unless it is in conflict.
 4. A station with more than one act not replaced is **undetermined**: it is
    left out of the standing sum and listed. The format does not guess an
    order between acts that do not refer to each other.
-5. The verifier lists the stations whose standing figures differ from the
-   count, item by item, with the act and the class of source; the stations
+5. The verifier lists the stations whose standing figures differ from those
+   of an earlier act (the count when there is a statement of it, otherwise
+   the first act of the chain), item by item, with both acts and the class
+   of source; the stations
    that have a later act but no statement of the count; and the statements
    whose `supersedes` names a statement that was not provided.
 
