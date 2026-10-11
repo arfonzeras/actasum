@@ -336,10 +336,12 @@ class AreaTotals:
     candidature_total: int | None = None
     # Other categories of ballots; None when the authority does not give them.
     other: dict[str, int] | None = None
-    # Only in totals recomputed from statements: item -> number of statements
-    # that could not read that figure, and "candidature_total" -> number that
-    # could not read some candidature figure. The sum for such an item is
-    # then a lower bound, not a total.
+    # Items whose figure is a lower bound, not a total, with how many figures
+    # behind it could not be read. In totals recomputed from statements:
+    # item -> number of statements that could not read it, and
+    # "candidature_total" -> number that could not read some candidature. In
+    # official totals: item -> number of figures the source of the totals
+    # could not read.
     unread: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -380,6 +382,11 @@ class AreaTotals:
             else {
                 str(name): _count(count, f"other[{name}]")
                 for name, count in doc["other"].items()
+            },
+            unread={
+                str(item): _count(count, f"unread[{item}]")
+                for item, count in (doc.get("unread") or {}).items()
+                if count
             },
         )
 

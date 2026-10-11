@@ -19,10 +19,11 @@ def statement(station="xx/01/A", *, blank=2, null=3, votes=None, stage="count", 
     )  # fmt: skip
 
 
-def official(a=50, b=30, *, blank=2, null=3, other=None, total=None):
+def official(a=50, b=30, *, blank=2, null=3, other=None, total=None, unread=None):
     area = AreaTotals(
-        blank=blank, null=null, candidatures={"A": a, "B": b}, other=other, candidature_total=total
-    )
+        blank=blank, null=null, candidatures={"A": a, "B": b}, other=other,
+        candidature_total=total, unread=unread or {},
+    )  # fmt: skip
     return OfficialTotals(profile="xx/test/v0", election="xx/e/2026-01", areas={"xx": area})
 
 
@@ -113,7 +114,7 @@ def test_a_sum_with_an_unread_figure_is_a_lower_bound_neither_match_nor_differen
     # The official figure for B is 55: the stations give at least 30.
     report = verify(statements, official(a=90, b=55, blank=4, null=6, total=145))
     assert not report.differences
-    assert [(b.item, b.at_least, b.official, b.statements) for b in report.bounds] == [
+    assert [(b.item, b.recomputed, b.official, b.statements) for b in report.bounds] == [
         ("candidature_total", 120, 145, 1),
         ("candidature:B", 30, 55, 1),
     ]
@@ -124,6 +125,69 @@ def test_a_sum_with_an_unread_figure_is_a_lower_bound_neither_match_nor_differen
     # Even when the figures happen to be equal, the sum is not called a match.
     equal = verify(statements, official(a=90, b=30, blank=4, null=6))
     assert not equal.ok and equal.undecided and not equal.differences
+
+
+def test_case_1_a_lower_bound_above_the_official_figure_differs_by_at_least_that_much():
+    statements = [
+        statement(null=None, unread={"null": "illegible"}),
+        statement("xx/01/B", null=9),
+    ]
+    report = verify(statements, official(a=100, b=60, blank=4, null=5))
+    (difference,) = report.differences
+    assert (difference.item, difference.recomputed, difference.official) == ("null", 9, 5)
+    assert difference.bound == "recomputed" and difference.describe_delta == "at least 4 above"
+    doc = report.to_dict()["differences"][0]
+    assert doc["delta"] == 4 and doc["delta_is_a_minimum"] is True
+    text = format_comparison(compare(statements, official(a=100, b=60, blank=4, null=5)))
+    assert "null: recomputed at least 9, official 5 (at least 4 above)" in text
+    # A difference between two totals is still an exact one.
+    exact = verify([statement()], official(a=49))
+    assert exact.differences[0].describe_delta == "+1" and not exact.differences[0].bound
+    assert "delta_is_a_minimum" not in exact.to_dict()["differences"][0]
+
+
+def test_case_2_a_lower_bound_equal_to_or_below_the_official_figure_says_nothing():
+    statements = [statement(null=None, unread={"null": "empty"}), statement("xx/01/B", null=5)]
+    for official_null in (5, 8):  # equal, then above
+        report = verify(statements, official(a=100, b=60, blank=4, null=official_null))
+        assert report.differences == []
+        (bound,) = report.bounds
+        assert (bound.item, bound.recomputed, bound.official) == ("null", 5, official_null)
+        assert not report.ok and report.undecided and report.areas_matching == 0
+    text = format_comparison(compare(statements, official(a=100, b=60, blank=4, null=8)))
+    assert "null: recomputed at least 5, official 8" in text and "nothing is said" in text
+
+
+def test_case_3_two_lower_bounds_say_nothing_whichever_is_larger():
+    statements = [statement(null=None, unread={"null": "empty"}), statement("xx/01/B", null=9)]
+    for official_null in (5, 9, 20):  # below, equal and above the recomputed bound
+        totals = official(a=100, b=60, blank=4, null=official_null, unread={"null": 2})
+        report = verify(statements, totals)
+        assert report.differences == []
+        (bound,) = report.bounds
+        assert (bound.recomputed, bound.official) == (9, official_null)
+        assert (bound.statements, bound.official_unread) == (1, 2)
+        assert report.undecided
+    text = format_comparison(compare(statements, totals))
+    assert "recomputed at least 9, official at least 20" in text
+
+
+def test_an_official_figure_that_is_a_lower_bound_is_treated_the_same_way():
+    statements = [statement(null=3)]
+    below = verify(statements, official(null=7, unread={"null": 1}))
+    (difference,) = below.differences
+    assert difference.bound == "official" and difference.describe_delta == "at least 4 below"
+    assert verify(statements, official(null=2, unread={"null": 1})).differences == []
+    # and an official-totals document keeps the mark when written and read back
+    again = OfficialTotals.from_dict(official(null=7, unread={"null": 1}).to_dict())
+    assert again.areas["xx"].unread == {"null": 1}
+    # an unread candidature behind the official figures makes their total a bound too
+    total = verify(
+        [statement()], official(a=50, b=40, total=90, unread={"candidature:B": 1})
+    )
+    assert [(d.item, d.bound) for d in total.differences] == [
+        ("candidature_total", "official"), ("candidature:B", "official"),
+    ]  # fmt: skip
 
 
 def test_a_lower_bound_above_the_official_figure_is_a_difference():
@@ -179,7 +243,7 @@ def test_the_comparison_says_undecided_and_does_not_pass():
     comparison = compare(statements, official())
     assert comparison.official_matches == "undecided" and not comparison.ok
     text = format_comparison(comparison)
-    assert "only a lower bound" in text and "at least 0, official 30" in text
+    assert "only a lower bound" in text and "recomputed at least 0, official 30" in text
     assert "neither match nor differ" in text
     doc = comparison.to_dict()
     assert doc["ok"] is False and doc["lower_bounds"][0]["statements_with_the_figure_unread"] == 1

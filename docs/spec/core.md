@@ -171,6 +171,7 @@ Totals for one area:
 | `candidature_total` | integer | no | Total votes for candidatures |
 | `other` | object | no | Other categories of ballots, as in `counts.other`. Compared only when present |
 | `stations` | integer | no | Number of polling stations |
+| `unread` | object | no | Items whose figure is a lower bound because its source could not read some figure behind it: item → how many. Omitted when empty |
 
 ### 4.1 Grouping
 
@@ -223,10 +224,18 @@ means whatever the document's `grouping` defines.
    that. The same holds for the candidature total when any candidature
    figure is unread.
    - A lower bound **above** the official figure is a *difference*: the true
-     sum can only be higher still.
-   - A lower bound **not above** the official figure is neither a match nor a
-     difference, also when the two happen to be equal. It is reported as a
+     sum can only be higher still. Its size is a minimum too, and the
+     verifier MUST say "at least N above", never "N above".
+   - A lower bound **equal to or below** the official figure is neither a
+     match nor a difference. Nothing is said about it; it is listed as a
      lower bound, with the number of statements concerned.
+   - When the official figure is a lower bound as well (`unread` in the
+     official totals), there are **two lower bounds** and nothing is said in
+     any case, whichever is larger.
+
+   An official figure that is a lower bound, against a sum that is not, is
+   treated the same way round: a sum below it differs by at least that much,
+   and nothing is said otherwise.
 7. An area present on only one side is a *gap*.
 
 A sum is **matching** only if there are no differences, no lower bounds and

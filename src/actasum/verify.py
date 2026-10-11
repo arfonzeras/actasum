@@ -33,27 +33,42 @@ class Difference:
     item: str  # "blank", "null", "candidature_total", "stations" or "candidature:<code>"
     recomputed: int
     official: int
+    # "" when both figures are totals. "recomputed" or "official" when that
+    # side is a lower bound, because figures behind it could not be read:
+    # the difference is then at least ``delta``, not ``delta``.
+    bound: str = ""
 
     @property
     def delta(self) -> int:
         return self.recomputed - self.official
 
+    @property
+    def describe_delta(self) -> str:
+        if not self.bound:
+            return f"{self.delta:+d}"
+        return f"at least {abs(self.delta)} {'above' if self.delta > 0 else 'below'}"
+
 
 @dataclass(frozen=True)
 class Bound:
-    """A sum that is only a lower bound, because figures could not be read.
+    """A comparison nothing can be said about, because figures could not be read.
 
-    The recomputed sum does not exceed the official figure, so it can be
-    called neither matching nor differing. (When it does exceed it, that is a
-    ``Difference``: the true sum can only be higher still.)
+    One side is a lower bound that the other does not contradict, or both
+    sides are lower bounds. Either way the two can be called neither matching
+    nor differing. (A lower bound on one side only that already exceeds the
+    other side is a ``Difference`` of at least that much.)
     """
 
     area: str
     item: str
-    at_least: int
+    recomputed: int
     official: int
-    # Statements in the area whose figure for this item is unread.
+    # Statements in the area whose figure for this item is unread; when not
+    # zero, ``recomputed`` is a lower bound.
     statements: int
+    # Figures behind the official total that its source could not read; when
+    # not zero, ``official`` is a lower bound too.
+    official_unread: int = 0
 
 
 @dataclass(frozen=True)
@@ -351,6 +366,9 @@ class Report:
                     "recomputed": d.recomputed,
                     "official": d.official,
                     "delta": d.delta,
+                    # "recomputed" or "official": that side is a lower bound,
+                    # and the difference is at least ``delta``.
+                    **({"lower_bound": d.bound, "delta_is_a_minimum": True} if d.bound else {}),
                 }
                 for d in self.differences
             ],
@@ -358,9 +376,10 @@ class Report:
                 {
                     "area": b.area,
                     "item": b.item,
-                    "at_least": b.at_least,
+                    "recomputed": b.recomputed,
                     "official": b.official,
                     "statements_with_the_figure_unread": b.statements,
+                    "official_figures_unread": b.official_unread,
                 }
                 for b in self.bounds
             ],
@@ -595,39 +614,45 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
 
         open_sums: list[Bound] = []
 
-        def compare(item: str, a: int | None, b: int | None, unread: int = 0) -> None:
+        def compare(item: str, a: int | None, b: int | None) -> None:
             if a is None or b is None:
                 return
-            if unread and a <= b:
-                # Figures are missing from the sum: it is a lower bound that
-                # the official figure does not contradict, and no more.
-                open_sums.append(Bound(key, item, a, b, unread))
+            ours, theirs_unread = mine.unread.get(item, 0), theirs.unread.get(item, 0)
+            if item == "candidature_total" and not theirs_unread:
+                theirs_unread = sum(
+                    n for name, n in theirs.unread.items() if name.startswith("candidature:")
+                )
+            if ours and theirs_unread:
+                # Two lower bounds: nothing follows, whichever is larger.
+                open_sums.append(Bound(key, item, a, b, ours, theirs_unread))
+            elif ours:
+                if a > b:
+                    # The sum is at least a, so it exceeds b by at least a - b.
+                    found.append(Difference(key, item, a, b, "recomputed"))
+                else:
+                    open_sums.append(Bound(key, item, a, b, ours))
+            elif theirs_unread:
+                if a < b:
+                    found.append(Difference(key, item, a, b, "official"))
+                else:
+                    open_sums.append(Bound(key, item, a, b, 0, theirs_unread))
             elif a != b:
                 found.append(Difference(key, item, a, b))
 
         compare("stations", mine.stations, theirs.stations)
-        compare("blank", mine.blank, theirs.blank, mine.unread.get("blank", 0))
-        compare("null", mine.null, theirs.null, mine.unread.get("null", 0))
-        compare(
-            "candidature_total",
-            mine.candidature_total,
-            theirs.candidature_total,
-            mine.unread.get("candidature_total", 0),
-        )
+        compare("blank", mine.blank, theirs.blank)
+        compare("null", mine.null, theirs.null)
+        compare("candidature_total", mine.candidature_total, theirs.candidature_total)
         if theirs.other is not None:
             for name in sorted(set(mine.other or {}) | set(theirs.other)):
                 compare(
-                    f"other:{name}",
-                    (mine.other or {}).get(name, 0),
-                    theirs.other.get(name, 0),
-                    mine.unread.get(f"other:{name}", 0),
+                    f"other:{name}", (mine.other or {}).get(name, 0), theirs.other.get(name, 0)
                 )
         for code in sorted(set(mine.candidatures) | set(theirs.candidatures)):
             compare(
                 f"candidature:{code}",
                 mine.candidatures.get(code, 0),
                 theirs.candidatures.get(code, 0),
-                mine.unread.get(f"candidature:{code}", 0),
             )
         report.areas_checked += 1
         if not found and not open_sums:
@@ -678,9 +703,11 @@ def format_report(
             f"in {len(report.areas_differing)} {areas}"
         )
         for d in report.differences[:limit]:
+            ours = "at least " if d.bound == "recomputed" else ""
+            theirs = "at least " if d.bound == "official" else ""
             lines.append(
-                f"  {d.area} {d.item}: recomputed {d.recomputed}, "
-                f"official {d.official} ({d.delta:+d})"
+                f"  {d.area} {d.item}: recomputed {ours}{d.recomputed}, "
+                f"official {theirs}{d.official} ({d.describe_delta})"
             )
         if len(report.differences) > limit:
             lines.append(f"  ... and {len(report.differences) - limit} more")
@@ -690,9 +717,14 @@ def format_report(
             f"{len(report.bounds)} in {len({b.area for b in report.bounds})} {areas}"
         )
         for b in report.bounds[:limit]:
+            ours = "at least " if b.statements else ""
+            theirs = "at least " if b.official_unread else ""
+            why = [f"unread in {b.statements} statements"] if b.statements else []
+            if b.official_unread:
+                why.append(f"{b.official_unread} unread behind the official figure")
             lines.append(
-                f"  {b.area} {b.item}: at least {b.at_least}, official {b.official} "
-                f"(unread in {b.statements} statements)"
+                f"  {b.area} {b.item}: recomputed {ours}{b.recomputed}, "
+                f"official {theirs}{b.official} ({', '.join(why)}): nothing is said"
             )
         if len(report.bounds) > limit:
             lines.append(f"  ... and {len(report.bounds) - limit} more")
