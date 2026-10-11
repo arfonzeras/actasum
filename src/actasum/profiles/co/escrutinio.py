@@ -48,24 +48,104 @@ class Table:
     """The rows of an MMV file, and what was wrong with the file itself."""
 
     path: str
-    sha256: str
+    sha256: str  # of the content the rows were read from
     rows: list[dict[str, str]]
     # Lines before the header that are not part of the table.
     leading_lines: int
     # True when the last line stops before its last column.
     truncated: bool
+    # Hash of the file as published, when it is not the content read: the
+    # original was rebuilt from it and matched the hash the commission recorded.
+    published_sha256: str | None = None
 
 
-def load_mmv(path: str) -> Table:
-    """Read an MMV file as published.
+def _sha256(data: bytes) -> str:
+    return "sha256:" + hashlib.sha256(data).hexdigest()
 
-    The file is kept as it is, defects included, and the defects are
-    reported: a published file has been seen to start with a stray line and
-    to end in the middle of a row.
+
+def restore(raw: bytes, expected: str, *, max_votes: int = 9999) -> bytes | None:
+    """Rebuild the file a commission generated from a damaged published copy.
+
+    A published file has been seen with a stray line before the header and
+    with its end cut off in the middle of the last row. The stray line is
+    dropped. The cut row is completed with the option's name, taken from an
+    earlier row of the same option, and with each possible vote figure in
+    turn. A candidate is accepted only if its SHA-256 is ``expected``, the
+    hash recorded in the commission's own record, so nothing is guessed: the
+    hash decides. Returns None when no candidate matches.
+    """
+    expected = expected.removeprefix("sha256:").lower()
+    marker = (";".join(COLUMNS)).encode("utf-8")
+    start = raw.find(marker)
+    if start < 0:
+        return None
+    body = raw[start:]
+    if hashlib.sha256(body).hexdigest() == expected:
+        return body
+    cut = body.rfind(b"\n") + 1
+    last = body[cut:].decode("utf-8", errors="replace").split(";")
+    if not 0 < len(last) <= len(COLUMNS) or len(last) < len(COLUMNS) - 1:
+        return None
+    key = ";".join(last[13:16]) + ";"  # party, party name, option
+    name = None
+    for line in body[:cut].decode("utf-8", errors="replace").splitlines():
+        fields = line.split(";")
+        if len(fields) == len(COLUMNS) and ";".join(fields[13:16]) + ";" == key:
+            name = fields[17]
+            break
+    if name is None or not name.startswith(last[17] if len(last) > 17 else ""):
+        return None
+    head = body[:cut] + ";".join(last[:17] + [name]).encode("utf-8") + b";"
+    for votes in range(max_votes + 1):
+        candidate = head + f"{votes:04d}".encode() + b"\r\n"
+        if hashlib.sha256(candidate).hexdigest() == expected:
+            return candidate
+    return None
+
+
+_RECORDED_HASH = re.compile(
+    r"archivo\s+de\s+votación\s+(MMV_\w+?)\.csv\s+con\s+hash\s+\(SHA-256\):\s*([0-9a-f]{64})"
+)
+
+
+def recorded_hash(age_text: str) -> str | None:
+    """The hash of the final MMV file, as the text of an AGE records it.
+
+    Partial files, whose name ends in ``_P``, are skipped.
+    """
+    found = [
+        digest for name, digest in _RECORDED_HASH.findall(age_text) if not name.endswith("_P")
+    ]
+    return "sha256:" + found[-1] if found else None
+
+
+def load_mmv(path: str, expected_sha256: str | None = None) -> Table:
+    """Read an MMV file.
+
+    Without ``expected_sha256`` the file is read as published, defects
+    included, and the defects are reported. With it, a file whose hash differs
+    is passed to ``restore``; if the original can be rebuilt, the rows come
+    from the original and the table says so.
     """
     with open(path, "rb") as handle:
         raw = handle.read()
-    digest = "sha256:" + hashlib.sha256(raw).hexdigest()
+    digest = _sha256(raw)
+    published = None
+    if expected_sha256 is not None and digest != "sha256:" + expected_sha256.removeprefix(
+        "sha256:"
+    ):
+        restored = restore(raw, expected_sha256)
+        if restored is not None:
+            published, raw, digest = digest, restored, _sha256(restored)
+    table = _parse_mmv(path, raw, digest)
+    return table if published is None else Table(
+        path=table.path, sha256=table.sha256, rows=table.rows,
+        leading_lines=table.leading_lines, truncated=table.truncated,
+        published_sha256=published,
+    )
+
+
+def _parse_mmv(path: str, raw: bytes, digest: str) -> Table:
     lines = raw.decode("utf-8").splitlines()
     header = ";".join(COLUMNS)
     try:
@@ -134,6 +214,10 @@ def read_statements(table: Table, year_month: str) -> list[Statement]:
                 raise FormatError(f"{where}: option {code} repeated for {key}")
             bucket["votes"][code] = votes
     evidence = {"kind": "official-dataset", "sha256": table.sha256}
+    if table.published_sha256:
+        # The rows come from the original file, rebuilt from the published
+        # copy and matched against the hash in the commission's record.
+        evidence["published_sha256"] = table.published_sha256
     return [
         Statement(
             profile=PROFILE,
@@ -170,7 +254,7 @@ _FURNITURE = re.compile(
 )
 _ENTRY = re.compile(
     r"ZONA\s+(\w+),\s+PUESTO\s+(\w+)-\s*(.{1,120}?),\s+MESA\s+N°\s+(\d+)\s*:\s*"
-    r"(?:[A-ZÁÉÍÓÚ]+:)?\s*En\s+la\s+fecha\s+(\d\d-\d\d-\d{4}\s+\d\d:\d\d:\d\d\s+[ap]\.\s+m\.)"
+    r"(?:[A-ZÁÉÍÓÚ]+:)?\s*En\s+la\s+fecha\s+(\d\d-\s*\d\d-\s*\d{4}\s+\d\d:\d\d:\d\d\s+[ap]\.\s+m\.)"
     r"\s+-\s+se\s+modificó\s+la\s+votación\.",
     re.S,
 )
@@ -204,7 +288,7 @@ def read_modifications(text: str) -> tuple[list[Modification], int]:
                 option=option,
                 previous=int(previous),
                 new=int(new),
-                when=" ".join(entry.group(5).split()),
+                when=re.sub(r"-\s+", "-", " ".join(entry.group(5).split())),
             )
         )
     return found, len(_MENTION.findall(text)) - len(found)

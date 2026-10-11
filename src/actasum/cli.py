@@ -109,13 +109,27 @@ def _es_replay(args) -> int:
 
 def _co_convert(args) -> int:
     """MMV file, and optionally the text of the AGE, to statements."""
-    table = co_escrutinio.load_mmv(args.mmv)
+    age_text = None
+    if args.age_text:
+        with open(args.age_text, encoding="utf-8") as handle:
+            age_text = handle.read()
+    recorded = args.sha256 or (co_escrutinio.recorded_hash(age_text) if age_text else None)
+    published = co_escrutinio.load_mmv(args.mmv)
+    table = co_escrutinio.load_mmv(args.mmv, recorded) if recorded else published
     statements = co_escrutinio.read_statements(table, args.election)
     summary: dict = {
-        "file": table.path,
-        "sha256": table.sha256,
-        "lines_before_the_header": table.leading_lines,
-        "last_row_cut_short": table.truncated,
+        "file": published.path,
+        "sha256_as_published": published.sha256,
+        "lines_before_the_header": published.leading_lines,
+        "last_row_cut_short": published.truncated,
+        "sha256_recorded_by_the_commission": recorded,
+        "hash_check": "no recorded hash to compare with"
+        if recorded is None
+        else "the published file is the recorded one"
+        if published.sha256 == recorded
+        else "the published file differs; the original was rebuilt and matches the recorded hash"
+        if table.published_sha256
+        else "the published file differs and the original could not be rebuilt",
         "stations": len(statements),
     }
     if args.age_text:
@@ -126,8 +140,7 @@ def _co_convert(args) -> int:
                 "with a single municipality"
             )
         (dep, mun), = places
-        with open(args.age_text, encoding="utf-8") as handle:
-            changes, unparsed = co_escrutinio.read_modifications(handle.read())
+        changes, unparsed = co_escrutinio.read_modifications(age_text)
         chained = co_escrutinio.chain(statements, changes, dep, mun)
         statements = chained.statements
         summary.update(
@@ -568,6 +581,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--age-text",
         help="text of the Acta General de Escrutinio of the same commission, "
         "as produced by `pdftotext -layout`",
+    )
+    co_convert.add_argument(
+        "--sha256",
+        help="hash of the MMV file as recorded by the commission "
+        "(default: the one found in --age-text)",
     )
     co_convert.add_argument("--out", default="-", help="output file (default: stdout)")
     co_convert.set_defaults(run=_co_convert)

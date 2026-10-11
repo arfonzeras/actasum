@@ -1,6 +1,6 @@
 # Colombia profile (draft `co/codigo-electoral/v0.1`)
 
-Status: **draft, run on one file**: the per-station file of Bogotá D.C. for
+Status: **draft, run on one department**: the per-station file of Bogotá D.C. for
 the presidential election of 31 May 2026 (see
 [`../findings/co-presidente-2026.md`](../findings/co-presidente-2026.md)).
 Everything here was learnt from that file, from three records of scrutiny
@@ -92,11 +92,17 @@ jurors. None of that is read or stored.
 
 1. One file, one election, one department. Other departments, the second
    round and Congress elections have not been tried.
-2. No official totals yet: the comparison with an E-26 has not been made.
-3. The published MMV file run was not the file the commission generated: its
-   hash differs from the one in the AGE, it starts with a stray line and its
-   last row is cut short. The reader reports both defects and reads what is
-   there.
+2. Official totals come from scanned forms (E-26, E-24) typed by hand. The
+   profile has no reader for them.
+3. The published MMV file run was not the file the commission generated: it
+   starts with a stray line and its last row is cut short. When the hash the
+   commission recorded is known (it is read from the AGE, or given with
+   `--sha256`), the reader rebuilds the original and accepts it only if the
+   hash agrees; the statements then carry both hashes. Otherwise it reports
+   the defects and reads what is there. Only this one pattern of damage is
+   handled.
+3a. A station with no votes at all has no row in the file and so produces no
+   statement. The station count then falls short of the official one.
 4. On the Congress scrutiny site the links to the MMV files returned the
    site's own page instead of a file on 11 October 2026.
 5. E-14 forms are scanned handwriting. Nothing here transcribes them. Bulk

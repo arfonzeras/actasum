@@ -111,6 +111,45 @@ def test_modifications_are_parsed_across_wraps_and_page_breaks():
     assert changes[0].when == "02-06-2026 10:14:15 a. m."
 
 
+def test_a_date_broken_across_lines_is_still_read():
+    broken = entry("01", "01", 1, 2, 0, "1005", "013").replace("02-06-2026", "02-06-\n2026")
+    changes, unparsed = co.read_modifications(broken)
+    assert unparsed == 0 and changes[0].when == "02-06-2026 10:14:15 a. m."
+
+
+def test_a_damaged_copy_is_rebuilt_only_if_the_hash_agrees(tmp_path):
+    import hashlib
+
+    # The cut row has to be of an option that has an earlier, complete row:
+    # that is where its name is taken from.
+    rows = ROWS[:4] + [ROWS[5], ROWS[4]]
+    original = ("\r\n".join([HEADER] + rows) + "\r\n").encode("utf-8")
+    recorded = hashlib.sha256(original).hexdigest()
+    # As seen in a published file: a stray first line, and as many bytes
+    # missing at the end.
+    damaged = b"=/;HttpOnly\r\n" + original[:-13]
+    path = tmp_path / "MMV.csv"
+    path.write_bytes(damaged)
+    assert co.restore(damaged, recorded) == original
+    assert co.restore(damaged, "0" * 64) is None
+    table = co.load_mmv(str(path), "sha256:" + recorded)
+    assert table.sha256 == "sha256:" + recorded
+    assert table.published_sha256 == "sha256:" + hashlib.sha256(damaged).hexdigest()
+    assert (table.truncated, table.leading_lines, len(table.rows)) == (False, 0, len(ROWS))
+    statement = co.read_statements(table, "2026-05")[0]
+    assert statement.evidence["published_sha256"] == table.published_sha256
+    # With a hash that nothing matches, the file is read as published.
+    assert co.load_mmv(str(path), "0" * 64).truncated is True
+
+
+def test_recorded_hash_is_read_from_the_record_and_partial_files_are_skipped():
+    text = ("Se generó el archivo de votación MMV_XXX_16_000_XXX_XX_XX_XXX_1009_P.csv con hash\n"
+            "(SHA-256): " + "a" * 64 + ". Más tarde se generó el\narchivo   de   votación   "
+            "MMV_XXX_16_000_XXX_XX_XX_XXX_1009.csv   con   hash   (SHA-256):\n" + "b" * 64 + ".")
+    assert co.recorded_hash(text) == "sha256:" + "b" * 64
+    assert co.recorded_hash("nada") is None
+
+
 def test_entries_that_cannot_be_parsed_are_counted():
     _, unparsed = co.read_modifications(AGE + "\nalgo raro - se modificó la votación.\n")
     assert unparsed == 1
