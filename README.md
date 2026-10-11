@@ -53,6 +53,8 @@ difference does not say which published figure is right.
 | [`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md) | Runs on two European Parliament elections and two local elections |
 | [`docs/spec/profile-co.md`](docs/spec/profile-co.md) | Colombia profile (draft, one file run) |
 | [`docs/findings/co-presidente-2026.md`](docs/findings/co-presidente-2026.md) | Colombia, presidential election of May 2026: Bogotá and Córdoba verified against the commissions' own hashes and totals |
+| [`docs/spec/profile-mx.md`](docs/spec/profile-mx.md) | Mexico profile (draft): INE PREP and Cómputos Distritales databases |
+| [`docs/findings/mx-presidencia-2024.md`](docs/findings/mx-presidencia-2024.md) | Mexico, presidential election of June 2024: the count as captured and the canvass, station by station |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
 | `tests/` | Tests on synthetic data |
