@@ -8,3 +8,20 @@ dist/
 data/
 *.zip
 *.DAT
+
+# private keys and witness state: never commit these
+*.key
+*.pub
+key
+state.json
+testigo/
+witness/
+
+# local working files from the README examples
+statements.jsonl
+official.json
+proof.json
+checkpoint.txt
+request.txt
+cosignature.txt
+log-*/
