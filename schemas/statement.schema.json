@@ -89,7 +89,7 @@
           }
         },
         "unread": {
-          "description": "Figures of the tally sheet that could not be read: item -> reason. An item is blank, null, candidature:<code> or other:<category>, and carries no value elsewhere in counts. blank and null are required unless listed here.",
+          "description": "Figures of the tally sheet that could not be read: item -> reason. An item is blank, null, candidature:<code> or other:<category>, and carries no value elsewhere in counts. blank and null are required unless listed here or in not_on_sheet.",
           "type": "object",
           "propertyNames": {
             "pattern": "^(blank|null|candidature:.+|other:.+)$"
@@ -98,6 +98,18 @@
             "enum": [
               "illegible",
               "empty"
+            ]
+          }
+        },
+        "not_on_sheet": {
+          "description": "Figures the tally sheet does not have at all: item -> reason. Same shape and item names as unread. An item is in at most one of unread and not_on_sheet, and carries no value elsewhere in counts.",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^(blank|null|candidature:.+|other:.+)$"
+          },
+          "additionalProperties": {
+            "enum": [
+              "no-field"
             ]
           }
         }
@@ -121,6 +133,18 @@
               "required": [
                 "unread"
               ]
+            },
+            {
+              "properties": {
+                "not_on_sheet": {
+                  "required": [
+                    "blank"
+                  ]
+                }
+              },
+              "required": [
+                "not_on_sheet"
+              ]
             }
           ]
         },
@@ -141,6 +165,18 @@
               },
               "required": [
                 "unread"
+              ]
+            },
+            {
+              "properties": {
+                "not_on_sheet": {
+                  "required": [
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "not_on_sheet"
               ]
             }
           ]

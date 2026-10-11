@@ -28,6 +28,9 @@ STAGES = ("count", "canvass", "ruling", "rerun")
 # something is written and could not be read. "empty": nothing is written.
 # Neither is a zero, and the two are not the same thing.
 UNREAD_REASONS = ("illegible", "empty")
+# Why a figure does not exist on a tally sheet at all. "no-field": the sheet
+# has no field for it. Such a figure is not missing: there is nothing to add.
+NOT_ON_SHEET_REASONS = ("no-field",)
 _ITEM_CANDIDATURE, _ITEM_OTHER = "candidature:", "other:"
 
 
@@ -77,7 +80,7 @@ class Statement:
     election: str
     station: str
     constituency: str
-    # None only when the figure is listed in ``unread``.
+    # None only when the figure is listed in ``unread`` or ``not_on_sheet``.
     blank: int | None
     null: int | None
     candidatures: dict[str, int]
@@ -92,6 +95,10 @@ class Statement:
     # "blank", "null", "candidature:<code>" or "other:<category>", and carries
     # no value anywhere else in the statement. Never a zero.
     unread: dict[str, str] = field(default_factory=dict)
+    # Figures the sheet does not have at all: item -> reason. Same shape and
+    # same item names as ``unread``; an item is in at most one of the two,
+    # and carries no value either way.
+    not_on_sheet: dict[str, str] = field(default_factory=dict)
     # "station" for a polling station. "aggregate" for a row that carries votes
     # but is not a polling station, such as overseas votes counted centrally.
     unit: str = "station"
@@ -105,24 +112,41 @@ class Statement:
     extra: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        for item, reason in self.unread.items():
-            if reason not in UNREAD_REASONS:
-                raise FormatError(f"counts.unread[{item}] must be one of {list(UNREAD_REASONS)}")
-            if item.startswith(_ITEM_CANDIDATURE):
-                valued = item[len(_ITEM_CANDIDATURE) :] in self.candidatures
-            elif item.startswith(_ITEM_OTHER):
-                valued = item[len(_ITEM_OTHER) :] in self.other
-            elif item in ("blank", "null"):
-                valued = getattr(self, item) is not None
-            else:
-                raise FormatError(
-                    f"counts.unread: {item!r} is not blank, null, candidature:<code> "
-                    "or other:<category>"
-                )
-            if valued:
-                raise FormatError(f"{item} is listed as unread and cannot also carry a value")
+        for field_name, reasons in (
+            ("unread", UNREAD_REASONS),
+            ("not_on_sheet", NOT_ON_SHEET_REASONS),
+        ):
+            for item, reason in getattr(self, field_name).items():
+                if reason not in reasons:
+                    raise FormatError(
+                        f"counts.{field_name}[{item}] must be one of {list(reasons)}"
+                    )
+                if item.startswith(_ITEM_CANDIDATURE):
+                    valued = item[len(_ITEM_CANDIDATURE) :] in self.candidatures
+                elif item.startswith(_ITEM_OTHER):
+                    valued = item[len(_ITEM_OTHER) :] in self.other
+                elif item in ("blank", "null"):
+                    valued = getattr(self, item) is not None
+                else:
+                    raise FormatError(
+                        f"counts.{field_name}: {item!r} is not blank, null, "
+                        "candidature:<code> or other:<category>"
+                    )
+                if valued:
+                    raise FormatError(
+                        f"{item} is listed in counts.{field_name} and cannot also carry a value"
+                    )
+        both = set(self.unread) & set(self.not_on_sheet)
+        if both:
+            raise FormatError(
+                f"{sorted(both)[0]} cannot be both unread and not on the sheet"
+            )
         for name in ("blank", "null"):
-            if getattr(self, name) is None and name not in self.unread:
+            if (
+                getattr(self, name) is None
+                and name not in self.unread
+                and name not in self.not_on_sheet
+            ):
                 raise FormatError(f"counts.{name} must be a non-negative integer")
 
     @property
@@ -158,6 +182,7 @@ class Statement:
             tuple(sorted((code, votes) for code, votes in self.candidatures.items() if votes)),
             tuple(sorted((name, count) for name, count in self.other.items() if count)),
             tuple(sorted(self.unread.items())),
+            tuple(sorted(self.not_on_sheet.items())),
         )
 
     def items(self) -> set[str]:
@@ -167,11 +192,13 @@ class Statement:
             | {_ITEM_CANDIDATURE + code for code in self.candidatures}
             | {_ITEM_OTHER + name for name in self.other}
             | set(self.unread)
+            | set(self.not_on_sheet)
         )
 
     def value(self, item: str) -> int | None:
-        """The figure for ``item``, or None when it could not be read."""
-        if item in self.unread:
+        """The figure for ``item``, or None when the statement gives none:
+        it could not be read, or the sheet does not have it."""
+        if item in self.unread or item in self.not_on_sheet:
             return None
         if item.startswith(_ITEM_CANDIDATURE):
             return self.candidatures.get(item[len(_ITEM_CANDIDATURE) :], 0)
@@ -182,9 +209,13 @@ class Statement:
     def agrees_with(self, other: "Statement") -> bool:
         """True when no figure that both statements read differs.
 
-        A figure one of them could not read contradicts nothing.
+        A figure one of them could not read contradicts nothing. Saying that
+        the sheet does not have a figure does contradict a statement that
+        gives one, or that says it is there and could not be read.
         """
         for item in self.items() | other.items():
+            if (item in self.not_on_sheet) != (item in other.not_on_sheet):
+                return False
             mine, theirs = self.value(item), other.value(item)
             if mine is not None and theirs is not None and mine != theirs:
                 return False
@@ -198,6 +229,8 @@ class Statement:
             counts["null"] = self.null
         if self.unread:
             counts["unread"] = dict(sorted(self.unread.items()))
+        if self.not_on_sheet:
+            counts["not_on_sheet"] = dict(sorted(self.not_on_sheet.items()))
         if self.registered is not None:
             counts["registered"] = self.registered
         if self.candidature_total is not None:
@@ -247,6 +280,11 @@ class Statement:
             isinstance(k, str) and isinstance(v, str) for k, v in unread.items()
         ):
             raise FormatError("counts.unread must map items to reasons")
+        absent = counts.get("not_on_sheet") or {}
+        if not isinstance(absent, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in absent.items()
+        ):
+            raise FormatError("counts.not_on_sheet must map items to reasons")
         unit = doc.get("unit", "station")
         if unit not in UNITS:
             raise FormatError(f"unit must be one of {sorted(UNITS)}")
@@ -264,8 +302,14 @@ class Statement:
             election=doc["election"],
             station=doc["station"],
             constituency=doc["constituency"],
-            blank=_count(counts.get("blank"), "counts.blank", optional="blank" in unread),
-            null=_count(counts.get("null"), "counts.null", optional="null" in unread),
+            blank=_count(
+                counts.get("blank"),
+                "counts.blank",
+                optional="blank" in unread or "blank" in absent,
+            ),
+            null=_count(
+                counts.get("null"), "counts.null", optional="null" in unread or "null" in absent
+            ),
             candidatures={
                 str(code): _count(votes, f"counts.candidatures[{code}]")
                 for code, votes in candidatures.items()
@@ -283,6 +327,7 @@ class Statement:
                 for name, count in other.items()
             },
             unread=dict(unread),
+            not_on_sheet=dict(absent),
             unit=unit,
             stage=stage,
             supersedes=supersedes,
@@ -329,8 +374,9 @@ def read_jsonl(src: TextIO) -> Iterator[Statement]:
 class AreaTotals:
     """Totals published by the electoral authority for one area."""
 
-    blank: int
-    null: int
+    # None when the totals do not give that category at all.
+    blank: int | None
+    null: int | None
     candidatures: dict[str, int]
     stations: int | None = None
     candidature_total: int | None = None
@@ -343,13 +389,19 @@ class AreaTotals:
     # official totals: item -> number of figures the source of the totals
     # could not read.
     unread: dict[str, int] = field(default_factory=dict)
+    # Only in totals recomputed from statements: item -> number of statements
+    # that say the sheet does not have that figure, and item -> number of
+    # statements that give it a figure, or say it could not be read, although
+    # others say the sheet does not have it.
+    not_on_sheet: dict[str, int] = field(default_factory=dict)
+    contradicted: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        doc: dict[str, Any] = {
-            "blank": self.blank,
-            "null": self.null,
-            "candidatures": dict(sorted(self.candidatures.items())),
-        }
+        doc: dict[str, Any] = {"candidatures": dict(sorted(self.candidatures.items()))}
+        if self.blank is not None:
+            doc["blank"] = self.blank
+        if self.null is not None:
+            doc["null"] = self.null
         if self.stations is not None:
             doc["stations"] = self.stations
         if self.candidature_total is not None:
@@ -367,8 +419,8 @@ class AreaTotals:
         ):
             raise FormatError("area totals need a candidatures object")
         return cls(
-            blank=_count(doc.get("blank"), "blank"),
-            null=_count(doc.get("null"), "null"),
+            blank=_count(doc.get("blank"), "blank", optional=True),
+            null=_count(doc.get("null"), "null", optional=True),
             candidatures={
                 str(code): _count(votes, f"candidatures[{code}]")
                 for code, votes in doc["candidatures"].items()

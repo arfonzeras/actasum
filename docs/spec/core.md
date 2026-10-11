@@ -52,13 +52,14 @@ RFC 8785 outright is an open question.
 | `unit` | string | no | `station` (default) or `aggregate`. An aggregate carries votes but is not a polling station, for example overseas votes counted centrally. Omitted when it is `station` |
 | `stage` | string | no | The act the figures come from (section 3.3): `count` (default), `canvass`, `ruling` or `rerun`. Omitted when it is `count` |
 | `supersedes` | string | no | Identifier of the statement this one replaces (section 3.3) |
-| `counts.blank` | integer | yes, unless unread | Blank votes |
-| `counts.null` | integer | yes, unless unread | Null (spoilt) votes |
+| `counts.blank` | integer | yes, unless unread or not on the sheet | Blank votes |
+| `counts.null` | integer | yes, unless unread or not on the sheet | Null (spoilt) votes |
 | `counts.candidatures` | object | yes | Votes per candidature: candidature code → integer |
 | `counts.registered` | integer | no | Registered voters at the station |
 | `counts.candidature_total` | integer | no | Total votes for candidatures, when the sheet states it separately |
 | `counts.other` | object | no | Ballots that are neither blank, null nor for a candidature: category → integer. Profiles define the categories, for example ballots left unmarked. Omitted when empty |
 | `counts.unread` | object | no | Figures of the sheet that could not be read: item → reason (section 3.4). Omitted when empty |
+| `counts.not_on_sheet` | object | no | Figures the sheet does not have at all: item → reason (section 3.5). Omitted when empty |
 | `evidence` | object | no | Where the figures come from (section 3.2) |
 | `extra` | object | no | Profile-specific fields that do not take part in verification |
 
@@ -148,6 +149,30 @@ has zero votes, as before.
 `counts.unread` is omitted when empty, so statements written before it existed
 keep their identifier.
 
+### 3.5 Figures the sheet does not have
+
+A tally sheet may have no field at all for something the format names. The
+tally sheets of one country have no figure for blank votes. Writing `0` would
+say something the sheet does not say.
+
+`counts.not_on_sheet` lists such figures. It has the same shape as
+`counts.unread`, sits next to it and uses the same item names; the only
+reason defined is `no-field`. The same rule applies: an item listed there
+MUST NOT carry a value anywhere else in the statement, and `blank` or `null`
+is then absent from `counts`.
+
+Each figure of a statement is therefore in exactly one of three states: it
+has a value, it is unread (with a reason), or the sheet does not have it. An
+item MUST NOT be in both `counts.unread` and `counts.not_on_sheet`.
+
+The difference matters to the verifier. An unread figure is missing from a
+sum, which becomes a lower bound. A figure the sheet does not have is not
+missing: there is nothing to add, and the sum is not a lower bound because of
+it.
+
+`counts.not_on_sheet` is omitted when empty, so statements written before it
+existed keep their identifier.
+
 ## 4. Official totals
 
 | Field | Type | Required | Meaning |
@@ -165,8 +190,8 @@ Totals for one area:
 
 | Field | Type | Required | Meaning |
 | --- | --- | --- | --- |
-| `blank` | integer | yes | Blank votes |
-| `null` | integer | yes | Null votes |
+| `blank` | integer | no | Blank votes. Omitted when the totals do not give them |
+| `null` | integer | no | Null votes. Omitted when the totals do not give them |
 | `candidatures` | object | yes | Candidature code → votes |
 | `candidature_total` | integer | no | Total votes for candidatures |
 | `other` | object | no | Other categories of ballots, as in `counts.other`. Compared only when present |
@@ -236,10 +261,23 @@ means whatever the document's `grouping` defines.
    An official figure that is a lower bound, against a sum that is not, is
    treated the same way round: a sum below it differs by at least that much,
    and nothing is said otherwise.
-7. An area present on only one side is a *gap*.
+7. When every statement of the area that mentions an item says the sheet
+   does not have it (`counts.not_on_sheet`), nothing is added for it. If the
+   official totals nevertheless give a figure for that item, the item is
+   **not comparable**: it is reported as such, and is neither a match nor a
+   difference. The same holds the other way round, when the statements give
+   blank or null votes and the official totals do not.
+8. When some statements of the area say the sheet does not have an item and
+   others give it a figure, or say it could not be read, the statements are
+   **inconsistent** about what the sheet has. The verifier reports the item
+   with both numbers of statements and does not choose: nothing is said
+   about that item, and the area is not matching.
+9. An area present on only one side is a *gap*.
 
-A sum is **matching** only if there are no differences, no lower bounds and
-no gaps. A sum with lower bounds and nothing else is **undecided**. Station
+A sum is **matching** only if there are no differences, no lower bounds, no
+inconsistent items and no gaps. Items that are not comparable do not prevent
+a match; the result names them. A sum with lower bounds or inconsistent
+items and nothing else is **undecided**. Station
 issues are reported but do not change the result.
 
 For a single statement, a sheet total (`candidature_total`) is contradicted
@@ -263,7 +301,9 @@ Statements with the same identifier are one statement.
    `stage` names it in `supersedes`: an authority may correct its own
    figures, and the corrected version then speaks for the act. Versions that
    stay and differ only where one of them could not read a figure are not in
-   conflict: an unread figure contradicts nothing. They count as one act,
+   conflict: an unread figure contradicts nothing. (A version that says the
+   sheet does not have a figure does contradict one that gives it a value or
+   says it is unread: they describe different sheets.) They count as one act,
    whose figures are those any of them read; a figure none of them read
    stays unread. Versions of which two read the same item differently are an
    act **in conflict**: it enters no sum and is listed. Contradictory copies
@@ -316,9 +356,6 @@ same sum.
   statement written before.
 - A privacy rule for very small stations where publishing a result reveals
   individual votes.
-- A figure that does not exist on a tally sheet at all, such as blank votes
-  where the sheet has no field for them. `counts.blank` is still required
-  unless unread, and the Mexico profile writes `0`.
 
 ## 7. Conventions for `extra`
 
@@ -345,11 +382,17 @@ core, the change is listed here.
 | Colombia | Lawful acts after the count that change a station's figures | `stage`, `supersedes`, two sums |
 | Colombia | Ballots that are neither blank, null nor for a candidature | `counts.other` |
 | Colombia | An authority correcting its own figures within one act | same-stage `supersedes` |
-| Mexico | Figures the source could not read | `counts.unread`, lower bounds |
+| Mexico | Figures the source could not read | `counts.unread`, with a reason; a sum that includes one is a lower bound; a difference found against a lower bound is "at least" |
+| Mexico | A figure the tally sheet does not have (blank votes) | `counts.not_on_sheet`; `blank` and `null` optional in official totals; "not comparable" and "inconsistent" in the report |
+| Mexico | Official totals whose own source could not read a figure | `unread` in official totals; two lower bounds say nothing |
 
-The Mexico profile also showed three things that were left as they are: one
-earlier statement replaced by several later ones, official totals that are
+The Mexico profile also showed things that were left as they are, and are
+known limits: one earlier statement replaced by several later ones, a later
+act that has a row and no figures for a station, official totals that are
 only a grand total, and a sheet total that includes null votes. See
 [`profile-mx.md`](profile-mx.md).
 
-So far no country has been added without a change to the core.
+**Stopping rule.** Countries stop being added when one enters without a
+change to the core. Mexico did not meet it: it needed the three changes
+above. So far no country has been added without a change to the core, and
+another one is needed.

@@ -72,6 +72,34 @@ class Bound:
 
 
 @dataclass(frozen=True)
+class NotComparable:
+    """An item only one side has: the statements say their sheets do not
+    have it and the official totals give a figure, or the other way round.
+    Neither a match nor a difference."""
+
+    area: str
+    item: str
+    # None when it is the official totals that do not give the item.
+    official: int | None
+    statements: int  # statements that say the sheet does not have it
+    # What the statements add up to, when it is the official totals that
+    # lack the item.
+    recomputed: int | None = None
+
+
+@dataclass(frozen=True)
+class Inconsistent:
+    """An item some statements of the area say their sheet does not have,
+    while others give it a figure or say it could not be read. The verifier
+    reports it and does not choose: nothing is said about that item."""
+
+    area: str
+    item: str
+    not_on_sheet: int
+    with_a_figure: int
+
+
+@dataclass(frozen=True)
 class Conflict:
     """Statements about the same act of the same station that do not agree."""
 
@@ -291,6 +319,8 @@ def _change(earlier: Statement, standing: Statement) -> Change:
     order = {"blank": 0, "null": 1}
     for item in sorted(names, key=lambda i: (order.get(i, 2 if i.startswith("other:") else 3), i)):
         a, b = earlier.value(item), standing.value(item)
+        if item in earlier.not_on_sheet and item in standing.not_on_sheet:
+            continue  # neither sheet has it: there is nothing to compare
         if a is None or b is None:
             not_compared.append(item)
         elif a != b:
@@ -318,6 +348,10 @@ class Report:
     differences: list[Difference] = field(default_factory=list)
     # Sums that are a lower bound and do not exceed the official figure.
     bounds: list[Bound] = field(default_factory=list)
+    # Items the sheets do not have and the official totals give.
+    not_comparable: list[NotComparable] = field(default_factory=list)
+    # Items the statements do not agree exist on the sheet.
+    inconsistent: list[Inconsistent] = field(default_factory=list)
     station_issues: list[StationIssue] = field(default_factory=list)
     missing_official: list[str] = field(default_factory=list)  # in statements only
     missing_statements: list[str] = field(default_factory=list)  # in official only
@@ -326,9 +360,11 @@ class Report:
     def ok(self) -> bool:
         """True when every area was covered on both sides and matched.
 
-        An area with a sum that is only a lower bound has not matched.
+        An area with a sum that is only a lower bound has not matched, nor
+        has one whose statements do not agree on what the sheet has. An item
+        that is not comparable is left aside and reported.
         """
-        return not (self.differences or self.bounds or self.gaps)
+        return not (self.differences or self.bounds or self.inconsistent or self.gaps)
 
     @property
     def gaps(self) -> bool:
@@ -339,7 +375,7 @@ class Report:
         """True when nothing differs and nothing is missing, but some sums
         are lower bounds: the totals can be called neither matching nor
         differing."""
-        return bool(self.bounds) and not (self.differences or self.gaps)
+        return bool(self.bounds or self.inconsistent) and not (self.differences or self.gaps)
 
     @property
     def areas_differing(self) -> list[str]:
@@ -347,7 +383,10 @@ class Report:
 
     @property
     def areas_undecided(self) -> list[str]:
-        return sorted({b.area for b in self.bounds} - {d.area for d in self.differences})
+        return sorted(
+            ({b.area for b in self.bounds} | {i.area for i in self.inconsistent})
+            - {d.area for d in self.differences}
+        )
 
     def to_dict(self) -> dict:
         return {
@@ -382,6 +421,25 @@ class Report:
                     "official_figures_unread": b.official_unread,
                 }
                 for b in self.bounds
+            ],
+            "not_comparable": [
+                {
+                    "area": n.area,
+                    "item": n.item,
+                    "official": n.official,
+                    "recomputed": n.recomputed,
+                    "statements_saying_the_sheet_does_not_have_it": n.statements,
+                }
+                for n in self.not_comparable
+            ],
+            "inconsistent_between_statements": [
+                {
+                    "area": i.area,
+                    "item": i.item,
+                    "statements_saying_the_sheet_does_not_have_it": i.not_on_sheet,
+                    "statements_giving_it_a_figure_or_unread": i.with_a_figure,
+                }
+                for i in self.inconsistent
             ],
             "station_issues": [
                 {"station": i.station, "code": i.code, "detail": i.detail}
@@ -439,8 +497,13 @@ def aggregate(
     for statement in statements:
         bucket = sums.setdefault(
             area_of(statement, grouping),
-            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}, "unread": {}},
-        )
+            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}, "unread": {},
+             "absent": {}, "present": {}},
+        )  # fmt: skip
+        for item in statement.not_on_sheet:
+            bucket["absent"][item] = bucket["absent"].get(item, 0) + 1
+        for item in statement.items() - set(statement.not_on_sheet):
+            bucket["present"][item] = bucket["present"].get(item, 0) + 1
         bucket["blank"] += statement.blank or 0
         bucket["null"] += statement.null or 0
         for item in statement.unread:
@@ -469,6 +532,12 @@ def aggregate(
             candidature_total=sum(value["candidatures"].values()),
             other=value["other"],
             unread=value["unread"],
+            not_on_sheet=value["absent"],
+            contradicted={
+                item: value["present"][item]
+                for item in value["absent"]
+                if value["present"].get(item)
+            },
         )
         for key, value in sums.items()
     }
@@ -613,8 +682,25 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         found: list[Difference] = []
 
         open_sums: list[Bound] = []
+        undecided: list[str] = []
 
         def compare(item: str, a: int | None, b: int | None) -> None:
+            absent = mine.not_on_sheet.get(item, 0)
+            if absent and item in mine.contradicted:
+                # Some statements say the sheet has no such figure and others
+                # give one: reported, and nothing is said about the item.
+                report.inconsistent.append(
+                    Inconsistent(key, item, absent, mine.contradicted[item])
+                )
+                undecided.append(item)
+                return
+            if absent:
+                if b is not None:
+                    report.not_comparable.append(NotComparable(key, item, b, absent))
+                return
+            if b is None and a is not None and item in ("blank", "null"):
+                report.not_comparable.append(NotComparable(key, item, None, 0, a))
+                return
             if a is None or b is None:
                 return
             ours, theirs_unread = mine.unread.get(item, 0), theirs.unread.get(item, 0)
@@ -655,7 +741,7 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
                 theirs.candidatures.get(code, 0),
             )
         report.areas_checked += 1
-        if not found and not open_sums:
+        if not found and not open_sums and not undecided:
             report.areas_matching += 1
         report.differences.extend(found)
         report.bounds.extend(open_sums)
@@ -728,6 +814,20 @@ def format_report(
             )
         if len(report.bounds) > limit:
             lines.append(f"  ... and {len(report.bounds) - limit} more")
+    for n in report.not_comparable[:limit]:
+        lines.append(
+            f"Not comparable: {n.area} {n.item}. The official totals give {n.official}; "
+            f"{n.statements} statements say the tally sheet has no such figure."
+            if n.official is not None
+            else f"Not comparable: {n.area} {n.item}. The statements add up to "
+            f"{n.recomputed}; the official totals do not give this item."
+        )
+    for i in report.inconsistent[:limit]:
+        lines.append(
+            f"Statements do not agree on what the sheet has: {i.area} {i.item}. "
+            f"{i.not_on_sheet} say the sheet has no such figure, {i.with_a_figure} give one "
+            "or say it could not be read. Nothing is said about this item."
+        )
     if station_issues and report.station_issues:
         lines.append(
             f"Polling stations with internal inconsistencies: {len(report.station_issues)}"
@@ -738,9 +838,15 @@ def format_report(
             lines.append(f"  ... and {len(report.station_issues) - limit} more")
     if verdict:
         lines.append(
-            "Result: recomputed totals match the official totals."
+            (
+                "Result: recomputed totals match the official totals in every item compared. "
+                "Not compared: " + ", ".join(sorted({n.item for n in report.not_comparable})) + "."
+                if report.not_comparable
+                else "Result: recomputed totals match the official totals."
+            )
             if report.ok
-            else "Result: some sums are lower bounds, because figures could not be read. "
+            else "Result: undecided. Some sums are lower bounds, because figures could not "
+            "be read, or statements do not agree on what the sheet has. "
             "They neither match nor differ from the official totals."
             if report.undecided
             else "Result: there are differences or gaps to explain. "
