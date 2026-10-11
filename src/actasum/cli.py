@@ -11,6 +11,9 @@
     actasum co convert  --mmv MMV.csv --election 2026-05 [--age-text AGE.txt]
                         --out statements.jsonl
 
+    actasum mx replay   --prep PRES_2024.csv --computos PRES_2024.csv --election 2024-06
+                        [--official official.json] [--out statements.jsonl]
+
     actasum log build       --statements statements.jsonl --out LOGDIR
     actasum log append      --log LOGDIR --statements more.jsonl
     actasum log checkpoint  --log LOGDIR
@@ -51,8 +54,16 @@ from .log import (
 from .note import SignatureError
 from .profiles.co import escrutinio as co_escrutinio
 from .profiles.es import infoelectoral, seats as es_seats
+from .profiles.mx import ine as mx_ine
 from .statement import FormatError, OfficialTotals, read_jsonl, write_jsonl
-from .verify import VerificationError, aggregate, compare, format_comparison
+from .verify import (
+    VerificationError,
+    aggregate,
+    compare,
+    format_comparison,
+    resolve,
+    verify,
+)
 
 
 def _open_out(path: str):
@@ -156,6 +167,147 @@ def _co_convert(args) -> int:
     json.dump(summary, sys.stderr, indent=2, ensure_ascii=False)
     sys.stderr.write("\n")
     return 0
+
+
+def _mx_replay(args) -> int:
+    """PREP and Cómputos Distritales databases to statements of two acts."""
+    report: dict = {"files": []}
+    statements = []
+    counts: dict[str, str] = {}
+    no_figures: dict[str, str] = {}
+    headers_ok = True
+    codes: list[str] = []
+    for path, kind in ((args.prep, mx_ine.PREP), (args.computos, mx_ine.COMPUTOS)):
+        if not path:
+            continue
+        table = mx_ine.load(path)
+        if table.kind != kind:
+            raise FormatError(f"{path}: expected a {kind} database, found a {table.kind} one")
+        codes = table.codes
+        checks = mx_ine.check_header(table)
+        headers_ok = headers_ok and all(check.ok for check in checks)
+        if kind == mx_ine.PREP:
+            reading = mx_ine.read_prep(table, args.election)
+            counts = reading.identifiers
+        else:
+            reading = mx_ine.read_computos(table, args.election, counts)
+            no_figures = reading.no_figures
+        statements.extend(reading.statements)
+        entry: dict = {
+            "file": table.path,
+            "kind": table.kind,
+            "sha256": table.sha256,
+            "election": table.title,
+            "cut": table.cut,
+            "rows": reading.rows,
+            "statements": len(reading.statements),
+            "rows_without_a_statement": dict(reading.left_out.most_common()),
+            "header_totals_recomputed_from_the_rows": [
+                {"name": c.name, "in_header": c.in_header, "from_rows": c.from_rows, "equal": c.ok}
+                for c in checks
+            ],
+        }
+        if kind == mx_ine.PREP:
+            entry.update(
+                {
+                    "tally_sheets_counted_with_unread_figures": dict(
+                        sorted(reading.with_unread_figures.items())
+                    ),
+                    "unread_cells": dict(sorted(reading.unread_cells.items())),
+                    "tally_sheets_whose_written_total_is_not_the_sum": reading.stated_total_differs,
+                    "ballots_in_rows_of_the_vote_from_abroad_per_state": reading.state_wide_ballots,
+                }
+            )
+        report["files"].append(entry)
+    merge = mx_ine.coalition_merge(codes)
+    resolution = resolve(statements)
+
+    def totals(group) -> dict:
+        area = aggregate(group, merge=merge).get(mx_ine.COUNTRY)
+        if area is None:
+            return {"stations": 0}
+        doc = {
+            "stations": area.stations,
+            "candidatures": dict(sorted(area.candidatures.items())),
+            "other": dict(sorted((area.other or {}).items())),
+            "null": area.null,
+            "ballots": area.candidature_total + area.null + sum((area.other or {}).values()),
+        }
+        if area.unread:
+            doc["these_are_lower_bounds"] = (
+                "figures could not be read; statements concerned, by item"
+            )
+            doc["unread"] = dict(sorted(area.unread.items()))
+        return doc
+
+    report["as_counted"] = totals(resolution.counted)
+    report["as_standing"] = totals(resolution.standing)
+    unreplaced = [s for s in resolution.standing if s.stage == "count"] if args.computos else []
+    if unreplaced:
+        said = sorted({no_figures.get(s.station, "no row for this station") for s in unreplaced})
+        report["as_standing"]["includes"] = {
+            "stations_whose_count_no_later_act_replaced": len(unreplaced),
+            "their_ballots": sum(s.ballots for s in unreplaced),
+            "what_the_canvass_file_says_of_them": said,
+            "so": "this sum cannot equal the total of the canvass file, which has no "
+            "figures for those stations",
+        }
+    report["between_the_two_acts"] = mx_ine.describe(resolution, merge)
+    report["unread_figures_against_the_canvass"] = mx_ine.unread_against_canvass(resolution)
+    # Their count is left standing by the core: nothing replaces it.
+    report["stations_with_a_count_but_no_canvass"] = [
+        {
+            "station": s.station,
+            "ballots_read_in_the_count": s.ballots,
+            "figures_unread_in_the_count": len(s.unread),
+            "the_canvass_file_says": no_figures.get(s.station, "no row for this station"),
+        }
+        for s in resolution.standing
+        if s.stage == "count" and args.computos
+    ]
+    matched = True
+    if args.official:
+        with open(args.official, encoding="utf-8") as handle:
+            totals = OfficialTotals.from_dict(json.load(handle))
+
+        def against(found) -> dict:
+            return {
+                "stations": found.stations,
+                "matches": found.ok,
+                "undecided": found.undecided,
+                "differences": [
+                    {"item": d.item, "recomputed": d.recomputed, "official": d.official,
+                     "difference": d.describe_delta}
+                    for d in found.differences
+                ],
+                "nothing_is_said_about": [
+                    {"item": b.item, "recomputed_at_least": b.recomputed, "official": b.official,
+                     "statements_with_the_figure_unread": b.statements}
+                    for b in found.bounds
+                ],
+            }  # fmt: skip
+
+        comparison = compare(statements, totals)
+        canvass = [s for s in statements if s.stage == "canvass"]
+        report["against_the_official_totals"] = {
+            "source": totals.source,
+            "official_matches": comparison.official_matches,
+            "as_counted": against(comparison.counted),
+            "as_standing": against(comparison.standing),
+            # The standing sum also holds stations whose count nothing replaced.
+            "statements_of_the_canvass_alone": against(verify(canvass, totals)),
+        }
+        matched = comparison.ok
+    if args.out:
+        out = _open_out(args.out)
+        try:
+            report["statements_written"] = write_jsonl(statements, out)
+        finally:
+            if out is not sys.stdout:
+                out.close()
+    json.dump(report, sys.stderr if args.out == "-" else sys.stdout, indent=2, ensure_ascii=False)
+    (sys.stderr if args.out == "-" else sys.stdout).write("\n")
+    return 0 if headers_ok and matched else 1
 
 
 def _es_describe(args) -> int:
@@ -584,6 +736,26 @@ def build_parser() -> argparse.ArgumentParser:
     )
     co_convert.add_argument("--out", default="-", help="output file (default: stdout)")
     co_convert.set_defaults(run=_co_convert)
+
+    mx = commands.add_parser("mx", help="Mexico profile: INE PREP and Cómputos databases")
+    mx_commands = mx.add_subparsers(dest="mx_command", required=True)
+    mx_replay = mx_commands.add_parser(
+        "replay",
+        help="PREP and Cómputos Distritales databases -> statements of the count and "
+        "of the canvass, and what changed between them",
+    )
+    mx_replay.add_argument("--prep", help="the PREP database of one election (a .csv file)")
+    mx_replay.add_argument(
+        "--computos", help="the Cómputos Distritales database of the same election"
+    )
+    mx_replay.add_argument("--election", required=True, help="election date as YYYY-MM")
+    mx_replay.add_argument(
+        "--official",
+        help="official totals (JSON) from a source other than these two files, to compare "
+        "both sums with",
+    )
+    mx_replay.add_argument("--out", help="also write the statements to this file")
+    mx_replay.set_defaults(run=_mx_replay)
 
     es = commands.add_parser("es", help="Spain profile: Ministry of the Interior files")
     es_commands = es.add_subparsers(dest="es_command", required=True)

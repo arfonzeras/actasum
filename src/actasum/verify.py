@@ -7,7 +7,7 @@ and fraud all look the same from here. See docs/spec/core.md, section 5.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Iterable
 
 from .statement import (
@@ -33,10 +33,70 @@ class Difference:
     item: str  # "blank", "null", "candidature_total", "stations" or "candidature:<code>"
     recomputed: int
     official: int
+    # "" when both figures are totals. "recomputed" or "official" when that
+    # side is a lower bound, because figures behind it could not be read:
+    # the difference is then at least ``delta``, not ``delta``.
+    bound: str = ""
 
     @property
     def delta(self) -> int:
         return self.recomputed - self.official
+
+    @property
+    def describe_delta(self) -> str:
+        if not self.bound:
+            return f"{self.delta:+d}"
+        return f"at least {abs(self.delta)} {'above' if self.delta > 0 else 'below'}"
+
+
+@dataclass(frozen=True)
+class Bound:
+    """A comparison nothing can be said about, because figures could not be read.
+
+    One side is a lower bound that the other does not contradict, or both
+    sides are lower bounds. Either way the two can be called neither matching
+    nor differing. (A lower bound on one side only that already exceeds the
+    other side is a ``Difference`` of at least that much.)
+    """
+
+    area: str
+    item: str
+    recomputed: int
+    official: int
+    # Statements in the area whose figure for this item is unread; when not
+    # zero, ``recomputed`` is a lower bound.
+    statements: int
+    # Figures behind the official total that its source could not read; when
+    # not zero, ``official`` is a lower bound too.
+    official_unread: int = 0
+
+
+@dataclass(frozen=True)
+class NotComparable:
+    """An item only one side has: the statements say their sheets do not
+    have it and the official totals give a figure, or the other way round.
+    Neither a match nor a difference."""
+
+    area: str
+    item: str
+    # None when it is the official totals that do not give the item.
+    official: int | None
+    statements: int  # statements that say the sheet does not have it
+    # What the statements add up to, when it is the official totals that
+    # lack the item.
+    recomputed: int | None = None
+
+
+@dataclass(frozen=True)
+class Inconsistent:
+    """An item some statements of the area say their sheet does not have,
+    while others give it a figure or say it could not be read. The verifier
+    reports it and does not choose: nothing is said about that item."""
+
+    area: str
+    item: str
+    not_on_sheet: int
+    with_a_figure: int
 
 
 @dataclass(frozen=True)
@@ -56,11 +116,13 @@ class Change:
     station: str
     stage: str  # the act the standing figures come from
     source: str  # evidence.kind of the standing statement, "" if not given
-    # item -> (earlier, standing), for the items that differ
+    # item -> (earlier, standing), for the items both acts read and that differ
     items: dict[str, tuple[int, int]]
     # the act the earlier figures come from: "count" when the station's own
     # count is among the statements, otherwise the first act of the chain
     from_stage: str = STAGE_COUNT
+    # Items one of the two acts could not read: nothing is said about them.
+    not_compared: tuple[str, ...] = ()
 
 
 @dataclass
@@ -72,7 +134,10 @@ class Resolution:
     them says it replaces the other (``supersedes``): a board may correct its
     own figures. Statements of the same act that differ and do not refer to
     each other put that act in conflict, and it counts for nothing, the way
-    contradictory copies of a tally sheet count for nothing. Statements about
+    contradictory copies of a tally sheet count for nothing. A figure one
+    capture could not read contradicts nothing: captures that agree on every
+    figure they both read are one act, with the figures any of them read.
+    Statements about
     different acts may differ lawfully; a later act replaces an earlier one
     when it names it in ``supersedes``.
     """
@@ -89,6 +154,10 @@ class Resolution:
     # Stations of statements whose ``supersedes`` names a statement that was not provided.
     dangling: list[str] = field(default_factory=list)
     changes: list[Change] = field(default_factory=list)
+    # Stations whose earliest and standing acts could be compared only in
+    # part, because one of them has unread figures. They may or may not also
+    # be among ``changes``.
+    partly_compared: list[str] = field(default_factory=list)
 
     @property
     def plain(self) -> bool:
@@ -137,15 +206,20 @@ def resolve(statements: Iterable[Statement]) -> Resolution:
                 for group in versions.values()
                 if not any(stage in replaced_by.get(identifier, ()) for identifier, _ in group)
             ]
-            if len(live) == 1:
-                clean[stage] = min(live[0], key=lambda pair: pair[0])[1]
+            spoken = _combine(live)
+            if spoken is not None:
+                clean[stage] = spoken
                 roots = [
                     group
                     for group in versions.values()
                     if not any(s.supersedes in by_id and by_id[s.supersedes].stage == stage
                                for _, s in group)
                 ]
-                first[stage] = min(roots[0] if roots else live[0], key=lambda pair: pair[0])[1]
+                first[stage] = (
+                    _combine(roots) or min(roots[0], key=lambda pair: pair[0])[1]
+                    if roots
+                    else spoken
+                )
             else:
                 result.conflicts.append(
                     Conflict(
@@ -174,10 +248,53 @@ def resolve(statements: Iterable[Statement]) -> Resolution:
                 result.without_count.append(station)
             earliest = counted if counted is not None else _earliest(first, by_id, standing)
             if earliest.figures != standing.figures:
-                result.changes.append(_change(earliest, standing))
+                change = _change(earliest, standing)
+                if change.items:
+                    result.changes.append(change)
+                if change.not_compared:
+                    result.partly_compared.append(station)
         # Otherwise the one act left is in conflict (already listed) and
         # nothing stands for this station.
     return result
+
+
+def _combine(groups: list[list[tuple[str, Statement]]]) -> Statement | None:
+    """The statement that speaks for an act, given its versions.
+
+    One version speaks for itself. Several speak together when no two of them
+    differ in a figure both read: the result has the figures any of them
+    read, on top of the one that read most. Otherwise there is none, and the
+    act is in conflict.
+    """
+    if not groups:
+        return None
+    versions = [min(group, key=lambda pair: pair[0])[1] for group in groups]
+    if len(versions) == 1:
+        return versions[0]
+    for index, one in enumerate(versions):
+        if not all(one.agrees_with(other) for other in versions[index + 1 :]):
+            return None
+    base = min(versions, key=lambda s: (len(s.unread), s.statement_id()))
+    blank, null = base.blank, base.null
+    candidatures, other, unread = dict(base.candidatures), dict(base.other), dict(base.unread)
+    for item in base.unread:
+        value = next((s.value(item) for s in versions if s.value(item) is not None), None)
+        if value is None:
+            continue
+        del unread[item]
+        if item == "blank":
+            blank = value
+        elif item == "null":
+            null = value
+        elif item.startswith("candidature:"):
+            candidatures[item.removeprefix("candidature:")] = value
+        else:
+            other[item.removeprefix("other:")] = value
+    if len(unread) == len(base.unread):
+        return base
+    return replace(
+        base, blank=blank, null=null, candidatures=candidatures, other=other, unread=unread
+    )
 
 
 def _earliest(
@@ -196,24 +313,25 @@ def _earliest(
 
 def _change(earlier: Statement, standing: Statement) -> Change:
     items: dict[str, tuple[int, int]] = {}
-    if earlier.blank != standing.blank:
-        items["blank"] = (earlier.blank, standing.blank)
-    if earlier.null != standing.null:
-        items["null"] = (earlier.null, standing.null)
-    for name in sorted(set(earlier.other) | set(standing.other)):
-        a, b = earlier.other.get(name, 0), standing.other.get(name, 0)
-        if a != b:
-            items[f"other:{name}"] = (a, b)
-    for code in sorted(set(earlier.candidatures) | set(standing.candidatures)):
-        a, b = earlier.candidatures.get(code, 0), standing.candidatures.get(code, 0)
-        if a != b:
-            items[f"candidature:{code}"] = (a, b)
+    not_compared: list[str] = []
+    names = earlier.items() | standing.items()
+    # blank and null first, then other categories, then candidatures
+    order = {"blank": 0, "null": 1}
+    for item in sorted(names, key=lambda i: (order.get(i, 2 if i.startswith("other:") else 3), i)):
+        a, b = earlier.value(item), standing.value(item)
+        if item in earlier.not_on_sheet and item in standing.not_on_sheet:
+            continue  # neither sheet has it: there is nothing to compare
+        if a is None or b is None:
+            not_compared.append(item)
+        elif a != b:
+            items[item] = (a, b)
     return Change(
         station=standing.station,
         stage=standing.stage,
         source=str(standing.evidence.get("kind", "")),
         items=items,
         from_stage=earlier.stage,
+        not_compared=tuple(not_compared),
     )
 
 
@@ -228,20 +346,47 @@ class Report:
     areas_checked: int = 0
     areas_matching: int = 0
     differences: list[Difference] = field(default_factory=list)
+    # Sums that are a lower bound and do not exceed the official figure.
+    bounds: list[Bound] = field(default_factory=list)
+    # Items the sheets do not have and the official totals give.
+    not_comparable: list[NotComparable] = field(default_factory=list)
+    # Items the statements do not agree exist on the sheet.
+    inconsistent: list[Inconsistent] = field(default_factory=list)
     station_issues: list[StationIssue] = field(default_factory=list)
     missing_official: list[str] = field(default_factory=list)  # in statements only
     missing_statements: list[str] = field(default_factory=list)  # in official only
 
     @property
     def ok(self) -> bool:
-        """True when every area was covered on both sides and matched."""
-        return not (
-            self.differences or self.missing_official or self.missing_statements
-        )
+        """True when every area was covered on both sides and matched.
+
+        An area with a sum that is only a lower bound has not matched, nor
+        has one whose statements do not agree on what the sheet has. An item
+        that is not comparable is left aside and reported.
+        """
+        return not (self.differences or self.bounds or self.inconsistent or self.gaps)
+
+    @property
+    def gaps(self) -> bool:
+        return bool(self.missing_official or self.missing_statements)
+
+    @property
+    def undecided(self) -> bool:
+        """True when nothing differs and nothing is missing, but some sums
+        are lower bounds: the totals can be called neither matching nor
+        differing."""
+        return bool(self.bounds or self.inconsistent) and not (self.differences or self.gaps)
 
     @property
     def areas_differing(self) -> list[str]:
         return sorted({d.area for d in self.differences})
+
+    @property
+    def areas_undecided(self) -> list[str]:
+        return sorted(
+            ({b.area for b in self.bounds} | {i.area for i in self.inconsistent})
+            - {d.area for d in self.differences}
+        )
 
     def to_dict(self) -> dict:
         return {
@@ -260,8 +405,41 @@ class Report:
                     "recomputed": d.recomputed,
                     "official": d.official,
                     "delta": d.delta,
+                    # "recomputed" or "official": that side is a lower bound,
+                    # and the difference is at least ``delta``.
+                    **({"lower_bound": d.bound, "delta_is_a_minimum": True} if d.bound else {}),
                 }
                 for d in self.differences
+            ],
+            "lower_bounds": [
+                {
+                    "area": b.area,
+                    "item": b.item,
+                    "recomputed": b.recomputed,
+                    "official": b.official,
+                    "statements_with_the_figure_unread": b.statements,
+                    "official_figures_unread": b.official_unread,
+                }
+                for b in self.bounds
+            ],
+            "not_comparable": [
+                {
+                    "area": n.area,
+                    "item": n.item,
+                    "official": n.official,
+                    "recomputed": n.recomputed,
+                    "statements_saying_the_sheet_does_not_have_it": n.statements,
+                }
+                for n in self.not_comparable
+            ],
+            "inconsistent_between_statements": [
+                {
+                    "area": i.area,
+                    "item": i.item,
+                    "statements_saying_the_sheet_does_not_have_it": i.not_on_sheet,
+                    "statements_giving_it_a_figure_or_unread": i.with_a_figure,
+                }
+                for i in self.inconsistent
             ],
             "station_issues": [
                 {"station": i.station, "code": i.code, "detail": i.detail}
@@ -280,7 +458,12 @@ def check_station(statement: Statement) -> list[StationIssue]:
     """Internal consistency checks on a single tally sheet."""
     issues: list[StationIssue] = []
     total = statement.candidature_total
-    if total is not None and total != statement.candidature_sum:
+    some_unread = any(item.startswith("candidature:") for item in statement.unread)
+    # With a candidature figure unread, the rows that were read can only be
+    # said to disagree with the total when they already exceed it.
+    if total is not None and (
+        statement.candidature_sum > total if some_unread else total != statement.candidature_sum
+    ):
         issues.append(
             StationIssue(
                 statement.station,
@@ -314,10 +497,25 @@ def aggregate(
     for statement in statements:
         bucket = sums.setdefault(
             area_of(statement, grouping),
-            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}},
-        )
-        bucket["blank"] += statement.blank
-        bucket["null"] += statement.null
+            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}, "unread": {},
+             "absent": {}, "present": {}},
+        )  # fmt: skip
+        for item in statement.not_on_sheet:
+            bucket["absent"][item] = bucket["absent"].get(item, 0) + 1
+        for item in statement.items() - set(statement.not_on_sheet):
+            bucket["present"][item] = bucket["present"].get(item, 0) + 1
+        bucket["blank"] += statement.blank or 0
+        bucket["null"] += statement.null or 0
+        for item in statement.unread:
+            if item.startswith("candidature:"):
+                code = item.removeprefix("candidature:")
+                item = "candidature:" + merge.get(code, code)
+            bucket["unread"][item] = bucket["unread"].get(item, 0) + 1
+        if any(item.startswith("candidature:") for item in statement.unread):
+            # Statements, not figures, behind the bound on the candidature total.
+            bucket["unread"]["candidature_total"] = (
+                bucket["unread"].get("candidature_total", 0) + 1
+            )
         for name, count in statement.other.items():
             bucket["other"][name] = bucket["other"].get(name, 0) + count
         if statement.unit == "station":
@@ -333,6 +531,13 @@ def aggregate(
             candidatures=value["candidatures"],
             candidature_total=sum(value["candidatures"].values()),
             other=value["other"],
+            unread=value["unread"],
+            not_on_sheet=value["absent"],
+            contradicted={
+                item: value["present"][item]
+                for item in value["absent"]
+                if value["present"].get(item)
+            },
         )
         for key, value in sums.items()
     }
@@ -355,13 +560,16 @@ class Comparison:
             return "as counted"
         if self.standing.ok:
             return "as standing"
+        if self.counted.undecided or self.standing.undecided:
+            # At least one sum is only a lower bound and nothing contradicts it.
+            return "undecided"
         return "neither"
 
     @property
     def ok(self) -> bool:
         """The official totals match one of the sums and no station is left
         in conflict or undetermined."""
-        return self.official_matches != "neither" and not (
+        return self.official_matches not in ("neither", "undecided") and not (
             self.resolution.conflicts or self.resolution.undetermined
         )
 
@@ -385,6 +593,7 @@ class Comparison:
             doc["stations_undetermined"] = resolution.undetermined
             doc["stations_without_count"] = resolution.without_count
             doc["supersedes_unknown"] = resolution.dangling
+            doc["stations_partly_compared"] = resolution.partly_compared
             doc["stations_changed"] = [
                 {
                     "station": c.station,
@@ -394,6 +603,7 @@ class Comparison:
                     "items": {
                         item: {"earlier": a, "standing": b} for item, (a, b) in c.items.items()
                     },
+                    "not_compared": list(c.not_compared),
                 }
                 for c in resolution.changes
             ]
@@ -471,8 +681,48 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         mine, theirs = recomputed[key], official.areas[key]
         found: list[Difference] = []
 
+        open_sums: list[Bound] = []
+        undecided: list[str] = []
+
         def compare(item: str, a: int | None, b: int | None) -> None:
-            if a is not None and b is not None and a != b:
+            absent = mine.not_on_sheet.get(item, 0)
+            if absent and item in mine.contradicted:
+                # Some statements say the sheet has no such figure and others
+                # give one: reported, and nothing is said about the item.
+                report.inconsistent.append(
+                    Inconsistent(key, item, absent, mine.contradicted[item])
+                )
+                undecided.append(item)
+                return
+            if absent:
+                if b is not None:
+                    report.not_comparable.append(NotComparable(key, item, b, absent))
+                return
+            if b is None and a is not None and item in ("blank", "null"):
+                report.not_comparable.append(NotComparable(key, item, None, 0, a))
+                return
+            if a is None or b is None:
+                return
+            ours, theirs_unread = mine.unread.get(item, 0), theirs.unread.get(item, 0)
+            if item == "candidature_total" and not theirs_unread:
+                theirs_unread = sum(
+                    n for name, n in theirs.unread.items() if name.startswith("candidature:")
+                )
+            if ours and theirs_unread:
+                # Two lower bounds: nothing follows, whichever is larger.
+                open_sums.append(Bound(key, item, a, b, ours, theirs_unread))
+            elif ours:
+                if a > b:
+                    # The sum is at least a, so it exceeds b by at least a - b.
+                    found.append(Difference(key, item, a, b, "recomputed"))
+                else:
+                    open_sums.append(Bound(key, item, a, b, ours))
+            elif theirs_unread:
+                if a < b:
+                    found.append(Difference(key, item, a, b, "official"))
+                else:
+                    open_sums.append(Bound(key, item, a, b, 0, theirs_unread))
+            elif a != b:
                 found.append(Difference(key, item, a, b))
 
         compare("stations", mine.stations, theirs.stations)
@@ -481,7 +731,9 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         compare("candidature_total", mine.candidature_total, theirs.candidature_total)
         if theirs.other is not None:
             for name in sorted(set(mine.other or {}) | set(theirs.other)):
-                compare(f"other:{name}", (mine.other or {}).get(name, 0), theirs.other.get(name, 0))
+                compare(
+                    f"other:{name}", (mine.other or {}).get(name, 0), theirs.other.get(name, 0)
+                )
         for code in sorted(set(mine.candidatures) | set(theirs.candidatures)):
             compare(
                 f"candidature:{code}",
@@ -489,9 +741,10 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
                 theirs.candidatures.get(code, 0),
             )
         report.areas_checked += 1
-        if not found:
+        if not found and not open_sums and not undecided:
             report.areas_matching += 1
         report.differences.extend(found)
+        report.bounds.extend(open_sums)
     return report
 
 
@@ -536,12 +789,45 @@ def format_report(
             f"in {len(report.areas_differing)} {areas}"
         )
         for d in report.differences[:limit]:
+            ours = "at least " if d.bound == "recomputed" else ""
+            theirs = "at least " if d.bound == "official" else ""
             lines.append(
-                f"  {d.area} {d.item}: recomputed {d.recomputed}, "
-                f"official {d.official} ({d.delta:+d})"
+                f"  {d.area} {d.item}: recomputed {ours}{d.recomputed}, "
+                f"official {theirs}{d.official} ({d.describe_delta})"
             )
         if len(report.differences) > limit:
             lines.append(f"  ... and {len(report.differences) - limit} more")
+    if report.bounds:
+        lines.append(
+            f"Sums that are only a lower bound, because figures could not be read: "
+            f"{len(report.bounds)} in {len({b.area for b in report.bounds})} {areas}"
+        )
+        for b in report.bounds[:limit]:
+            ours = "at least " if b.statements else ""
+            theirs = "at least " if b.official_unread else ""
+            why = [f"unread in {b.statements} statements"] if b.statements else []
+            if b.official_unread:
+                why.append(f"{b.official_unread} unread behind the official figure")
+            lines.append(
+                f"  {b.area} {b.item}: recomputed {ours}{b.recomputed}, "
+                f"official {theirs}{b.official} ({', '.join(why)}): nothing is said"
+            )
+        if len(report.bounds) > limit:
+            lines.append(f"  ... and {len(report.bounds) - limit} more")
+    for n in report.not_comparable[:limit]:
+        lines.append(
+            f"Not comparable: {n.area} {n.item}. The official totals give {n.official}; "
+            f"{n.statements} statements say the tally sheet has no such figure."
+            if n.official is not None
+            else f"Not comparable: {n.area} {n.item}. The statements add up to "
+            f"{n.recomputed}; the official totals do not give this item."
+        )
+    for i in report.inconsistent[:limit]:
+        lines.append(
+            f"Statements do not agree on what the sheet has: {i.area} {i.item}. "
+            f"{i.not_on_sheet} say the sheet has no such figure, {i.with_a_figure} give one "
+            "or say it could not be read. Nothing is said about this item."
+        )
     if station_issues and report.station_issues:
         lines.append(
             f"Polling stations with internal inconsistencies: {len(report.station_issues)}"
@@ -552,8 +838,17 @@ def format_report(
             lines.append(f"  ... and {len(report.station_issues) - limit} more")
     if verdict:
         lines.append(
-            "Result: recomputed totals match the official totals."
+            (
+                "Result: recomputed totals match the official totals in every item compared. "
+                "Not compared: " + ", ".join(sorted({n.item for n in report.not_comparable})) + "."
+                if report.not_comparable
+                else "Result: recomputed totals match the official totals."
+            )
             if report.ok
+            else "Result: undecided. Some sums are lower bounds, because figures could not "
+            "be read, or statements do not agree on what the sheet has. "
+            "They neither match nor differ from the official totals."
+            if report.undecided
             else "Result: there are differences or gaps to explain. "
             "A difference is not, by itself, evidence of wrongdoing."
         )
@@ -598,6 +893,10 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
     )
     listing("Stations with a later act but no statement of the count", resolution.without_count)
     listing("Stations whose statement replaces one that was not provided", resolution.dangling)
+    listing(
+        "Stations whose acts could be compared only in part, because figures could not be read",
+        resolution.partly_compared,
+    )
     if resolution.changes:
         lines.append(
             "Stations whose standing figures differ from an earlier act: "
@@ -636,7 +935,7 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
         lines.append(
             "No statement of a station's own count was provided, so that sum could not be made."
         )
-        if matches != "neither" and not comparison.ok:
+        if matches not in ("neither", "undecided") and not comparison.ok:
             lines.append("Some stations are in conflict or undetermined; see above.")
         return "\n".join(lines)
     lines.append(
@@ -648,8 +947,10 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
             "not what the stations counted.",
             "neither": "Result: the official totals match neither sum. "
             "A difference is not, by itself, evidence of wrongdoing.",
+            "undecided": "Result: undecided. At least one sum is only a lower bound, because "
+            "figures could not be read, and the official totals do not contradict it.",
         }[matches]
     )
-    if matches != "neither" and not comparison.ok:
+    if matches not in ("neither", "undecided") and not comparison.ok:
         lines.append("Some stations are in conflict or undetermined; see above.")
     return "\n".join(lines)
