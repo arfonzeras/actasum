@@ -99,10 +99,9 @@ Two things can be read off these rows without explaining them:
 In a local election the municipality is the constituency, so these are
 differences at the level where seats are allotted. Whether any of them could
 change an allocation has not been computed, and which of the two files
-corresponds to the proclaimed result is not known. Local results are
-proclaimed by the area electoral boards and are not published in the official
-gazette the way national results are, so the cross-check used for the Congreso
-is not available here.
+corresponds to the proclaimed result is not known. No third source has been
+looked for yet; for the Congreso that was the summary published in the
+official gazette.
 
 ### Stations with internal inconsistencies
 
@@ -116,5 +115,6 @@ is not available here.
 | `es/03/019/04/002/U` | candidature sum | rows add up to 472, station total 468 |
 | `es/46/104/01/002/U` | more ballots than registered | 492 ballots, 487 registered |
 
-The candidature-sum check did not fire in any of the five Congreso runs or in
-the European Parliament run.
+The candidature-sum check did not fire in the European Parliament run or in
+the November 2019 Congreso run repeated the same day. For the other Congreso
+runs the findings record only stations with more ballots than registered.
