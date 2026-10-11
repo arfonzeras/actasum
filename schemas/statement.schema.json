@@ -54,8 +54,6 @@
     "counts": {
       "type": "object",
       "required": [
-        "blank",
-        "null",
         "candidatures"
       ],
       "additionalProperties": false,
@@ -89,8 +87,65 @@
             "type": "integer",
             "minimum": 0
           }
+        },
+        "unread": {
+          "description": "Figures of the tally sheet that could not be read: item -> reason. An item is blank, null, candidature:<code> or other:<category>, and carries no value elsewhere in counts. blank and null are required unless listed here.",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^(blank|null|candidature:.+|other:.+)$"
+          },
+          "additionalProperties": {
+            "enum": [
+              "illegible",
+              "empty"
+            ]
+          }
         }
-      }
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "blank"
+              ]
+            },
+            {
+              "properties": {
+                "unread": {
+                  "required": [
+                    "blank"
+                  ]
+                }
+              },
+              "required": [
+                "unread"
+              ]
+            }
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "null"
+              ]
+            },
+            {
+              "properties": {
+                "unread": {
+                  "required": [
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "unread"
+              ]
+            }
+          ]
+        }
+      ]
     },
     "evidence": {
       "type": "object",

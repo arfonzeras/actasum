@@ -7,7 +7,7 @@ and fraud all look the same from here. See docs/spec/core.md, section 5.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Iterable
 
 from .statement import (
@@ -40,6 +40,23 @@ class Difference:
 
 
 @dataclass(frozen=True)
+class Bound:
+    """A sum that is only a lower bound, because figures could not be read.
+
+    The recomputed sum does not exceed the official figure, so it can be
+    called neither matching nor differing. (When it does exceed it, that is a
+    ``Difference``: the true sum can only be higher still.)
+    """
+
+    area: str
+    item: str
+    at_least: int
+    official: int
+    # Statements in the area whose figure for this item is unread.
+    statements: int
+
+
+@dataclass(frozen=True)
 class Conflict:
     """Statements about the same act of the same station that do not agree."""
 
@@ -56,11 +73,13 @@ class Change:
     station: str
     stage: str  # the act the standing figures come from
     source: str  # evidence.kind of the standing statement, "" if not given
-    # item -> (earlier, standing), for the items that differ
+    # item -> (earlier, standing), for the items both acts read and that differ
     items: dict[str, tuple[int, int]]
     # the act the earlier figures come from: "count" when the station's own
     # count is among the statements, otherwise the first act of the chain
     from_stage: str = STAGE_COUNT
+    # Items one of the two acts could not read: nothing is said about them.
+    not_compared: tuple[str, ...] = ()
 
 
 @dataclass
@@ -72,7 +91,10 @@ class Resolution:
     them says it replaces the other (``supersedes``): a board may correct its
     own figures. Statements of the same act that differ and do not refer to
     each other put that act in conflict, and it counts for nothing, the way
-    contradictory copies of a tally sheet count for nothing. Statements about
+    contradictory copies of a tally sheet count for nothing. A figure one
+    capture could not read contradicts nothing: captures that agree on every
+    figure they both read are one act, with the figures any of them read.
+    Statements about
     different acts may differ lawfully; a later act replaces an earlier one
     when it names it in ``supersedes``.
     """
@@ -89,6 +111,10 @@ class Resolution:
     # Stations of statements whose ``supersedes`` names a statement that was not provided.
     dangling: list[str] = field(default_factory=list)
     changes: list[Change] = field(default_factory=list)
+    # Stations whose earliest and standing acts could be compared only in
+    # part, because one of them has unread figures. They may or may not also
+    # be among ``changes``.
+    partly_compared: list[str] = field(default_factory=list)
 
     @property
     def plain(self) -> bool:
@@ -137,15 +163,20 @@ def resolve(statements: Iterable[Statement]) -> Resolution:
                 for group in versions.values()
                 if not any(stage in replaced_by.get(identifier, ()) for identifier, _ in group)
             ]
-            if len(live) == 1:
-                clean[stage] = min(live[0], key=lambda pair: pair[0])[1]
+            spoken = _combine(live)
+            if spoken is not None:
+                clean[stage] = spoken
                 roots = [
                     group
                     for group in versions.values()
                     if not any(s.supersedes in by_id and by_id[s.supersedes].stage == stage
                                for _, s in group)
                 ]
-                first[stage] = min(roots[0] if roots else live[0], key=lambda pair: pair[0])[1]
+                first[stage] = (
+                    _combine(roots) or min(roots[0], key=lambda pair: pair[0])[1]
+                    if roots
+                    else spoken
+                )
             else:
                 result.conflicts.append(
                     Conflict(
@@ -174,10 +205,53 @@ def resolve(statements: Iterable[Statement]) -> Resolution:
                 result.without_count.append(station)
             earliest = counted if counted is not None else _earliest(first, by_id, standing)
             if earliest.figures != standing.figures:
-                result.changes.append(_change(earliest, standing))
+                change = _change(earliest, standing)
+                if change.items:
+                    result.changes.append(change)
+                if change.not_compared:
+                    result.partly_compared.append(station)
         # Otherwise the one act left is in conflict (already listed) and
         # nothing stands for this station.
     return result
+
+
+def _combine(groups: list[list[tuple[str, Statement]]]) -> Statement | None:
+    """The statement that speaks for an act, given its versions.
+
+    One version speaks for itself. Several speak together when no two of them
+    differ in a figure both read: the result has the figures any of them
+    read, on top of the one that read most. Otherwise there is none, and the
+    act is in conflict.
+    """
+    if not groups:
+        return None
+    versions = [min(group, key=lambda pair: pair[0])[1] for group in groups]
+    if len(versions) == 1:
+        return versions[0]
+    for index, one in enumerate(versions):
+        if not all(one.agrees_with(other) for other in versions[index + 1 :]):
+            return None
+    base = min(versions, key=lambda s: (len(s.unread), s.statement_id()))
+    blank, null = base.blank, base.null
+    candidatures, other, unread = dict(base.candidatures), dict(base.other), dict(base.unread)
+    for item in base.unread:
+        value = next((s.value(item) for s in versions if s.value(item) is not None), None)
+        if value is None:
+            continue
+        del unread[item]
+        if item == "blank":
+            blank = value
+        elif item == "null":
+            null = value
+        elif item.startswith("candidature:"):
+            candidatures[item.removeprefix("candidature:")] = value
+        else:
+            other[item.removeprefix("other:")] = value
+    if len(unread) == len(base.unread):
+        return base
+    return replace(
+        base, blank=blank, null=null, candidatures=candidatures, other=other, unread=unread
+    )
 
 
 def _earliest(
@@ -196,24 +270,23 @@ def _earliest(
 
 def _change(earlier: Statement, standing: Statement) -> Change:
     items: dict[str, tuple[int, int]] = {}
-    if earlier.blank != standing.blank:
-        items["blank"] = (earlier.blank, standing.blank)
-    if earlier.null != standing.null:
-        items["null"] = (earlier.null, standing.null)
-    for name in sorted(set(earlier.other) | set(standing.other)):
-        a, b = earlier.other.get(name, 0), standing.other.get(name, 0)
-        if a != b:
-            items[f"other:{name}"] = (a, b)
-    for code in sorted(set(earlier.candidatures) | set(standing.candidatures)):
-        a, b = earlier.candidatures.get(code, 0), standing.candidatures.get(code, 0)
-        if a != b:
-            items[f"candidature:{code}"] = (a, b)
+    not_compared: list[str] = []
+    names = earlier.items() | standing.items()
+    # blank and null first, then other categories, then candidatures
+    order = {"blank": 0, "null": 1}
+    for item in sorted(names, key=lambda i: (order.get(i, 2 if i.startswith("other:") else 3), i)):
+        a, b = earlier.value(item), standing.value(item)
+        if a is None or b is None:
+            not_compared.append(item)
+        elif a != b:
+            items[item] = (a, b)
     return Change(
         station=standing.station,
         stage=standing.stage,
         source=str(standing.evidence.get("kind", "")),
         items=items,
         from_stage=earlier.stage,
+        not_compared=tuple(not_compared),
     )
 
 
@@ -228,20 +301,38 @@ class Report:
     areas_checked: int = 0
     areas_matching: int = 0
     differences: list[Difference] = field(default_factory=list)
+    # Sums that are a lower bound and do not exceed the official figure.
+    bounds: list[Bound] = field(default_factory=list)
     station_issues: list[StationIssue] = field(default_factory=list)
     missing_official: list[str] = field(default_factory=list)  # in statements only
     missing_statements: list[str] = field(default_factory=list)  # in official only
 
     @property
     def ok(self) -> bool:
-        """True when every area was covered on both sides and matched."""
-        return not (
-            self.differences or self.missing_official or self.missing_statements
-        )
+        """True when every area was covered on both sides and matched.
+
+        An area with a sum that is only a lower bound has not matched.
+        """
+        return not (self.differences or self.bounds or self.gaps)
+
+    @property
+    def gaps(self) -> bool:
+        return bool(self.missing_official or self.missing_statements)
+
+    @property
+    def undecided(self) -> bool:
+        """True when nothing differs and nothing is missing, but some sums
+        are lower bounds: the totals can be called neither matching nor
+        differing."""
+        return bool(self.bounds) and not (self.differences or self.gaps)
 
     @property
     def areas_differing(self) -> list[str]:
         return sorted({d.area for d in self.differences})
+
+    @property
+    def areas_undecided(self) -> list[str]:
+        return sorted({b.area for b in self.bounds} - {d.area for d in self.differences})
 
     def to_dict(self) -> dict:
         return {
@@ -263,6 +354,16 @@ class Report:
                 }
                 for d in self.differences
             ],
+            "lower_bounds": [
+                {
+                    "area": b.area,
+                    "item": b.item,
+                    "at_least": b.at_least,
+                    "official": b.official,
+                    "statements_with_the_figure_unread": b.statements,
+                }
+                for b in self.bounds
+            ],
             "station_issues": [
                 {"station": i.station, "code": i.code, "detail": i.detail}
                 for i in self.station_issues
@@ -280,7 +381,12 @@ def check_station(statement: Statement) -> list[StationIssue]:
     """Internal consistency checks on a single tally sheet."""
     issues: list[StationIssue] = []
     total = statement.candidature_total
-    if total is not None and total != statement.candidature_sum:
+    some_unread = any(item.startswith("candidature:") for item in statement.unread)
+    # With a candidature figure unread, the rows that were read can only be
+    # said to disagree with the total when they already exceed it.
+    if total is not None and (
+        statement.candidature_sum > total if some_unread else total != statement.candidature_sum
+    ):
         issues.append(
             StationIssue(
                 statement.station,
@@ -314,10 +420,20 @@ def aggregate(
     for statement in statements:
         bucket = sums.setdefault(
             area_of(statement, grouping),
-            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}},
+            {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}, "unread": {}},
         )
-        bucket["blank"] += statement.blank
-        bucket["null"] += statement.null
+        bucket["blank"] += statement.blank or 0
+        bucket["null"] += statement.null or 0
+        for item in statement.unread:
+            if item.startswith("candidature:"):
+                code = item.removeprefix("candidature:")
+                item = "candidature:" + merge.get(code, code)
+            bucket["unread"][item] = bucket["unread"].get(item, 0) + 1
+        if any(item.startswith("candidature:") for item in statement.unread):
+            # Statements, not figures, behind the bound on the candidature total.
+            bucket["unread"]["candidature_total"] = (
+                bucket["unread"].get("candidature_total", 0) + 1
+            )
         for name, count in statement.other.items():
             bucket["other"][name] = bucket["other"].get(name, 0) + count
         if statement.unit == "station":
@@ -333,6 +449,7 @@ def aggregate(
             candidatures=value["candidatures"],
             candidature_total=sum(value["candidatures"].values()),
             other=value["other"],
+            unread=value["unread"],
         )
         for key, value in sums.items()
     }
@@ -355,13 +472,16 @@ class Comparison:
             return "as counted"
         if self.standing.ok:
             return "as standing"
+        if self.counted.undecided or self.standing.undecided:
+            # At least one sum is only a lower bound and nothing contradicts it.
+            return "undecided"
         return "neither"
 
     @property
     def ok(self) -> bool:
         """The official totals match one of the sums and no station is left
         in conflict or undetermined."""
-        return self.official_matches != "neither" and not (
+        return self.official_matches not in ("neither", "undecided") and not (
             self.resolution.conflicts or self.resolution.undetermined
         )
 
@@ -385,6 +505,7 @@ class Comparison:
             doc["stations_undetermined"] = resolution.undetermined
             doc["stations_without_count"] = resolution.without_count
             doc["supersedes_unknown"] = resolution.dangling
+            doc["stations_partly_compared"] = resolution.partly_compared
             doc["stations_changed"] = [
                 {
                     "station": c.station,
@@ -394,6 +515,7 @@ class Comparison:
                     "items": {
                         item: {"earlier": a, "standing": b} for item, (a, b) in c.items.items()
                     },
+                    "not_compared": list(c.not_compared),
                 }
                 for c in resolution.changes
             ]
@@ -471,27 +593,47 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         mine, theirs = recomputed[key], official.areas[key]
         found: list[Difference] = []
 
-        def compare(item: str, a: int | None, b: int | None) -> None:
-            if a is not None and b is not None and a != b:
+        open_sums: list[Bound] = []
+
+        def compare(item: str, a: int | None, b: int | None, unread: int = 0) -> None:
+            if a is None or b is None:
+                return
+            if unread and a <= b:
+                # Figures are missing from the sum: it is a lower bound that
+                # the official figure does not contradict, and no more.
+                open_sums.append(Bound(key, item, a, b, unread))
+            elif a != b:
                 found.append(Difference(key, item, a, b))
 
         compare("stations", mine.stations, theirs.stations)
-        compare("blank", mine.blank, theirs.blank)
-        compare("null", mine.null, theirs.null)
-        compare("candidature_total", mine.candidature_total, theirs.candidature_total)
+        compare("blank", mine.blank, theirs.blank, mine.unread.get("blank", 0))
+        compare("null", mine.null, theirs.null, mine.unread.get("null", 0))
+        compare(
+            "candidature_total",
+            mine.candidature_total,
+            theirs.candidature_total,
+            mine.unread.get("candidature_total", 0),
+        )
         if theirs.other is not None:
             for name in sorted(set(mine.other or {}) | set(theirs.other)):
-                compare(f"other:{name}", (mine.other or {}).get(name, 0), theirs.other.get(name, 0))
+                compare(
+                    f"other:{name}",
+                    (mine.other or {}).get(name, 0),
+                    theirs.other.get(name, 0),
+                    mine.unread.get(f"other:{name}", 0),
+                )
         for code in sorted(set(mine.candidatures) | set(theirs.candidatures)):
             compare(
                 f"candidature:{code}",
                 mine.candidatures.get(code, 0),
                 theirs.candidatures.get(code, 0),
+                mine.unread.get(f"candidature:{code}", 0),
             )
         report.areas_checked += 1
-        if not found:
+        if not found and not open_sums:
             report.areas_matching += 1
         report.differences.extend(found)
+        report.bounds.extend(open_sums)
     return report
 
 
@@ -542,6 +684,18 @@ def format_report(
             )
         if len(report.differences) > limit:
             lines.append(f"  ... and {len(report.differences) - limit} more")
+    if report.bounds:
+        lines.append(
+            f"Sums that are only a lower bound, because figures could not be read: "
+            f"{len(report.bounds)} in {len({b.area for b in report.bounds})} {areas}"
+        )
+        for b in report.bounds[:limit]:
+            lines.append(
+                f"  {b.area} {b.item}: at least {b.at_least}, official {b.official} "
+                f"(unread in {b.statements} statements)"
+            )
+        if len(report.bounds) > limit:
+            lines.append(f"  ... and {len(report.bounds) - limit} more")
     if station_issues and report.station_issues:
         lines.append(
             f"Polling stations with internal inconsistencies: {len(report.station_issues)}"
@@ -554,6 +708,9 @@ def format_report(
         lines.append(
             "Result: recomputed totals match the official totals."
             if report.ok
+            else "Result: some sums are lower bounds, because figures could not be read. "
+            "They neither match nor differ from the official totals."
+            if report.undecided
             else "Result: there are differences or gaps to explain. "
             "A difference is not, by itself, evidence of wrongdoing."
         )
@@ -598,6 +755,10 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
     )
     listing("Stations with a later act but no statement of the count", resolution.without_count)
     listing("Stations whose statement replaces one that was not provided", resolution.dangling)
+    listing(
+        "Stations whose acts could be compared only in part, because figures could not be read",
+        resolution.partly_compared,
+    )
     if resolution.changes:
         lines.append(
             "Stations whose standing figures differ from an earlier act: "
@@ -636,7 +797,7 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
         lines.append(
             "No statement of a station's own count was provided, so that sum could not be made."
         )
-        if matches != "neither" and not comparison.ok:
+        if matches not in ("neither", "undecided") and not comparison.ok:
             lines.append("Some stations are in conflict or undetermined; see above.")
         return "\n".join(lines)
     lines.append(
@@ -648,8 +809,10 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
             "not what the stations counted.",
             "neither": "Result: the official totals match neither sum. "
             "A difference is not, by itself, evidence of wrongdoing.",
+            "undecided": "Result: undecided. At least one sum is only a lower bound, because "
+            "figures could not be read, and the official totals do not contradict it.",
         }[matches]
     )
-    if matches != "neither" and not comparison.ok:
+    if matches not in ("neither", "undecided") and not comparison.ok:
         lines.append("Some stations are in conflict or undetermined; see above.")
     return "\n".join(lines)

@@ -24,6 +24,12 @@ UNITS = frozenset({"station", "aggregate"})
 STAGE_COUNT = "count"
 STAGES = ("count", "canvass", "ruling", "rerun")
 
+# Why a figure of the tally sheet has no value in a statement. "illegible":
+# something is written and could not be read. "empty": nothing is written.
+# Neither is a zero, and the two are not the same thing.
+UNREAD_REASONS = ("illegible", "empty")
+_ITEM_CANDIDATURE, _ITEM_OTHER = "candidature:", "other:"
+
 
 class FormatError(ValueError):
     """Raised when a document does not follow the specification."""
@@ -71,8 +77,9 @@ class Statement:
     election: str
     station: str
     constituency: str
-    blank: int
-    null: int
+    # None only when the figure is listed in ``unread``.
+    blank: int | None
+    null: int | None
     candidatures: dict[str, int]
     registered: int | None = None
     # Total of valid votes for candidatures as written on the sheet, when the
@@ -81,6 +88,10 @@ class Statement:
     # Ballots that are neither blank, null nor for a candidature, by category.
     # Profiles define the categories, for example ballots left unmarked.
     other: dict[str, int] = field(default_factory=dict)
+    # Figures of the sheet that could not be read: item -> reason. An item is
+    # "blank", "null", "candidature:<code>" or "other:<category>", and carries
+    # no value anywhere else in the statement. Never a zero.
+    unread: dict[str, str] = field(default_factory=dict)
     # "station" for a polling station. "aggregate" for a row that carries votes
     # but is not a polling station, such as overseas votes counted centrally.
     unit: str = "station"
@@ -93,36 +104,100 @@ class Statement:
     evidence: dict[str, Any] = field(default_factory=dict)
     extra: dict[str, Any] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        for item, reason in self.unread.items():
+            if reason not in UNREAD_REASONS:
+                raise FormatError(f"counts.unread[{item}] must be one of {list(UNREAD_REASONS)}")
+            if item.startswith(_ITEM_CANDIDATURE):
+                valued = item[len(_ITEM_CANDIDATURE) :] in self.candidatures
+            elif item.startswith(_ITEM_OTHER):
+                valued = item[len(_ITEM_OTHER) :] in self.other
+            elif item in ("blank", "null"):
+                valued = getattr(self, item) is not None
+            else:
+                raise FormatError(
+                    f"counts.unread: {item!r} is not blank, null, candidature:<code> "
+                    "or other:<category>"
+                )
+            if valued:
+                raise FormatError(f"{item} is listed as unread and cannot also carry a value")
+        for name in ("blank", "null"):
+            if getattr(self, name) is None and name not in self.unread:
+                raise FormatError(f"counts.{name} must be a non-negative integer")
+
     @property
     def candidature_sum(self) -> int:
+        """Sum of the candidature votes that were read."""
         return sum(self.candidatures.values())
 
     @property
     def ballots(self) -> int:
-        """Ballots counted: candidature votes, blank, null and other categories."""
-        return self.candidature_sum + self.blank + self.null + sum(self.other.values())
+        """Ballots counted: candidature votes, blank, null and other categories.
+
+        When figures are unread this is the sum of those that were read, and
+        the true number is at least that.
+        """
+        return (
+            self.candidature_sum
+            + (self.blank or 0)
+            + (self.null or 0)
+            + sum(self.other.values())
+        )
 
     @property
     def figures(self) -> tuple:
-        """The figures that are added up, in a form that can be compared.
+        """The figures of the statement, in a form that can be compared.
 
-        Two statements about the same act of the same station agree when
-        these are equal. A candidature with zero votes and one that is not
-        listed are the same thing.
+        Two statements with the same figures say the same thing. A
+        candidature with zero votes and one that is not listed are the same
+        thing; a figure that is unread is neither.
         """
         return (
             self.blank,
             self.null,
             tuple(sorted((code, votes) for code, votes in self.candidatures.items() if votes)),
             tuple(sorted((name, count) for name, count in self.other.items() if count)),
+            tuple(sorted(self.unread.items())),
         )
 
+    def items(self) -> set[str]:
+        """Every item this statement has a figure or an unread mark for."""
+        return (
+            {"blank", "null"}
+            | {_ITEM_CANDIDATURE + code for code in self.candidatures}
+            | {_ITEM_OTHER + name for name in self.other}
+            | set(self.unread)
+        )
+
+    def value(self, item: str) -> int | None:
+        """The figure for ``item``, or None when it could not be read."""
+        if item in self.unread:
+            return None
+        if item.startswith(_ITEM_CANDIDATURE):
+            return self.candidatures.get(item[len(_ITEM_CANDIDATURE) :], 0)
+        if item.startswith(_ITEM_OTHER):
+            return self.other.get(item[len(_ITEM_OTHER) :], 0)
+        return getattr(self, item)
+
+    def agrees_with(self, other: "Statement") -> bool:
+        """True when no figure that both statements read differs.
+
+        A figure one of them could not read contradicts nothing.
+        """
+        for item in self.items() | other.items():
+            mine, theirs = self.value(item), other.value(item)
+            if mine is not None and theirs is not None and mine != theirs:
+                return False
+        return True
+
     def to_dict(self) -> dict[str, Any]:
-        counts: dict[str, Any] = {
-            "blank": self.blank,
-            "null": self.null,
-            "candidatures": dict(sorted(self.candidatures.items())),
-        }
+        counts: dict[str, Any] = {"candidatures": dict(sorted(self.candidatures.items()))}
+        if self.blank is not None:
+            counts["blank"] = self.blank
+        if self.null is not None:
+            counts["null"] = self.null
+        if self.unread:
+            counts["unread"] = dict(sorted(self.unread.items()))
         if self.registered is not None:
             counts["registered"] = self.registered
         if self.candidature_total is not None:
@@ -167,6 +242,11 @@ class Statement:
         other = counts.get("other") or {}
         if not isinstance(other, dict):
             raise FormatError("counts.other must be an object")
+        unread = counts.get("unread") or {}
+        if not isinstance(unread, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in unread.items()
+        ):
+            raise FormatError("counts.unread must map items to reasons")
         unit = doc.get("unit", "station")
         if unit not in UNITS:
             raise FormatError(f"unit must be one of {sorted(UNITS)}")
@@ -184,8 +264,8 @@ class Statement:
             election=doc["election"],
             station=doc["station"],
             constituency=doc["constituency"],
-            blank=_count(counts.get("blank"), "counts.blank"),
-            null=_count(counts.get("null"), "counts.null"),
+            blank=_count(counts.get("blank"), "counts.blank", optional="blank" in unread),
+            null=_count(counts.get("null"), "counts.null", optional="null" in unread),
             candidatures={
                 str(code): _count(votes, f"counts.candidatures[{code}]")
                 for code, votes in candidatures.items()
@@ -202,6 +282,7 @@ class Statement:
                 str(name): _count(count, f"counts.other[{name}]")
                 for name, count in other.items()
             },
+            unread=dict(unread),
             unit=unit,
             stage=stage,
             supersedes=supersedes,
@@ -255,6 +336,11 @@ class AreaTotals:
     candidature_total: int | None = None
     # Other categories of ballots; None when the authority does not give them.
     other: dict[str, int] | None = None
+    # Only in totals recomputed from statements: item -> number of statements
+    # that could not read that figure, and "candidature_total" -> number that
+    # could not read some candidature figure. The sum for such an item is
+    # then a lower bound, not a total.
+    unread: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         doc: dict[str, Any] = {
@@ -268,6 +354,8 @@ class AreaTotals:
             doc["candidature_total"] = self.candidature_total
         if self.other is not None:
             doc["other"] = dict(sorted(self.other.items()))
+        if self.unread:
+            doc["unread"] = dict(sorted(self.unread.items()))
         return doc
 
     @classmethod

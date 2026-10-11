@@ -24,8 +24,8 @@ polling station was itself correct. A statement faithfully copied from a wrong
 tally sheet is still wrong.
 
 Not yet specified (planned for later versions): signatures and submitter
-credentials, the append-only log and its witnesses, several independent
-statements for the same station, and image evidence.
+credentials, and image evidence. The append-only log and its witnesses are
+specified in [`log.md`](log.md) and [`witness.md`](witness.md).
 
 ## 2. Canonical JSON
 
@@ -52,12 +52,13 @@ RFC 8785 outright is an open question.
 | `unit` | string | no | `station` (default) or `aggregate`. An aggregate carries votes but is not a polling station, for example overseas votes counted centrally. Omitted when it is `station` |
 | `stage` | string | no | The act the figures come from (section 3.3): `count` (default), `canvass`, `ruling` or `rerun`. Omitted when it is `count` |
 | `supersedes` | string | no | Identifier of the statement this one replaces (section 3.3) |
-| `counts.blank` | integer | yes | Blank votes |
-| `counts.null` | integer | yes | Null (spoilt) votes |
+| `counts.blank` | integer | yes, unless unread | Blank votes |
+| `counts.null` | integer | yes, unless unread | Null (spoilt) votes |
 | `counts.candidatures` | object | yes | Votes per candidature: candidature code → integer |
 | `counts.registered` | integer | no | Registered voters at the station |
 | `counts.candidature_total` | integer | no | Total votes for candidatures, when the sheet states it separately |
 | `counts.other` | object | no | Ballots that are neither blank, null nor for a candidature: category → integer. Profiles define the categories, for example ballots left unmarked. Omitted when empty |
+| `counts.unread` | object | no | Figures of the sheet that could not be read: item → reason (section 3.4). Omitted when empty |
 | `evidence` | object | no | Where the figures come from (section 3.2) |
 | `extra` | object | no | Profile-specific fields that do not take part in verification |
 
@@ -119,6 +120,33 @@ the record, and the difference between them is itself information.
 
 Profiles say which acts exist under their law and who may be the source of
 each.
+
+### 3.4 Figures that could not be read
+
+A figure of a tally sheet may be impossible to read, and a field may be left
+empty. Neither is a zero. `counts.unread` lists such figures, each with the
+reason:
+
+| Reason | Meaning |
+| --- | --- |
+| `illegible` | Something is written in the field and could not be read |
+| `empty` | Nothing is written in the field |
+
+The two are kept apart because they are different facts about the sheet: in
+the one run that has both, empty fields turned out to be zeros far more often
+than illegible ones.
+
+An item is named `blank`, `null`, `candidature:<code>` or `other:<category>`.
+An item listed in `counts.unread` MUST NOT carry a value anywhere else in the
+statement: the candidature or category is absent from its object, and `blank`
+or `null` is absent from `counts`. A statement MUST NOT give a zero, or any
+other value, to a figure it lists as unread.
+
+A candidature that is neither in `counts.candidatures` nor in `counts.unread`
+has zero votes, as before.
+
+`counts.unread` is omitted when empty, so statements written before it existed
+keep their identifier.
 
 ## 4. Official totals
 
@@ -184,18 +212,35 @@ means whatever the document's `grouping` defines.
    - `registered` is present and is lower than blank + null + candidature votes.
 4. The verifier sums `blank`, `null` and each candidature's votes per area,
    and counts the statements whose `unit` is `station`. Aggregates add their
-   votes but are not counted as stations.
+   votes but are not counted as stations. For each item it also counts the
+   statements that list it in `counts.unread`.
 5. For every area present on both sides it compares station count, blank,
    null, candidature total and each candidature. A candidature missing on one
-   side counts as zero. Each mismatch is a *difference*.
-6. An area present on only one side is a *gap*.
+   side counts as zero. Each mismatch is a *difference*, except as step 6
+   says.
+6. When at least one statement of the area could not read an item, the sum
+   for that item is a **lower bound**, not a total: the true sum is at least
+   that. The same holds for the candidature total when any candidature
+   figure is unread.
+   - A lower bound **above** the official figure is a *difference*: the true
+     sum can only be higher still.
+   - A lower bound **not above** the official figure is neither a match nor a
+     difference, also when the two happen to be equal. It is reported as a
+     lower bound, with the number of statements concerned.
+7. An area present on only one side is a *gap*.
 
-A sum is **matching** only if there are no differences and no gaps. Station
+A sum is **matching** only if there are no differences, no lower bounds and
+no gaps. A sum with lower bounds and nothing else is **undecided**. Station
 issues are reported but do not change the result.
+
+For a single statement, a sheet total (`candidature_total`) is contradicted
+by rows of which some are unread only when the rows that were read already
+exceed it.
 
 The verifier reports both sums and says which of them the official totals
 coincide with: both, what the stations counted, what was left standing, or
-neither. It MUST NOT show one sum without the other when they differ, and it
+neither. When neither matches and at least one is undecided, it says
+*undecided*, which is not a positive result. It MUST NOT show one sum without the other when they differ, and it
 makes no assumption about which of the two an official file contains.
 
 ### 5.2 Which statements enter the sums
@@ -207,9 +252,13 @@ Statements with the same identifier are one statement.
    candidature, a zero and a missing entry being the same) counts as one.
    When they differ, a version stays only if no statement of the same
    `stage` names it in `supersedes`: an authority may correct its own
-   figures, and the corrected version then speaks for the act. A group left
-   with more than one version is an act **in conflict**: it enters no sum
-   and is listed. Contradictory copies count for nothing.
+   figures, and the corrected version then speaks for the act. Versions that
+   stay and differ only where one of them could not read a figure are not in
+   conflict: an unread figure contradicts nothing. They count as one act,
+   whose figures are those any of them read; a figure none of them read
+   stays unread. Versions of which two read the same item differently are an
+   act **in conflict**: it enters no sum and is listed. Contradictory copies
+   count for nothing.
 2. **As counted**: for each station, its `count` act, unless in conflict.
 3. An act is *replaced* when a statement of another `stage` names one of its
    statements in `supersedes`. **As standing**: for each station, the one
@@ -220,7 +269,9 @@ Statements with the same identifier are one statement.
 5. The verifier lists the stations whose standing figures differ from those
    of an earlier act (the count when there is a statement of it, otherwise
    the first act of the chain), item by item, with both acts and the class
-   of source; the stations
+   of source. An item either act could not read is not a change: nothing is
+   said about it, and the station is listed as compared only in part. It
+   also lists the stations
    that have a later act but no statement of the count; and the statements
    whose `supersedes` names a statement that was not provided.
 
@@ -234,6 +285,9 @@ same sum.
 
 - *Matching* means: the published totals are the sum of these
   statements. It says nothing about whether the statements are true.
+- A *lower bound* means some figures could not be read, so the statements
+  add up to at least that much. It is not a match, and it is not a
+  difference.
 - A *difference* means the two do not add up. It does not say why. Lawful
   corrections during the official canvass, transcription slips and fraud all
   produce differences. Implementations MUST present differences in neutral
@@ -253,3 +307,40 @@ same sum.
   statement written before.
 - A privacy rule for very small stations where publishing a result reveals
   individual votes.
+- A figure that does not exist on a tally sheet at all, such as blank votes
+  where the sheet has no field for them. `counts.blank` is still required
+  unless unread, and the Mexico profile writes `0`.
+
+## 7. Conventions for `extra`
+
+`extra` takes no part in verification, and profiles are free to use it. One
+key is shared, so that reports can be read across countries:
+
+- `extra.recount`: `true` when the figures of a statement come from counting
+  the ballots of the station again, `false` when they come from tally sheets
+  without counting again. Omitted when the source does not say. It applies to
+  acts after the count. Whether ballots were recounted changes what a
+  difference between two acts can mean, but it is not a different act.
+
+## 8. What each country changed in the core
+
+The core is meant to be country-neutral. This is the record of how far that
+has held: every time a new profile could not be written without changing the
+core, the change is listed here.
+
+| Profile added | What the core lacked | Change |
+| --- | --- | --- |
+| Spain | Rows that carry votes but are not polling stations (overseas vote) | `unit` |
+| Spain | Totals published at several levels | `grouping`, areas |
+| Spain | Candidatures added up under one code at some level | `merge` |
+| Colombia | Lawful acts after the count that change a station's figures | `stage`, `supersedes`, two sums |
+| Colombia | Ballots that are neither blank, null nor for a candidature | `counts.other` |
+| Colombia | An authority correcting its own figures within one act | same-stage `supersedes` |
+| Mexico | Figures the source could not read | `counts.unread`, lower bounds |
+
+The Mexico profile also showed three things that were left as they are: one
+earlier statement replaced by several later ones, official totals that are
+only a grand total, and a sheet total that includes null votes. See
+[`profile-mx.md`](profile-mx.md).
+
+So far no country has been added without a change to the core.
