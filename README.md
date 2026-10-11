@@ -1,11 +1,13 @@
-# tallylog
+# actasum
 
 **English** · [Español](README.es.md)
+
+*Formerly `tallylog`; renamed on 11 October 2026.*
 
 An open format and a verifier for polling-station tally sheets.
 
 After an election, each polling station records its result on a tally sheet.
-The electoral authority then adds those sheets up. `tallylog` lets anyone
+The electoral authority then adds those sheets up. `actasum` lets anyone
 repeat that addition from the station-level figures and compare it with the
 published totals.
 
@@ -49,7 +51,7 @@ difference does not say which published figure is right.
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](docs/spec/profile-es.es.md)) |
 | [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
-| `src/tallylog/` | Reference implementation, Python; standard library only except for signatures |
+| `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
 | `tests/` | Tests on synthetic data |
 
 ## Quick start
@@ -67,7 +69,7 @@ Spanish Ministry of the Interior's
 then:
 
 ```sh
-tallylog es replay --mesa 02201911_MESA.zip
+actasum es replay --mesa 02201911_MESA.zip
 ```
 
 That ZIP carries both the per-station files and the province totals. Pass
@@ -76,7 +78,7 @@ That ZIP carries both the per-station files and the province totals. Pass
 To see in which municipalities a difference arises, compare one level down:
 
 ```sh
-tallylog es replay --mesa 02202307_MESA.zip --level municipality
+actasum es replay --mesa 02202307_MESA.zip --level municipality
 ```
 
 The command prints how many constituencies match and lists every difference.
@@ -86,9 +88,9 @@ gaps, and `2` when the input cannot be read.
 The same thing in separate steps, producing the neutral intermediate files:
 
 ```sh
-tallylog es convert  --mesa 02201911_MESA.zip --out statements.jsonl
-tallylog es official --tota 02201911_MESA.zip --out official.json
-tallylog verify --statements statements.jsonl --official official.json
+actasum es convert  --mesa 02201911_MESA.zip --out statements.jsonl
+actasum es official --tota 02201911_MESA.zip --out official.json
+actasum verify --statements statements.jsonl --official official.json
 ```
 
 ## The log
@@ -98,11 +100,11 @@ commits to every entry, and short proofs show that one polling station's
 statement is in the log, or that the log has only grown.
 
 ```sh
-tallylog es convert --mesa 02201911_MESA.zip --out statements.jsonl
-tallylog log build --statements statements.jsonl --out log-2019-11 > checkpoint.txt
+actasum es convert --mesa 02201911_MESA.zip --out statements.jsonl
+actasum log build --statements statements.jsonl --out log-2019-11 > checkpoint.txt
 
-tallylog log prove --log log-2019-11 --station es/04/003/02/001/B --out proof.json
-tallylog log check-proof --proof proof.json --checkpoint checkpoint.txt
+actasum log prove --log log-2019-11 --station es/04/003/02/001/B --out proof.json
+actasum log check-proof --proof proof.json --checkpoint checkpoint.txt
 ```
 
 Anyone who builds the log from the same ZIP file obtains the same checkpoint.
@@ -116,18 +118,18 @@ that the log only grew. This needs the optional `cryptography` package
 
 ```sh
 # the log operator
-tallylog key new --name tallylog/es/congreso/2019-11 --out log.key      # prints the log's public key
-tallylog log sign --log log-2019-11 --key log.key
-tallylog log witness-request --log log-2019-11 --old-size 0 --out request.txt
+actasum key new --name actasum/es/congreso/2019-11 --out log.key      # prints the log's public key
+actasum log sign --log log-2019-11 --key log.key
+actasum log witness-request --log log-2019-11 --old-size 0 --out request.txt
 
 # the witness, ideally another organization on another machine
-tallylog witness init --dir witness --name witness.example/w1           # prints the witness's public key
-tallylog witness trust --dir witness --log-key '<the log public key>'
-tallylog witness add-checkpoint --dir witness --request request.txt --out cosignature.txt
+actasum witness init --dir witness --name witness.example/w1           # prints the witness's public key
+actasum witness trust --dir witness --log-key '<the log public key>'
+actasum witness add-checkpoint --dir witness --request request.txt --out cosignature.txt
 
 # back at the log, then anyone
-tallylog log cosign --log log-2019-11 --signatures cosignature.txt
-tallylog log check-checkpoint --checkpoint log-2019-11/checkpoint \
+actasum log cosign --log log-2019-11 --signatures cosignature.txt
+actasum log check-checkpoint --checkpoint log-2019-11/checkpoint \
     --log-key '<the log public key>' --witness-key '<the witness public key>' --quorum 1
 ```
 

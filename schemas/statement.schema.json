@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "tallylog/statement/v0.1",
+  "$id": "actasum/statement/v0.1",
   "title": "Tally-sheet statement",
   "description": "Counts recorded on one polling station's tally sheet. Draft v0.1.",
   "type": "object",
   "required": ["spec", "profile", "election", "station", "constituency", "counts"],
   "additionalProperties": false,
   "properties": {
-    "spec": { "const": "tallylog/statement/v0.1" },
+    "spec": { "const": "actasum/statement/v0.1" },
     "profile": { "type": "string", "minLength": 1 },
     "election": { "type": "string", "minLength": 1 },
     "station": { "type": "string", "minLength": 1 },

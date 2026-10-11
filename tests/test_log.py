@@ -3,15 +3,15 @@ import json
 import pytest
 
 import synth
-from tallylog.cli import main
-from tallylog.log import (
+from actasum.cli import main
+from actasum.log import (
     Checkpoint,
     Log,
     verify_consistency_proof,
     verify_inclusion_proof,
 )
-from tallylog.profiles.es import infoelectoral
-from tallylog.statement import FormatError
+from actasum.profiles.es import infoelectoral
+from actasum.statement import FormatError
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def statements(tmp_path):
 
 
 def test_checkpoint_text_round_trip():
-    checkpoint = Checkpoint("tallylog/es/congreso/2019-11", 4, bytes(range(32)))
+    checkpoint = Checkpoint("actasum/es/congreso/2019-11", 4, bytes(range(32)))
     text = checkpoint.text()
     assert text.count("\n") == 3 and text.endswith("\n")
     assert Checkpoint.parse(text) == checkpoint
@@ -32,7 +32,7 @@ def test_checkpoint_text_round_trip():
 
 
 def test_build_reopen_and_prove(tmp_path, statements):
-    log = Log.create(str(tmp_path / "log"), "tallylog/test")
+    log = Log.create(str(tmp_path / "log"), "actasum/test")
     assert log.append(statements) == (4, 0)
     assert log.append(statements) == (0, 4)  # the same statements again add nothing
 
@@ -48,7 +48,7 @@ def test_build_reopen_and_prove(tmp_path, statements):
 
 
 def test_a_changed_figure_breaks_the_proof(tmp_path, statements):
-    log = Log.create(str(tmp_path / "log"), "tallylog/test")
+    log = Log.create(str(tmp_path / "log"), "actasum/test")
     log.append(statements)
     proof = log.prove_inclusion(0)
     proof["statement"]["counts"]["null"] += 1
@@ -57,7 +57,7 @@ def test_a_changed_figure_breaks_the_proof(tmp_path, statements):
 
 
 def test_proof_for_another_checkpoint_is_refused(tmp_path, statements):
-    log = Log.create(str(tmp_path / "log"), "tallylog/test")
+    log = Log.create(str(tmp_path / "log"), "actasum/test")
     log.append(statements[:3])
     earlier = log.checkpoint()
     log.append(statements[3:])
@@ -66,7 +66,7 @@ def test_proof_for_another_checkpoint_is_refused(tmp_path, statements):
 
 
 def test_consistency_between_two_checkpoints(tmp_path, statements):
-    log = Log.create(str(tmp_path / "log"), "tallylog/test")
+    log = Log.create(str(tmp_path / "log"), "actasum/test")
     log.append(statements[:2])
     earlier = log.checkpoint()
     log.append(statements[2:])
@@ -76,12 +76,12 @@ def test_consistency_between_two_checkpoints(tmp_path, statements):
 
 
 def test_rewritten_history_cannot_prove_consistency(tmp_path, statements):
-    honest = Log.create(str(tmp_path / "honest"), "tallylog/test")
+    honest = Log.create(str(tmp_path / "honest"), "actasum/test")
     honest.append(statements[:2])
     earlier = honest.checkpoint()
 
     altered = type(statements[0])(**{**statements[0].__dict__, "null": 99})
-    forged = Log.create(str(tmp_path / "forged"), "tallylog/test")
+    forged = Log.create(str(tmp_path / "forged"), "actasum/test")
     forged.append([altered, statements[1], statements[2], statements[3]])
     proof = forged.prove_consistency(2)
     with pytest.raises(FormatError):
@@ -90,13 +90,13 @@ def test_rewritten_history_cannot_prove_consistency(tmp_path, statements):
 
 def test_tampering_with_the_stored_log_is_detected_on_open(tmp_path, statements):
     path = tmp_path / "log"
-    Log.create(str(path), "tallylog/test").append(statements)
+    Log.create(str(path), "actasum/test").append(statements)
     leaves = path / "leaves.jsonl"
     leaves.write_bytes(leaves.read_bytes().replace(b'"null":3', b'"null":4', 1))
     with pytest.raises(FormatError, match="do not match the checkpoint"):
         Log.open(str(path))
     # Dropping the last entry is caught too.
-    Log.create(str(tmp_path / "log2"), "tallylog/test").append(statements)
+    Log.create(str(tmp_path / "log2"), "actasum/test").append(statements)
     leaves2 = tmp_path / "log2" / "leaves.jsonl"
     leaves2.write_bytes(b"\n".join(leaves2.read_bytes().split(b"\n")[:-2]) + b"\n")
     with pytest.raises(FormatError, match="do not match the checkpoint"):
@@ -109,7 +109,7 @@ def test_cli_end_to_end(tmp_path, capsys):
     assert main(["es", "convert", "--mesa", str(mesa), "--out", str(s)]) == 0
     assert main(["log", "build", "--statements", str(s), "--out", str(log)]) == 0
     checkpoint_text = capsys.readouterr().out
-    assert checkpoint_text.startswith("tallylog/es/congreso/2019-11\n4\n")
+    assert checkpoint_text.startswith("actasum/es/congreso/2019-11\n4\n")
     (tmp_path / "cp").write_text(checkpoint_text, encoding="utf-8", newline="")
 
     assert main(["log", "prove", "--log", str(log), "--station", "es/08/101/02/010/U",

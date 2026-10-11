@@ -14,7 +14,7 @@ The specifications recommend ML-DSA-44 (type ``0x06``) for new deployments.
 It is not implemented here yet.
 
 Ed25519 comes from the ``cryptography`` package, which is an optional
-dependency: nothing else in tallylog needs it.
+dependency: nothing else in actasum needs it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def _ed25519():
         from cryptography.hazmat.primitives import serialization
     except ImportError as exc:  # pragma: no cover - depends on the environment
         raise FormatError(
-            "signatures need the 'cryptography' package: pip install 'tallylog[sign]'"
+            "signatures need the 'cryptography' package: pip install 'actasum[sign]'"
         ) from exc
     return ed25519, serialization, InvalidSignature
 

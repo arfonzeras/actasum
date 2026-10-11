@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from tallylog.statement import (
+from actasum.statement import (
     FormatError,
     Statement,
     canonical_json,
@@ -90,7 +90,7 @@ def test_read_jsonl_reports_the_line_number():
 
 
 def test_sheet_total_that_disagrees_with_rows_is_flagged():
-    from tallylog.verify import check_station
+    from actasum.verify import check_station
 
     issues = check_station(make(candidature_total=321))
     assert [i.code for i in issues] == ["candidature-sum"]

@@ -53,7 +53,7 @@ Inclusion proof:
 
 | Field | Meaning |
 | --- | --- |
-| `spec` | `tallylog/inclusion-proof/v0.1` |
+| `spec` | `actasum/inclusion-proof/v0.1` |
 | `checkpoint` | `origin`, `size` and base64 `root` the proof was made for |
 | `leaf_index` | Position of the entry, counting from 0 |
 | `statement` | The statement itself |
@@ -63,7 +63,7 @@ Consistency proof:
 
 | Field | Meaning |
 | --- | --- |
-| `spec` | `tallylog/consistency-proof/v0.1` |
+| `spec` | `actasum/consistency-proof/v0.1` |
 | `old`, `new` | The two checkpoints |
 | `path` | Base64 hashes as in RFC 6962, section 2.1.2 |
 

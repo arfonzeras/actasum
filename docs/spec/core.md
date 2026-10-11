@@ -44,7 +44,7 @@ RFC 8785 outright is an open question.
 
 | Field | Type | Required | Meaning |
 | --- | --- | --- | --- |
-| `spec` | string | yes | Always `tallylog/statement/v0.1` |
+| `spec` | string | yes | Always `actasum/statement/v0.1` |
 | `profile` | string | yes | Profile and version that define the remaining fields |
 | `election` | string | yes | Election identifier, defined by the profile |
 | `station` | string | yes | Polling-station identifier, defined by the profile. Stable and unique within the election |
@@ -81,7 +81,7 @@ A later version will define `image`, for a photograph of the tally sheet.
 
 | Field | Type | Required | Meaning |
 | --- | --- | --- | --- |
-| `spec` | string | yes | Always `tallylog/official-totals/v0.1` |
+| `spec` | string | yes | Always `actasum/official-totals/v0.1` |
 | `profile` | string | yes | Profile and version |
 | `election` | string | yes | Election identifier |
 | `level` | string | no | What an area is, for display: `constituency` (default), `municipality`… |

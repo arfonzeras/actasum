@@ -1,12 +1,14 @@
-# tallylog
+# actasum
 
 [English](README.md) · **Español**
+
+*Antes `tallylog`; renombrado el 11 de octubre de 2026.*
 
 Un formato abierto y un verificador para las actas de escrutinio de las mesas
 electorales.
 
 Tras una elección, cada mesa anota su resultado en un acta. Después, la
-autoridad electoral suma esas actas. `tallylog` permite que cualquiera repita
+autoridad electoral suma esas actas. `actasum` permite que cualquiera repita
 esa suma a partir de las cifras de cada mesa y la compare con los totales
 publicados.
 
@@ -53,7 +55,7 @@ diferencia no dice cuál de las dos cifras publicadas es la correcta.
 | [`docs/spec/witness.md`](docs/spec/witness.md) | Puntos de control firmados y testigos que los cofirman (en inglés) |
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Perfil España: identificadores, fuente de datos, lagunas conocidas ([traducción](docs/spec/profile-es.es.md)) |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | Esquema JSON de una declaración de acta |
-| `src/tallylog/` | Implementación de referencia en Python; solo biblioteca estándar, salvo para las firmas |
+| `src/actasum/` | Implementación de referencia en Python; solo biblioteca estándar, salvo para las firmas |
 | `tests/` | Pruebas con datos sintéticos |
 
 ## Inicio rápido
@@ -70,7 +72,7 @@ Descarga el ZIP de mesas (`_MESA`) de una elección al Congreso desde el
 del Ministerio del Interior y ejecuta:
 
 ```sh
-tallylog es replay --mesa 02201911_MESA.zip
+actasum es replay --mesa 02201911_MESA.zip
 ```
 
 Ese ZIP contiene tanto los ficheros por mesa como los totales provinciales.
@@ -79,7 +81,7 @@ Con `--tota` se pueden leer los totales de otro fichero.
 Para ver en qué municipios nace una diferencia, compara un nivel más abajo:
 
 ```sh
-tallylog es replay --mesa 02202307_MESA.zip --level municipality
+actasum es replay --mesa 02202307_MESA.zip --level municipality
 ```
 
 La orden indica cuántas circunscripciones cuadran y lista cada diferencia.
@@ -89,9 +91,9 @@ Termina con `0` si todo cuadra, con `1` si hay diferencias o lagunas, y con
 Lo mismo en pasos separados, generando los ficheros intermedios neutrales:
 
 ```sh
-tallylog es convert  --mesa 02201911_MESA.zip --out statements.jsonl
-tallylog es official --tota 02201911_MESA.zip --out official.json
-tallylog verify --statements statements.jsonl --official official.json
+actasum es convert  --mesa 02201911_MESA.zip --out statements.jsonl
+actasum es official --tota 02201911_MESA.zip --out official.json
+actasum verify --statements statements.jsonl --official official.json
 ```
 
 La salida del programa está en inglés.
@@ -104,11 +106,11 @@ demuestran que la declaración de una mesa está en el registro, o que el
 registro solo ha crecido.
 
 ```sh
-tallylog es convert --mesa 02201911_MESA.zip --out statements.jsonl
-tallylog log build --statements statements.jsonl --out log-2019-11 > checkpoint.txt
+actasum es convert --mesa 02201911_MESA.zip --out statements.jsonl
+actasum log build --statements statements.jsonl --out log-2019-11 > checkpoint.txt
 
-tallylog log prove --log log-2019-11 --station es/04/003/02/001/B --out proof.json
-tallylog log check-proof --proof proof.json --checkpoint checkpoint.txt
+actasum log prove --log log-2019-11 --station es/04/003/02/001/B --out proof.json
+actasum log check-proof --proof proof.json --checkpoint checkpoint.txt
 ```
 
 Quien construya el registro a partir del mismo ZIP obtiene el mismo punto de
@@ -122,18 +124,18 @@ tras comprobar que el registro solo ha crecido. Hace falta el paquete opcional
 
 ```sh
 # quien opera el registro
-tallylog key new --name tallylog/es/congreso/2019-11 --out log.key      # muestra la clave pública del registro
-tallylog log sign --log log-2019-11 --key log.key
-tallylog log witness-request --log log-2019-11 --old-size 0 --out request.txt
+actasum key new --name actasum/es/congreso/2019-11 --out log.key      # muestra la clave pública del registro
+actasum log sign --log log-2019-11 --key log.key
+actasum log witness-request --log log-2019-11 --old-size 0 --out request.txt
 
 # el testigo, idealmente otra organización en otra máquina
-tallylog witness init --dir witness --name witness.example/w1           # muestra la clave pública del testigo
-tallylog witness trust --dir witness --log-key '<clave pública del registro>'
-tallylog witness add-checkpoint --dir witness --request request.txt --out cosignature.txt
+actasum witness init --dir witness --name witness.example/w1           # muestra la clave pública del testigo
+actasum witness trust --dir witness --log-key '<clave pública del registro>'
+actasum witness add-checkpoint --dir witness --request request.txt --out cosignature.txt
 
 # de vuelta en el registro, y después cualquiera
-tallylog log cosign --log log-2019-11 --signatures cosignature.txt
-tallylog log check-checkpoint --checkpoint log-2019-11/checkpoint \
+actasum log cosign --log log-2019-11 --signatures cosignature.txt
+actasum log check-checkpoint --checkpoint log-2019-11/checkpoint \
     --log-key '<clave pública del registro>' --witness-key '<clave pública del testigo>' --quorum 1
 ```
 

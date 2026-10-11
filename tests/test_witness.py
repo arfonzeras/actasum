@@ -3,15 +3,15 @@ import pytest
 pytest.importorskip("cryptography")
 
 import synth  # noqa: E402
-from tallylog import merkle  # noqa: E402
-from tallylog.cli import main  # noqa: E402
-from tallylog.log import Log, check_checkpoint  # noqa: E402
-from tallylog.note import COSIGNATURE, LOG_SIGNATURE, Signer, SignatureError  # noqa: E402
-from tallylog.profiles.es import infoelectoral  # noqa: E402
-from tallylog.statement import FormatError  # noqa: E402
-from tallylog.witness import Witness  # noqa: E402
+from actasum import merkle  # noqa: E402
+from actasum.cli import main  # noqa: E402
+from actasum.log import Log, check_checkpoint  # noqa: E402
+from actasum.note import COSIGNATURE, LOG_SIGNATURE, Signer, SignatureError  # noqa: E402
+from actasum.profiles.es import infoelectoral  # noqa: E402
+from actasum.statement import FormatError  # noqa: E402
+from actasum.witness import Witness  # noqa: E402
 
-ORIGIN = "tallylog/test"
+ORIGIN = "actasum/test"
 NOW = lambda: 1_791_000_000  # noqa: E731
 
 
@@ -104,8 +104,8 @@ def test_status_codes_of_the_protocol(setup):
     assert witness.add_checkpoint(good.replace("old 0", "old 00"), NOW)[0] == 400
     assert witness.add_checkpoint(good.replace("old 0", "old 9"), NOW)[0] == 400  # old > size
 
-    stranger = Log.create(str(tmp_path / "s"), "tallylog/unknown")
-    grow(stranger, Signer.generate("tallylog/unknown", LOG_SIGNATURE), statements[:1])
+    stranger = Log.create(str(tmp_path / "s"), "actasum/unknown")
+    grow(stranger, Signer.generate("actasum/unknown", LOG_SIGNATURE), statements[:1])
     assert witness.add_checkpoint(stranger.witness_request(0), NOW)[0] == 404
 
     impostor = Log.create(str(tmp_path / "i"), ORIGIN)
@@ -144,7 +144,7 @@ def test_unsigned_log_cannot_ask_for_a_cosignature(setup):
     with pytest.raises(FormatError, match="sign the checkpoint"):
         log.witness_request(0)
     with pytest.raises(FormatError, match="origin"):
-        log.sign(Signer.generate("tallylog/other", LOG_SIGNATURE))
+        log.sign(Signer.generate("actasum/other", LOG_SIGNATURE))
 
 
 def test_cli_full_ceremony(tmp_path, capsys):
@@ -152,11 +152,11 @@ def test_cli_full_ceremony(tmp_path, capsys):
     p = lambda name: str(tmp_path / name)  # noqa: E731
     assert main(["es", "convert", "--mesa", str(mesa), "--out", p("s.jsonl")]) == 0
     assert main(["log", "build", "--statements", p("s.jsonl"), "--out", p("log"),
-                 "--origin", "tallylog/demo"]) == 0
+                 "--origin", "actasum/demo"]) == 0
     capsys.readouterr()
-    assert main(["key", "new", "--name", "tallylog/demo", "--out", p("log.key")]) == 0
+    assert main(["key", "new", "--name", "actasum/demo", "--out", p("log.key")]) == 0
     log_vkey = capsys.readouterr().out.strip()
-    assert main(["key", "new", "--name", "tallylog/demo", "--out", p("log.key")]) == 2
+    assert main(["key", "new", "--name", "actasum/demo", "--out", p("log.key")]) == 2
     assert main(["log", "sign", "--log", p("log"), "--key", p("log.key")]) == 0
     assert main(["witness", "init", "--dir", p("w"), "--name", "witness.example/w1"]) == 0
     witness_vkey = capsys.readouterr().out.strip().splitlines()[-1]
@@ -171,13 +171,13 @@ def test_cli_full_ceremony(tmp_path, capsys):
             "--log-key", log_vkey, "--witness-key", witness_vkey]
     assert main(args + ["--quorum", "1"]) == 0
     out = capsys.readouterr().out
-    assert "OK: tallylog/demo at size 4" in out and "witness.example/w1" in out
+    assert "OK: actasum/demo at size 4" in out and "witness.example/w1" in out
     assert main(args + ["--quorum", "2"]) == 1
     # The same request again: the witness is now at size 4, not 0.
     assert main(["witness", "add-checkpoint", "--dir", p("w"), "--request", p("req.txt")]) == 1
     assert "409" in capsys.readouterr().err
     assert main(["witness", "status", "--dir", p("w")]) == 0
-    assert "tallylog/demo: last cosigned size 4" in capsys.readouterr().out
+    assert "actasum/demo: last cosigned size 4" in capsys.readouterr().out
     # An inclusion proof still checks against the signed checkpoint file.
     assert main(["log", "prove", "--log", p("log"), "--station", "es/28/079/05/123/A",
                  "--out", p("proof.json")]) == 0

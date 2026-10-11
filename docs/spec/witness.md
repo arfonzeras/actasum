@@ -32,11 +32,11 @@ draft at commit `0b976ab` of the C2SP repository (8 October 2026):
 A signed checkpoint looks like this:
 
 ```
-tallylog/es/congreso/2019-11
+actasum/es/congreso/2019-11
 59607
 RaTDqfj7aHzjaTdadU8GJq9omf6di07amxCw3DARqAc=
 
-— tallylog/es/congreso/2019-11 <base64: key ID and the log's signature>
+— actasum/es/congreso/2019-11 <base64: key ID and the log's signature>
 — witness.example/w1 <base64: key ID, timestamp and the witness's signature>
 ```
 
@@ -72,7 +72,7 @@ before the cosignature is returned.
 
 ## 4. What a checker does
 
-`tallylog log check-checkpoint` takes the log's verifier key, the verifier
+`actasum log check-checkpoint` takes the log's verifier key, the verifier
 keys of the witnesses the checker trusts, and how many of them must have
 cosigned (the quorum). It follows the signed-note rules: signatures from
 unknown keys are ignored, and a signature that claims to come from a trusted

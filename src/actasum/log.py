@@ -25,8 +25,8 @@ from typing import Any, Iterable
 from . import merkle
 from .statement import FormatError, Statement, canonical_json
 
-INCLUSION_SPEC = "tallylog/inclusion-proof/v0.1"
-CONSISTENCY_SPEC = "tallylog/consistency-proof/v0.1"
+INCLUSION_SPEC = "actasum/inclusion-proof/v0.1"
+CONSISTENCY_SPEC = "actasum/consistency-proof/v0.1"
 LEAVES = "leaves.jsonl"
 CHECKPOINT = "checkpoint"
 

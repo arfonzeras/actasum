@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tallylog"
+name = "actasum"
 version = "0.1.0"
 description = "Open format and verifier for polling-station tally sheets"
 readme = "README.md"
@@ -16,7 +16,7 @@ dependencies = []
 sign = ["cryptography>=42"]
 
 [project.scripts]
-tallylog = "tallylog.cli:main"
+actasum = "actasum.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

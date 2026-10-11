@@ -3,10 +3,10 @@ import json
 import pytest
 
 import synth
-from tallylog.cli import main
-from tallylog.profiles.es import infoelectoral
-from tallylog.statement import FormatError
-from tallylog.verify import VerificationError, verify
+from actasum.cli import main
+from actasum.profiles.es import infoelectoral
+from actasum.statement import FormatError
+from actasum.verify import VerificationError, verify
 
 
 def load(tmp_path, **kwargs):

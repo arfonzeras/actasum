@@ -2,7 +2,7 @@ import hashlib
 
 import pytest
 
-from tallylog import merkle
+from actasum import merkle
 
 
 def naive_root(leaves):

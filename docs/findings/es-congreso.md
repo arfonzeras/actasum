@@ -1,13 +1,13 @@
 # Findings: Spain, Congreso elections
 
 Runs of 11 October 2026 on the per-station ZIP files published by the
-Ministry of the Interior (`02YYYYMM_MESA.zip`), with `tallylog` at the commit
+Ministry of the Interior (`02YYYYMM_MESA.zip`), with `actasum` at the commit
 that adds this file. Each run can be repeated with:
 
 ```sh
-tallylog es replay --mesa 02202307_MESA.zip                       # per constituency
-tallylog es replay --mesa 02202307_MESA.zip --level municipality  # per municipality
-tallylog es replay --mesa 02202307_MESA.zip --level overseas      # overseas rows
+actasum es replay --mesa 02202307_MESA.zip                       # per constituency
+actasum es replay --mesa 02202307_MESA.zip --level municipality  # per municipality
+actasum es replay --mesa 02202307_MESA.zip --level overseas      # overseas rows
 ```
 
 Everything below compares the Ministry's publications **with each other**.
@@ -117,29 +117,26 @@ applies to any of these stations has been checked here.
 
 ## Log checkpoint
 
-Loading the November 2019 statements into a log (`tallylog log build`, at
-commit `38a0736`) gave this checkpoint on 11 October 2026:
-
-```
-tallylog/es/congreso/2019-11
-59607
-RaTDqfj7aHzjaTdadU8GJq9omf6di07amxCw3DARqAc=
-```
-
-The 59,607 entries are the 59,555 polling stations plus the 52 overseas rows.
-The source file `02201911_MESA.zip` had SHA-256
+On 11 October 2026 the November 2019 statements were loaded into a log:
+59,607 entries, the 59,555 polling stations plus the 52 overseas rows. The
+source file `02201911_MESA.zip` had SHA-256
 `e7b621f295d7bf79b794941d4f11e7bcf7bd971ecbd6eb21dd4269d59926e441`; every
 entry carries that hash as its evidence.
 
-Two checks were run on that log the same day. An inclusion proof for station
-`es/04/003/02/001/B` (entry 0) verified against the checkpoint. And after
-changing one figure in a copy of the log, the tool refused to open the copy,
-reporting the same size but a different root.
+Three checks were run on that log the same day:
 
-Anyone who starts from the same ZIP file and the same version of the format
-should obtain the same three lines. The checkpoint is not signed; it is
-recorded here so that the computation can be repeated, not as an attestation.
-A change to the statement format changes the root.
+- an inclusion proof for station `es/04/003/02/001/B` (entry 0) verified
+  against the checkpoint;
+- after changing one figure in a copy of the log, the tool refused to open
+  the copy, reporting the same size but a different root;
+- the checkpoint was signed by the log, cosigned by a witness and accepted
+  with a quorum of one. Both ran on the same machine, so this shows that the
+  mechanism works, not that the log is independently attested.
+
+The project was then renamed from `tallylog` to `actasum`. The format
+identifiers are part of every entry, so the root changed and the checkpoint
+obtained that day is no longer reproducible with the current code. A new one
+will be recorded here once the log is rebuilt.
 
 ## What is not known
 

@@ -1,26 +1,26 @@
 """Command-line interface.
 
-    tallylog es replay   --mesa MESA.zip [--tota TOTA.zip] [--level municipality|overseas]
-    tallylog es convert  --mesa MESA.zip --out statements.jsonl
-    tallylog es official --tota TOTA.zip --out official.json
-    tallylog verify      --statements statements.jsonl --official official.json
+    actasum es replay   --mesa MESA.zip [--tota TOTA.zip] [--level municipality|overseas]
+    actasum es convert  --mesa MESA.zip --out statements.jsonl
+    actasum es official --tota TOTA.zip --out official.json
+    actasum verify      --statements statements.jsonl --official official.json
 
-    tallylog log build       --statements statements.jsonl --out LOGDIR
-    tallylog log append      --log LOGDIR --statements more.jsonl
-    tallylog log checkpoint  --log LOGDIR
-    tallylog log prove       --log LOGDIR --station ID
-    tallylog log check-proof --proof proof.json [--checkpoint FILE]
-    tallylog log consistency --log LOGDIR --old-size N
-    tallylog log check-consistency --proof proof.json [--old FILE] [--new FILE]
+    actasum log build       --statements statements.jsonl --out LOGDIR
+    actasum log append      --log LOGDIR --statements more.jsonl
+    actasum log checkpoint  --log LOGDIR
+    actasum log prove       --log LOGDIR --station ID
+    actasum log check-proof --proof proof.json [--checkpoint FILE]
+    actasum log consistency --log LOGDIR --old-size N
+    actasum log check-consistency --proof proof.json [--old FILE] [--new FILE]
 
-    tallylog key new --name NAME --out FILE          (a log's signing key)
-    tallylog log sign --log LOGDIR --key FILE
-    tallylog witness init --dir WDIR --name NAME
-    tallylog witness trust --dir WDIR --log-key VKEY
-    tallylog log witness-request --log LOGDIR --old-size N --out request.txt
-    tallylog witness add-checkpoint --dir WDIR --request request.txt --out cosig.txt
-    tallylog log cosign --log LOGDIR --signatures cosig.txt
-    tallylog log check-checkpoint --checkpoint FILE --log-key VKEY
+    actasum key new --name NAME --out FILE          (a log's signing key)
+    actasum log sign --log LOGDIR --key FILE
+    actasum witness init --dir WDIR --name NAME
+    actasum witness trust --dir WDIR --log-key VKEY
+    actasum log witness-request --log LOGDIR --old-size N --out request.txt
+    actasum witness add-checkpoint --dir WDIR --request request.txt --out cosig.txt
+    actasum log cosign --log LOGDIR --signatures cosig.txt
+    actasum log check-checkpoint --checkpoint FILE --log-key VKEY
                                   [--witness-key VKEY ...] [--quorum N]
 
 Exit status: 0 when the check passes, 1 when it does not (differences, gaps,
@@ -135,7 +135,7 @@ def _log_build(args) -> int:
     statements = _read_statements(args.statements)
     if not statements:
         raise FormatError("no statements to load")
-    origin = args.origin or f"tallylog/{statements[0].election}"
+    origin = args.origin or f"actasum/{statements[0].election}"
     log = Log.create(args.out, origin)
     added, skipped = log.append(statements)
     print(f"{added} entries added, {skipped} duplicates skipped", file=sys.stderr)
@@ -305,7 +305,7 @@ def _witness_add_checkpoint(args) -> int:
         409: "the witness last cosigned a different size; retry from that size",
         422: "the log is not consistent with what this witness cosigned before",
     }[status]
-    print(f"tallylog: witness refused ({status}, {meaning}): {body.strip()}", file=sys.stderr)
+    print(f"actasum: witness refused ({status}, {meaning}): {body.strip()}", file=sys.stderr)
     return 1
 
 
@@ -321,7 +321,7 @@ def _witness_status(args) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="tallylog",
+        prog="actasum",
         description="Recompute election totals from polling-station tally sheets.",
     )
     commands = parser.add_subparsers(dest="command", required=True)
@@ -339,7 +339,7 @@ def build_parser() -> argparse.ArgumentParser:
     build = log_commands.add_parser("build", help="create a log from a statements file")
     build.add_argument("--statements", required=True)
     build.add_argument("--out", required=True, help="directory for the new log")
-    build.add_argument("--origin", help="name of the log (default: tallylog/<election>)")
+    build.add_argument("--origin", help="name of the log (default: actasum/<election>)")
     build.set_defaults(run=_log_build)
 
     append = log_commands.add_parser("append", help="append statements to a log")
@@ -472,10 +472,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     except SignatureError as exc:
         # The input was readable but is not validly signed, or not by enough
         # trusted parties: a negative result, not a usage problem.
-        print(f"tallylog: not verified: {exc}", file=sys.stderr)
+        print(f"actasum: not verified: {exc}", file=sys.stderr)
         return 1
     except (FormatError, VerificationError, OSError, json.JSONDecodeError) as exc:
-        print(f"tallylog: error: {exc}", file=sys.stderr)
+        print(f"actasum: error: {exc}", file=sys.stderr)
         return 2
 
 

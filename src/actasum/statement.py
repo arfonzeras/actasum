@@ -15,8 +15,8 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Iterator, TextIO
 
-STATEMENT_SPEC = "tallylog/statement/v0.1"
-OFFICIAL_SPEC = "tallylog/official-totals/v0.1"
+STATEMENT_SPEC = "actasum/statement/v0.1"
+OFFICIAL_SPEC = "actasum/official-totals/v0.1"
 UNITS = frozenset({"station", "aggregate"})
 
 

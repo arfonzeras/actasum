@@ -2,9 +2,9 @@ import pytest
 
 pytest.importorskip("cryptography")
 
-from tallylog import note  # noqa: E402
-from tallylog.note import COSIGNATURE, LOG_SIGNATURE, Signer, SignatureError, Verifier  # noqa: E402
-from tallylog.statement import FormatError  # noqa: E402
+from actasum import note  # noqa: E402
+from actasum.note import COSIGNATURE, LOG_SIGNATURE, Signer, SignatureError, Verifier  # noqa: E402
+from actasum.statement import FormatError  # noqa: E402
 
 # The example of c2sp.org/signed-note, section "Verifier keys".
 SPEC_VKEY = "example.com/foo+530d903a+AekyeRrm56hApGFkyQR4ZCbV54Id2LKaANYcrnKv3U2k"
@@ -38,13 +38,13 @@ def test_unknown_keys_are_ignored_and_then_nothing_is_trusted():
 
 
 def test_sign_and_verify_round_trip_with_both_types():
-    text = "tallylog/test\n4\nRaTDqfj7aHzjaTdadU8GJq9omf6di07amxCw3DARqAc=\n"
-    log_key = Signer.generate("tallylog/test", LOG_SIGNATURE)
+    text = "actasum/test\n4\nRaTDqfj7aHzjaTdadU8GJq9omf6di07amxCw3DARqAc=\n"
+    log_key = Signer.generate("actasum/test", LOG_SIGNATURE)
     witness = Signer.generate("witness.example/w1", COSIGNATURE)
     data = text + "\n" + log_key.sign(text) + witness.sign(text, timestamp=1_791_000_000)
     parsed, verified = note.open_note(data, [log_key.verifier, witness.verifier])
     assert [(v.verifier.name, v.timestamp) for v in verified] == [
-        ("tallylog/test", None),
+        ("actasum/test", None),
         ("witness.example/w1", 1_791_000_000),
     ]
     # A cosignature covers its own timestamp.
@@ -109,6 +109,6 @@ def test_keys_whose_base64_contains_a_plus_sign():
     assert "++++" in signer.encode().split("+", 4)[4]
     assert Signer.parse(signer.encode()) == signer
     for _ in range(200):
-        fresh = Signer.generate("tallylog/test", LOG_SIGNATURE)
+        fresh = Signer.generate("actasum/test", LOG_SIGNATURE)
         assert Verifier.parse(fresh.verifier.vkey()) == fresh.verifier
         assert Signer.parse(fresh.encode()) == fresh
