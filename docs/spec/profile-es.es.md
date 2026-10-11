@@ -133,9 +133,12 @@ la verificación.
 1. **Cinco ejecuciones reales hasta ahora**, todas de elecciones al Congreso
    entre 2008 y 2023. El diseño se mantuvo en todas. No se han probado
    elecciones más antiguas ni otros tipos de elección.
-2. Los artículos de la LOREG se han leído en una transcripción no oficial, no
-   en el BOE. No se ha revisado una modificación publicada el 2 de julio de
-   2026.
+2. Los artículos 79 y 95 a 108 de la LOREG se comprobaron el 11 de octubre
+   de 2026 en el texto consolidado del BOE (referencia BOE-A-1985-11672,
+   última modificación de 2 de julio de 2026). El resto de la ley no se ha
+   leído para este perfil. La modificación de julio de 2026 (Ley Orgánica
+   2/2026) cambia los artículos 161.2 y 165.2, sobre las circunscripciones
+   del Senado, y no afecta al escrutinio.
 3. Los códigos de candidatura del fichero 10 y del fichero 08 son el mismo
    conjunto en los ficheros de noviembre de 2019, puesto que cuadran todos
    los totales por candidatura. No está confirmado para otras elecciones; si

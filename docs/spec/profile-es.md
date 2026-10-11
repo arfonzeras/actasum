@@ -130,9 +130,12 @@ take part in verification.
 1. **Five real runs so far**, all Congreso elections between 2008 and 2023.
    The layout held in all of them. Older elections and other election types
    have not been tried.
-2. The LOREG articles were read in an unofficial transcription, not in the
-   official gazette (BOE). An amendment published on 2 July 2026 has not been
-   reviewed.
+2. Articles 79 and 95 to 108 of the LOREG were checked on 11 October 2026
+   against the consolidated text published by the official gazette (BOE,
+   reference BOE-A-1985-11672, last amended 2 July 2026). The rest of the
+   law has not been read for this profile. The July 2026 amendment (Organic
+   Law 2/2026) changes articles 161.2 and 165.2, on Senate constituencies,
+   and does not touch the count.
 3. Candidature codes in file 10 and file 08 are the same code set in the
    November 2019 files, since every candidature total matches. This is not
    confirmed for other elections; if it fails, the mapping is in file `03`.

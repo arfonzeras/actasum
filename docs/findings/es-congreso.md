@@ -110,10 +110,19 @@ Registered voters are taken from the count roll (*censo de escrutinio*).
 | July 2023 | `es/24/222/02/001/B` | 503 | 143 |
 | July 2023 | `es/24/222/02/001/C` | 436 | 89 |
 
-None in June 2016 or November 2019. One possible explanation for small
-excesses is party agents voting at the station where they are accredited
-rather than where they are registered. Neither that rule nor whether it
-applies to any of these stations has been checked here.
+None in June 2016 or November 2019.
+
+The law allows one way for this to happen. Party agents (*interventores*)
+vote at the station where they are accredited, provided they are registered
+in the same constituency (article 79.1 LOREG). The station's session record
+states how many of them voted without being on its list (article 99.1), and
+the rule that sets aside a tally sheet with more votes than registered
+voters excepts their votes (article 105.4). That figure is not among the
+fields this profile reads from the Ministry files, so it cannot be told from
+these files whether it accounts for any of the nine stations. It could
+plausibly cover the smallest excesses; it has not been checked whether it
+could cover the larger ones: in the four July 2023 stations the excess runs
+from 142 to 360 ballots.
 
 ## Log checkpoint
 
