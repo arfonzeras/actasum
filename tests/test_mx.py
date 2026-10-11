@@ -268,6 +268,9 @@ def test_changes_inside_a_coalition_are_told_apart(tmp_path):
     assert described["changed_by_canvass"] == {"collation": 1, "recount": 1}
     assert described["changed_only_within_a_coalition"] == 1
     assert described["net_change_by_candidature"] == {"PVEM-MORENA": 3, "null": -3}
+    assert described["net_change_by_canvass"] == {
+        "collation": {}, "recount": {"PVEM-MORENA": 3, "null": -3},
+    }  # fmt: skip
     assert described["changed_by_canvass_and_size"] == {
         "collation": {"1 vote": 1}, "recount": {"2 to 10": 1},
     }  # fmt: skip

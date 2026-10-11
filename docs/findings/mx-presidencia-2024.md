@@ -227,7 +227,19 @@ the tally sheet:
 In 7,749 of the 102,275 stations the changes only move votes between cells
 of one coalition: every candidature keeps its votes.
 
-Net change, canvass minus PREP, in the cells both acts read:
+Net change, canvass minus PREP, in the cells both acts read, by how the
+canvass computed the sheet. Each figure is also given as a share of that
+item's total in the canvass:
+
+| Item | Total in the canvass | *Cotejo* (2,888 stations) | *Recuento* (99,387 stations) | All 102,275 |
+| --- | --- | --- | --- | --- |
+| `PVEM-PT-MORENA` | 35,924,519 | +35,850 (+0.10 %) | +83,540 (+0.23 %) | +119,390 (+0.33 %) |
+| `PAN-PRI-PRD` | 16,502,697 | −4,419 (−0.03 %) | −90,679 (−0.55 %) | −95,098 (−0.58 %) |
+| `MC` | 6,204,710 | −1,008 (−0.02 %) | −24,340 (−0.39 %) | −25,348 (−0.41 %) |
+| Unregistered candidates | 83,114 | −634 (−0.76 %) | −9,115 (−10.97 %) | −9,749 (−11.73 %) |
+| Null votes | 1,400,144 | −876 (−0.06 %) | −56,414 (−4.03 %) | −57,290 (−4.09 %) |
+
+The same net change, by whether the PREP read every cell of the sheet:
 
 | Item | All 102,275 | The 86,721 where the PREP read every cell | The 15,554 where it did not |
 | --- | --- | --- | --- |

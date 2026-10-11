@@ -444,6 +444,7 @@ def describe(resolution, merge: dict[str, str]) -> dict:
     net: Counter = Counter()
     net_of_largest: Counter = Counter()
     net_in_part: Counter = Counter()
+    net_by_kind: dict[str, Counter] = {}
     in_part = set(resolution.partly_compared)
     changed_in_part = 0
     for change in resolution.changes:
@@ -464,6 +465,7 @@ def describe(resolution, merge: dict[str, str]) -> dict:
         if change.station in in_part:
             changed_in_part += 1
             net_in_part.update(moved)
+        net_by_kind.setdefault(kind, Counter()).update(moved)
         net.update(moved)
     compared = [s for s in resolution.standing if s.supersedes]
     by_kind = Counter(_how(s) for s in compared)
@@ -480,6 +482,10 @@ def describe(resolution, merge: dict[str, str]) -> dict:
         },
         "changed_only_within_a_coalition": within_coalition,
         "net_change_by_candidature": {k: v for k, v in sorted(net.items()) if v},
+        "net_change_by_canvass": {
+            kind: {k: v for k, v in sorted(tally.items()) if v}
+            for kind, tally in sorted(net_by_kind.items())
+        },
         "net_change_where_a_figure_changed_by_more_than_100": {
             k: v for k, v in sorted(net_of_largest.items()) if v
         },

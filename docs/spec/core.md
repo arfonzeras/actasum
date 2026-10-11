@@ -392,6 +392,29 @@ act that has a row and no figures for a station, official totals that are
 only a grand total, and a sheet total that includes null votes. See
 [`profile-mx.md`](profile-mx.md).
 
+### 8.1 Known limits
+
+Things the core does today that are known not to be right, or not to be
+complete. None is changed in this version.
+
+- **The statement that speaks for several captures is not a document.** When
+  captures of one act are put together because they differ only where one
+  could not read a figure (section 5.2), the result exists only inside the
+  verifier. It has no identifier of its own, it carries the `evidence` and
+  `extra` of one of the captures only, and the report does not list the
+  stations where this was done.
+- **Official totals without blank or null votes are accepted.** A file of
+  official totals that leaves out `blank` or `null` is read without
+  complaint, and the item comes out as "not comparable" when the statements
+  have it. The verifier cannot tell an authority that does not publish the
+  figure from a file where it was forgotten.
+- **A station a later act leaves without figures stays in the standing sum.**
+  When a later act has a row for a station and no figures, as with a package
+  that was not received, no statement of that act exists, nothing replaces
+  the count, and the count is left standing. The standing sum then includes
+  votes the later act did not compute. This is the first candidate for a
+  change to the core when the next country is added.
+
 **Stopping rule.** Countries stop being added when one enters without a
 change to the core. Mexico did not meet it: it needed the three changes
 above. So far no country has been added without a change to the core, and
