@@ -94,6 +94,14 @@ momento se han ejecutado dos elecciones de cada tipo; véase
 actasum es describe --mesa 07202406_MESA.zip
 ```
 
+Una mesa puede tener varias declaraciones: varias capturas de la misma acta,
+que deben coincidir, y actos posteriores como una corrección en el
+escrutinio general o una votación repetida, que pueden diferir legítimamente.
+El verificador muestra entonces dos sumas, lo que contaron las mesas y lo que
+quedó firme, y dice con cuál coinciden los totales oficiales
+([especificación del núcleo](docs/spec/core.md), secciones 3.3 y 5.2, en
+inglés).
+
 La orden indica cuántas circunscripciones cuadran y lista cada diferencia.
 Termina con `0` si todo cuadra, con `1` si hay diferencias o lagunas, y con
 `2` si no puede leer la entrada.

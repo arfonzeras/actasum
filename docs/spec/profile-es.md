@@ -180,6 +180,25 @@ Other figures present in file 09 (`censo_ine`, and the foreign-resident
 figures `censo_cere` and `votantes_cere`) are kept under `extra` and do not
 take part in verification.
 
+## 4.1 Acts after the count
+
+The core lets a statement say which act its figures come from (core, section
+3.3). Under the LOREG the count at the station (art. 95 to 98) can be
+followed by the general canvass, where the electoral board may correct
+material or arithmetical errors only (arts. 105.4 and 106.1), and by what
+results from an electoral appeal, which can include holding the vote again.
+
+Every statement this profile builds from the Ministry's files has the
+default stage, `count`, because that is the only thing the per-station file
+can be taken to describe; whether it does is itself uncertain (section 5,
+point 5). The profile cannot build statements for later acts. The record of
+the general canvass states totals for the constituency, not per station
+(art. 108.1), and so does the certified copy handed to candidatures
+(art. 108.7); corrections to individual stations would appear, if at all,
+among the incidents of the session record. That reading comes from the text
+of the law; no such record has been examined. In practice what stands in the
+end reaches this profile as an official total for an area.
+
 ## 5. Known gaps and unverified assumptions
 
 1. **Five real runs so far**, all Congreso elections between 2008 and 2023.

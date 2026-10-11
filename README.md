@@ -92,6 +92,13 @@ For a first look at a ZIP:
 actasum es describe --mesa 07202406_MESA.zip
 ```
 
+A station may have several statements: several captures of the same tally
+sheet, which must agree, and later acts such as a correction in the general
+canvass or a repeated vote, which may lawfully differ. The verifier then
+shows two sums, what the stations counted and what was left standing, and
+says which one the official totals coincide with
+([core specification](docs/spec/core.md), sections 3.3 and 5.2).
+
 The command prints how many constituencies match and lists every difference.
 It exits with `0` when everything matches, `1` when there are differences or
 gaps, and `2` when the input cannot be read.

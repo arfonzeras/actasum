@@ -19,6 +19,11 @@ STATEMENT_SPEC = "actasum/statement/v0.1"
 OFFICIAL_SPEC = "actasum/official-totals/v0.1"
 UNITS = frozenset({"station", "aggregate"})
 
+# Which act the figures of a statement come from. The count at the polling
+# station is the default; the others are acts that may lawfully change it.
+STAGE_COUNT = "count"
+STAGES = ("count", "canvass", "ruling", "rerun")
+
 
 class FormatError(ValueError):
     """Raised when a document does not follow the specification."""
@@ -76,6 +81,12 @@ class Statement:
     # "station" for a polling station. "aggregate" for a row that carries votes
     # but is not a polling station, such as overseas votes counted centrally.
     unit: str = "station"
+    # The act the figures come from: the count at the station ("count"), the
+    # general canvass by an electoral board ("canvass"), a resolution of a
+    # board or a court ("ruling") or a repeated vote ("rerun").
+    stage: str = STAGE_COUNT
+    # Identifier of the statement this one replaces, if it says so.
+    supersedes: str | None = None
     evidence: dict[str, Any] = field(default_factory=dict)
     extra: dict[str, Any] = field(default_factory=dict)
 
@@ -87,6 +98,20 @@ class Statement:
     def ballots(self) -> int:
         """Ballots counted: candidature votes plus blank plus null."""
         return self.candidature_sum + self.blank + self.null
+
+    @property
+    def figures(self) -> tuple:
+        """The figures that are added up, in a form that can be compared.
+
+        Two statements about the same act of the same station agree when
+        these are equal. A candidature with zero votes and one that is not
+        listed are the same thing.
+        """
+        return (
+            self.blank,
+            self.null,
+            tuple(sorted((code, votes) for code, votes in self.candidatures.items() if votes)),
+        )
 
     def to_dict(self) -> dict[str, Any]:
         counts: dict[str, Any] = {
@@ -108,6 +133,10 @@ class Statement:
         }
         if self.unit != "station":
             doc["unit"] = self.unit
+        if self.stage != STAGE_COUNT:
+            doc["stage"] = self.stage
+        if self.supersedes is not None:
+            doc["supersedes"] = self.supersedes
         if self.evidence:
             doc["evidence"] = self.evidence
         if self.extra:
@@ -132,6 +161,15 @@ class Statement:
         unit = doc.get("unit", "station")
         if unit not in UNITS:
             raise FormatError(f"unit must be one of {sorted(UNITS)}")
+        stage = doc.get("stage", STAGE_COUNT)
+        if stage not in STAGES:
+            raise FormatError(f"stage must be one of {list(STAGES)}")
+        supersedes = doc.get("supersedes")
+        if supersedes is not None and not _is_statement_id(supersedes):
+            raise FormatError("supersedes must be a statement identifier (sha256:<64 hex>)")
+        evidence = doc.get("evidence") or {}
+        if not isinstance(evidence, dict) or not isinstance(evidence.get("kind", ""), str):
+            raise FormatError("evidence must be an object, and evidence.kind a string")
         return cls(
             profile=doc["profile"],
             election=doc["election"],
@@ -152,7 +190,9 @@ class Statement:
                 optional=True,
             ),
             unit=unit,
-            evidence=doc.get("evidence") or {},
+            stage=stage,
+            supersedes=supersedes,
+            evidence=evidence,
             extra=doc.get("extra") or {},
         )
 
@@ -161,6 +201,13 @@ class Statement:
 
     def statement_id(self) -> str:
         return "sha256:" + hashlib.sha256(self.canonical()).hexdigest()
+
+
+def _is_statement_id(value: Any) -> bool:
+    if not isinstance(value, str) or not value.startswith("sha256:"):
+        return False
+    digest = value[len("sha256:") :]
+    return len(digest) == 64 and all(c in "0123456789abcdef" for c in digest)
 
 
 def write_jsonl(statements: Iterable[Statement], out: TextIO) -> int:

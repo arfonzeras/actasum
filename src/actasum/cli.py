@@ -48,20 +48,20 @@ from .log import (
 from .note import SignatureError
 from .profiles.es import infoelectoral, seats as es_seats
 from .statement import FormatError, OfficialTotals, read_jsonl, write_jsonl
-from .verify import VerificationError, aggregate, format_report, verify
+from .verify import VerificationError, aggregate, compare, format_comparison
 
 
 def _open_out(path: str):
     return sys.stdout if path == "-" else open(path, "w", encoding="utf-8", newline="\n")
 
 
-def _emit(report, args) -> int:
+def _emit(comparison, args) -> int:
     if args.json:
-        json.dump(report.to_dict(), sys.stdout, indent=2, ensure_ascii=False)
+        json.dump(comparison.to_dict(), sys.stdout, indent=2, ensure_ascii=False)
         sys.stdout.write("\n")
     else:
-        print(format_report(report, limit=args.limit))
-    return 0 if report.ok else 1
+        print(format_comparison(comparison, limit=args.limit))
+    return 0 if comparison.ok else 1
 
 
 def _es_convert(args) -> int:
@@ -100,7 +100,7 @@ def _es_replay(args) -> int:
         statements = [s for s in statements if s.unit == "aggregate"]
     else:
         totals = infoelectoral.read_official_totals(official)
-    return _emit(verify(statements, totals), args)
+    return _emit(compare(statements, totals), args)
 
 
 def _es_describe(args) -> int:
@@ -180,7 +180,7 @@ def _verify(args) -> int:
     statements = _read_statements(args.statements)
     with open(args.official, encoding="utf-8") as handle:
         totals = OfficialTotals.from_dict(json.load(handle))
-    return _emit(verify(statements, totals), args)
+    return _emit(compare(statements, totals), args)
 
 
 def _read_statements(path: str):

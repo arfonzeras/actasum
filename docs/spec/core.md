@@ -50,6 +50,8 @@ RFC 8785 outright is an open question.
 | `station` | string | yes | Polling-station identifier, defined by the profile. Stable and unique within the election |
 | `constituency` | string | yes | Constituency whose total this station counts towards |
 | `unit` | string | no | `station` (default) or `aggregate`. An aggregate carries votes but is not a polling station, for example overseas votes counted centrally. Omitted when it is `station` |
+| `stage` | string | no | The act the figures come from (section 3.3): `count` (default), `canvass`, `ruling` or `rerun`. Omitted when it is `count` |
+| `supersedes` | string | no | Identifier of the statement this one replaces (section 3.3) |
 | `counts.blank` | integer | yes | Blank votes |
 | `counts.null` | integer | yes | Null (spoilt) votes |
 | `counts.candidatures` | object | yes | Votes per candidature: candidature code → integer |
@@ -70,12 +72,52 @@ Two parties that transcribe the same tally sheet identically, with the same
 
 ### 3.2 Evidence
 
-`evidence.kind` names the source of the figures. v0.1 defines one kind:
+`evidence.kind` names the class of source behind the figures. Kinds defined
+so far:
 
 - `official-dataset`: the statement was derived from a dataset published by the
   electoral authority. `evidence.sha256` SHOULD carry the hash of that dataset.
+- `official-publication`: the figures come from a document published by an
+  electoral board, a court or an official gazette.
+- `party-copy`: the figures come from the copy of a record handed to a
+  candidature or its agents.
+- `observer-capture`: the figures were captured by an observer from the
+  posted or read-out record.
 
-A later version will define `image`, for a photograph of the tally sheet.
+`evidence` records what the source is, not how much it is to be trusted. The
+format carries no confidence score: whether a station's figures are
+confirmed, in conflict or changed is worked out by the verifier from the
+statements themselves (section 5).
+
+A later version will define how a photograph of the tally sheet is attached.
+
+### 3.3 Several statements for one station
+
+A station may have more than one statement, for two different reasons.
+
+- **Several captures of the same act.** Two witnesses transcribe the same
+  tally sheet, or a dataset and a photograph say the same thing. These
+  statements have the same `stage` and must give the same figures.
+- **Successive acts.** The count at the station may lawfully be followed by a
+  correction in the general canvass, by a resolution of a board or a court,
+  or by a repeated vote. These statements have different `stage` values and
+  may give different figures.
+
+`stage` says which act the figures come from:
+
+| `stage` | Act |
+| --- | --- |
+| `count` | The count at the polling station, as recorded on its tally sheet |
+| `canvass` | The general canvass carried out by an electoral board |
+| `ruling` | A resolution of an electoral board or a court |
+| `rerun` | A vote held again |
+
+A statement of a later act SHOULD name the statement it replaces in
+`supersedes`. The earlier statement is never altered or removed: both stay in
+the record, and the difference between them is itself information.
+
+Profiles say which acts exist under their law and who may be the source of
+each.
 
 ## 4. Official totals
 
@@ -131,8 +173,9 @@ means whatever the document's `grouping` defines.
 
 1. Every statement MUST belong to the election of the official totals.
    Otherwise verification stops with an error.
-2. v0.1 expects **exactly one statement per station**. A second statement for
-   the same station stops verification with an error.
+2. The verifier decides which statements enter the sums (section 5.2) and
+   then runs steps 3 to 6 twice: once with what the stations counted and
+   once with what was left standing.
 3. For each statement, the verifier checks internal consistency and records
    an *issue* (it does not stop) when:
    - `candidature_total` is present and differs from the sum of `candidatures`;
@@ -145,8 +188,40 @@ means whatever the document's `grouping` defines.
    side counts as zero. Each mismatch is a *difference*.
 6. An area present on only one side is a *gap*.
 
-The result is **matching** only if there are no differences and no gaps.
-Station issues are reported but do not change the result.
+A sum is **matching** only if there are no differences and no gaps. Station
+issues are reported but do not change the result.
+
+The verifier reports both sums and says which of them the official totals
+coincide with: both, what the stations counted, what was left standing, or
+neither. It MUST NOT show one sum without the other when they differ, and it
+makes no assumption about which of the two an official file contains.
+
+### 5.2 Which statements enter the sums
+
+Statements with the same identifier are one statement.
+
+1. Statements are grouped by station and `stage`. A group whose statements
+   all give the same blank votes, null votes and votes per candidature (a
+   candidature with zero votes and a missing one being the same) counts as
+   one. A group whose statements differ is an act **in conflict**: it enters
+   no sum and is listed. Contradictory copies count for nothing.
+2. **As counted**: for each station, its `count` act, unless in conflict.
+3. An act is *replaced* when any statement names one of its statements in
+   `supersedes`. **As standing**: for each station, the one act that is not
+   replaced, unless it is in conflict.
+4. A station with more than one act not replaced is **undetermined**: it is
+   left out of the standing sum and listed. The format does not guess an
+   order between acts that do not refer to each other.
+5. The verifier lists the stations whose standing figures differ from the
+   count, item by item, with the act and the class of source; the stations
+   that have a later act but no statement of the count; and the statements
+   whose `supersedes` names a statement that was not provided.
+
+The overall result is positive only if the official totals coincide with at
+least one sum and no station is in conflict or undetermined.
+
+When every station has a single statement of its count, the two sums are the
+same sum.
 
 ### 5.1 What a result means
 
@@ -162,7 +237,12 @@ Station issues are reported but do not change the result.
 - Adopt RFC 8785 for canonicalization?
 - Reuse the NIST Election Results Common Data Format (SP 1500-100) instead of
   a new vocabulary? Not yet evaluated outside the United States.
-- How to express several conflicting statements for one station, and the
-  station states (no data, single capture, confirmed, in conflict).
+- Several statements per station are defined in sections 3.3 and 5.2. Still
+  open there: whether `supersedes` is enough to order acts or a date is
+  needed too; what to do with acts that do not refer to each other, which
+  are left undetermined for now; how many agreeing captures from unrelated
+  sources make a station *confirmed*; and whether these additions call for a
+  new version of the `spec` string. They do not change the identifier of any
+  statement written before.
 - A privacy rule for very small stations where publishing a result reveals
   individual votes.
