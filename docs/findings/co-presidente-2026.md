@@ -1,4 +1,17 @@
-# Findings: Colombia, presidential election of 31 May 2026, Bogotá D.C.
+# Findings: Colombia, presidential election of 31 May 2026
+
+Two departments have been run: Bogotá D.C., in full, and Córdoba, where the
+record of changes is a scan that could not be read reliably. Córdoba is at
+the end of this page.
+
+| | Bogotá D.C. | Córdoba |
+| --- | --- | --- |
+| Stations in the per-station file | 17,157 | 4,176 |
+| Published file is the one the commission generated | after undoing a 13-byte shift | yes, as published |
+| Stations add up to the E-26 | yes, all 16 vote figures | yes, all 16 vote figures |
+| Changes in the AGE agree with the file | 6,410 of 6,410 | not read (scan) |
+
+## Bogotá D.C.
 
 Run of 11 October 2026 on four documents of the general scrutiny commission of
 Bogotá D.C., downloaded that day from the Registraduría's scrutiny site
@@ -127,6 +140,40 @@ A verifier with a single sum would have to choose between two wrong pictures:
 does not show, or a result that silently differs from every one of 3,016 tally
 sheets. Nobody miscounted. The change is recorded, dated and public, and both
 sets of figures are true of their own act.
+
+## Córdoba
+
+Documents of the general scrutiny commission of Córdoba, downloaded on 11
+October 2026 from the same site: the per-station file
+`MMV_XXX_13_000_XXX_XX_XX_XXX_1007.csv` (4,305,124 bytes), its AGE (194 pages,
+a scan with no text) and its E-26 (a PDF with text).
+
+```sh
+actasum co convert --mmv MMV.csv --election 2026-05 \
+    --sha256 2799c27a52574d85753ee0d31475cebdafd7819f88f1d977fe3b718fc6d636c9 \
+    --out statements.jsonl
+actasum verify --statements statements.jsonl \
+    --official docs/findings/official/co-presidente-2026-05-cordoba.official.json
+```
+
+- **The published file is the commission's file.** Its SHA-256 is
+  `2799c27a52574d85753ee0d31475cebdafd7819f88f1d977fe3b718fc6d636c9`, the
+  hash the AGE records for it. It has no stray first line and its last row is
+  whole. The 13-byte shift seen in the Bogotá file is therefore not general.
+  The hash in the AGE was read by character recognition from a scan and
+  agreed with the computed one character for character.
+- **The stations add up to the E-26.** 27,483 rows, 4,176 stations in 30
+  municipalities: 698,100 votes for candidatures, 9,623 blank, 4,045 null and
+  2,028 unmarked, and each of the thirteen candidates, are the figures of the
+  E-26. The E-26 does not give the number of stations, and the E-24 was not
+  read.
+- **The changes could not be read.** The AGE is a scan. Character recognition
+  without a Spanish model found several hundred entries but read only 90 of
+  them completely, and 13 of those did not agree with the file, as misread
+  digits would not. Nothing was built from them. The check that each change
+  must agree with the file is what kept bad readings out.
+- The file has no rows for the two candidates who withdrew, as in Bogotá, and
+  the E-26 gives both zero votes.
 
 ## Personal data
 

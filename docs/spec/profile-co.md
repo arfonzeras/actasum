@@ -1,6 +1,6 @@
 # Colombia profile (draft `co/codigo-electoral/v0.1`)
 
-Status: **draft, run on one department**: the per-station file of Bogotá D.C. for
+Status: **draft, run on two departments**: the per-station file of Bogotá D.C. for
 the presidential election of 31 May 2026 (see
 [`../findings/co-presidente-2026.md`](../findings/co-presidente-2026.md)).
 Everything here was learnt from that file, from three records of scrutiny
@@ -90,8 +90,11 @@ jurors. None of that is read or stored.
 
 ## 5. Known gaps and unverified assumptions
 
-1. One file, one election, one department. Other departments, the second
-   round and Congress elections have not been tried.
+1. One election, two departments (Bogotá D.C. and Córdoba). Other
+   departments, the second round and Congress elections have not been tried.
+1a. The record of changes can be read when the AGE is a PDF with text, as
+   Bogotá's is. Córdoba's is a scan; character recognition was not reliable
+   enough, and the profile has no answer for that yet.
 2. Official totals come from scanned forms (E-26, E-24) typed by hand. The
    profile has no reader for them.
 3. The published MMV file run was not the file the commission generated: it

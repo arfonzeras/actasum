@@ -1,0 +1,41 @@
+{
+  "areas": {
+    "co/13": {
+      "blank": 9623,
+      "candidature_total": 698100,
+      "candidatures": {
+        "0009-011": 19464,
+        "0015-012": 8240,
+        "0020-006": 507,
+        "0021-010": 96,
+        "0022-008": 330,
+        "0026-001": 394598,
+        "1001-003": 2908,
+        "1002-007": 452,
+        "1003-004": 268819,
+        "1004-002": 1567,
+        "1005-013": 0,
+        "1006-009": 0,
+        "3001-005": 1119
+      },
+      "null": 4045,
+      "other": {
+        "unmarked": 2028
+      }
+    }
+  },
+  "election": "co/presidente/2026-05",
+  "grouping": "station-prefix/2",
+  "level": "department",
+  "profile": "co/codigo-electoral/v0.1",
+  "source": {
+    "candidature_codes": "party code from the MMV file joined to the option code printed on the E-26",
+    "documents": [
+      "E-26 PRE, acta del escrutinio general, Córdoba, generated 2 June 2026 5:27 p. m. (file E26_PRE_1_13_XXX_XXX_XX_XX_X_1007_F_35)"
+    ],
+    "kind": "official-publication",
+    "stations": "not given on the E-26; the E-24 was not read",
+    "transcription": "copied on 11 October 2026 from the text of the PDF, which is not a scan; the totals printed on the form add up"
+  },
+  "spec": "actasum/official-totals/v0.1"
+}

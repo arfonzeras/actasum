@@ -114,6 +114,8 @@ def _co_convert(args) -> int:
         with open(args.age_text, encoding="utf-8") as handle:
             age_text = handle.read()
     recorded = args.sha256 or (co_escrutinio.recorded_hash(age_text) if age_text else None)
+    if recorded:
+        recorded = "sha256:" + recorded.removeprefix("sha256:").lower()
     published = co_escrutinio.load_mmv(args.mmv)
     table = co_escrutinio.load_mmv(args.mmv, recorded) if recorded else published
     statements = co_escrutinio.read_statements(table, args.election)

@@ -625,6 +625,20 @@ def format_comparison(comparison: Comparison, *, limit: int = 20) -> str:
         lines.append(format_report(report, limit=limit, station_issues=issues, verdict=False))
     lines.append("")
     matches = comparison.official_matches
+    if not resolution.counted and matches in ("as standing", "neither"):
+        # Nothing to add up on the count side: say so instead of reporting a mismatch.
+        lines.append(
+            "Result: the official totals match what was left standing."
+            if matches == "as standing"
+            else "Result: the official totals do not match what was left standing. "
+            "A difference is not, by itself, evidence of wrongdoing."
+        )
+        lines.append(
+            "No statement of a station's own count was provided, so that sum could not be made."
+        )
+        if matches != "neither" and not comparison.ok:
+            lines.append("Some stations are in conflict or undetermined; see above.")
+        return "\n".join(lines)
     lines.append(
         {
             "both": "Result: the official totals match both sums.",

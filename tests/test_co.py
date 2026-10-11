@@ -227,6 +227,32 @@ def test_official_totals_with_another_category_are_compared(tmp_path):
     assert {d.item for d in compare(statements, wrong).standing.differences} == {"other:unmarked"}
 
 
+def test_cli_reports_an_intact_file_and_a_sum_that_could_not_be_made(tmp_path, capsys):
+    import hashlib
+
+    mmv = write_mmv(tmp_path)
+    digest = hashlib.sha256(open(mmv, "rb").read()).hexdigest()
+    out = tmp_path / "statements.jsonl"
+    # The hash may be given with or without its prefix, in either case.
+    assert main(["co", "convert", "--mmv", mmv, "--election", "2026-05",
+                 "--sha256", digest.upper(), "--out", str(out)]) == 0
+    assert json.loads(capsys.readouterr().err)["hash_check"] == (
+        "the published file is the recorded one")
+    official = OfficialTotals(
+        profile=co.PROFILE, election="co/presidente/2026-05",
+        level="department", grouping="station-prefix/2",
+        areas={"co/16": AreaTotals(blank=2, null=1, other={"unmarked": 3},
+                                   candidatures={"0009-011": 49, "0026-001": 39})},
+    )
+    totals = tmp_path / "official.json"
+    totals.write_text(json.dumps(official.to_dict()))
+    assert main(["verify", "--statements", str(out), "--official", str(totals)]) == 0
+    text = capsys.readouterr().out
+    assert "Result: the official totals match what was left standing." in text
+    assert "that sum could not be made" in text
+    assert "not what the stations counted" not in text
+
+
 def test_cli_convert_writes_the_chain_and_a_summary(tmp_path, capsys):
     mmv = write_mmv(tmp_path, stray=True, cut=True)
     age = tmp_path / "AGE.txt"

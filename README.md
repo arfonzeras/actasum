@@ -52,7 +52,7 @@ difference does not say which published figure is right.
 | [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
 | [`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md) | Runs on two European Parliament elections and two local elections |
 | [`docs/spec/profile-co.md`](docs/spec/profile-co.md) | Colombia profile (draft, one file run) |
-| [`docs/findings/co-presidente-2026.md`](docs/findings/co-presidente-2026.md) | Bogotá, presidential election of May 2026: a lawful change to 3,016 stations |
+| [`docs/findings/co-presidente-2026.md`](docs/findings/co-presidente-2026.md) | Colombia, presidential election of May 2026: Bogotá and Córdoba verified against the commissions' own hashes and totals |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
 | `tests/` | Tests on synthetic data |
