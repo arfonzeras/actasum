@@ -115,6 +115,23 @@ excesses is party agents voting at the station where they are accredited
 rather than where they are registered. Neither that rule nor whether it
 applies to any of these stations has been checked here.
 
+## Log checkpoint
+
+Loading the November 2019 statements into a log (`tallylog log build`, at
+commit `38a0736`) gave this checkpoint on 11 October 2026:
+
+```
+tallylog/es/congreso/2019-11
+59607
+RaTDqfj7aHzjaTdadU8GJq9omf6di07amxCw3DARqAc=
+```
+
+The 59,607 entries are the 59,555 polling stations plus the 52 overseas rows.
+Anyone who starts from the same ZIP file and the same version of the format
+should obtain the same three lines. The checkpoint is not signed; it is
+recorded here so that the computation can be repeated, not as an attestation.
+A change to the statement format changes the root.
+
 ## What is not known
 
 - Which of the two figures is correct in each difference.

@@ -99,7 +99,7 @@ statement is in the log, or that the log has only grown.
 tallylog es convert --mesa 02201911_MESA.zip --out statements.jsonl
 tallylog log build --statements statements.jsonl --out log-2019-11 > checkpoint.txt
 
-tallylog log prove --log log-2019-11 --station es/08/019/01/001/A --out proof.json
+tallylog log prove --log log-2019-11 --station es/04/003/02/001/B --out proof.json
 tallylog log check-proof --proof proof.json --checkpoint checkpoint.txt
 ```
 
