@@ -135,8 +135,22 @@ Three checks were run on that log the same day:
 
 The project was then renamed from `tallylog` to `actasum`. The format
 identifiers are part of every entry, so the root changed and the checkpoint
-obtained that day is no longer reproducible with the current code. A new one
-will be recorded here once the log is rebuilt.
+obtained on the 10th is no longer reproducible with the current code.
+
+Rebuilt on 11 October 2026 from the same ZIP file, at commit `c078345`, the
+log gives this checkpoint:
+
+```
+actasum/es/congreso/2019-11
+59607
+YbzbgsGgE5v03X6nJf60aQsBRVt/QTm7Rjsd6vTDuvs=
+```
+
+Anyone who starts from the same ZIP file and the same version of the format
+should obtain the same three lines. The checkpoint is recorded here so that
+the computation can be repeated, not as an attestation: it is not signed by a
+published key and no independent witness has cosigned it. A change to the
+statement format changes the root.
 
 ## What is not known
 
