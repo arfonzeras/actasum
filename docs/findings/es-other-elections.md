@@ -1,14 +1,15 @@
 # Findings: Spain, European Parliament and local elections
 
 Runs of 11 October 2026 on the per-station ZIP files published by the
-Ministry of the Interior, with `actasum` at commit `4a69045`. One election of
-each type has been run so far.
+Ministry of the Interior, with `actasum` at commit `4a69045`; the seat check was added afterwards. One
+election of each type has been run so far.
 
 ```sh
 actasum es describe --mesa 07202406_MESA.zip                  # what the ZIP contains
 actasum es replay   --mesa 07202406_MESA.zip                  # national constituency
 actasum es replay   --mesa 07202406_MESA.zip --level province # per province
 actasum es replay   --mesa 04202305_MESA.zip                  # one constituency per municipality
+actasum es seats    --mesa 04202305_MESA.zip                  # would a difference change a seat?
 ```
 
 As in the Congreso runs, everything below compares the Ministry's
@@ -54,54 +55,116 @@ and files `11` and `12` hold municipalities without station detail.
 - 5,272 municipalities have a whole-municipality row in file `05`, and the
   per-station file has stations for exactly those 5,272.
 - File `11` lists 2,815 more municipalities. This profile does not read
-  them, so they are outside the comparison. Together that makes 8,087; the
-  Congreso files of July 2023 have 8,131 municipalities. The gap of 44 has
-  not been looked into.
+  them, so they are outside the comparison. The split is the one the law
+  draws (LOREG arts. 179 and 184): the smallest population in file `05` is
+  251 and the largest in file `11` is 250. Together that makes 8,087
+  municipalities; the Congreso files of July 2023 have 8,131. The gap of 44
+  has not been looked into.
 
 Of the 5,272 municipalities compared, 5,248 match their polling stations in
-every figure and 24 do not. The report lists 105 differing items in those 24.
-The first 20, as printed:
+every figure and 24 do not. The report lists 105 differing items in those 24;
+`actasum es replay --mesa 04202305_MESA.zip --limit 200` prints them all.
 
-| Municipality | Item | From stations | Municipal file | Difference |
-| --- | --- | --- | --- | --- |
-| `es/04/045` | blank | 10 | 9 | +1 |
-| `es/04/045` | null | 10 | 7 | +3 |
-| `es/04/045` | all candidatures | 1,358 | 1,390 | −32 |
-| `es/04/045` | candidature 000006 | 357 | 388 | −31 |
-| `es/04/045` | candidature 000007 | 346 | 329 | +17 |
-| `es/04/045` | candidature 000027 | 31 | 12 | +19 |
-| `es/04/045` | candidature 000030 | 596 | 648 | −52 |
-| `es/04/045` | candidature 000286 | 28 | 13 | +15 |
-| `es/04/049` | all candidatures | 4,007 | 4,127 | −120 |
-| `es/04/049` | candidature 000006 | 1,526 | 1,549 | −23 |
-| `es/04/049` | candidature 000007 | 238 | 228 | +10 |
-| `es/04/049` | candidature 000030 | 1,586 | 1,656 | −70 |
-| `es/04/049` | candidature 000036 | 231 | 245 | −14 |
-| `es/04/049` | candidature 000287 | 426 | 449 | −23 |
-| `es/07/057` | candidature 000006 | 2,895 | 3,011 | −116 |
-| `es/07/057` | candidature 000423 | 645 | 470 | +175 |
-| `es/07/057` | candidature 000507 | 977 | 1,036 | −59 |
-| `es/09/330` | all candidatures | 990 | 993 | −3 |
-| `es/10/159` | null | 4 | 5 | −1 |
-| `es/10/159` | all candidatures | 281 | 280 | +1 |
+| Municipality | Name in file `05` | Seats | Differing items | Largest difference | Votes for candidatures, stations minus municipal file | Seats implied by the station votes |
+| --- | --- | --- | --- | --- | --- | --- |
+| `es/04/045` | Fiñana | 9 | 8 | 52 | −32 | same |
+| `es/04/049` | Garrucha | 17 | 6 | 120 | −120 | **different** |
+| `es/07/057` | Santanyí | 17 | 3 | 175 | 0 | **different** |
+| `es/09/330` | Salas de los Infantes | 9 | 1 | 3 | −3 | same |
+| `es/10/159` | Robledollano | 7 | 3 | 1 | +1 | same |
+| `es/19/046` | Azuqueca de Henares | 21 | 3 | 1 | −1 | same |
+| `es/19/130` | Guadalajara | 25 | 2 | 1 | −1 | same |
+| `es/30/003` | Águilas | 21 | 2 | 185 | 0 | same |
+| `es/30/018` | Ceutí | 17 | 7 | 26 | +5 | **different** |
+| `es/30/024` | Lorca | 25 | 6 | 11 | −11 | same |
+| `es/32/023` | Castro Caldelas | 9 | 6 | 77 | −77 | same |
+| `es/39/044` | Miengo | 13 | 7 | 42 | −42 | **different** |
+| `es/40/219` | Vallelado | 7 | 3 | 1 | −1 | **different** |
+| `es/46/116` | L'Eliana | 17 | 3 | 1 | +1 | same |
+| `es/46/139` | Guadassuar | 13 | 2 | 152 | 0 | same (see below) |
+| `es/47/054` | Cogeces del Monte | 7 | 3 | 28 | −28 | same |
+| `es/48/071` | Muskiz | 13 | 3 | 1 | −1 | same |
+| `es/48/082` | Santurtzi | 21 | 3 | 2 | −2 | same |
+| `es/49/023` | Bermillo de Sayago | 9 | 5 | 1 | −1 | same |
+| `es/49/127` | Morales del Vino | 11 | 2 | 4 | 0 | same |
+| `es/49/275` | Zamora | 25 | 3 | 3 | −3 | same |
+| `es/50/067` | Calatayud | 17 | 2 | 1 | −1 | same |
+| `es/51/001` | Ceuta | 25 | 11 | 135 | −135 | same |
+| `es/52/001` | Melilla | 25 | 11 | 211 | −211 | same |
 
-The remaining 85 items have not been recorded here yet.
-
-Two things can be read off these rows without explaining them:
-
-- In `es/07/057` the three differences cancel out (−116 + 175 − 59 = 0). The
-  two files agree on the municipality's total and differ on how it is split
-  among three candidatures.
-- In `es/09/330` the stations fall 3 votes short, and two stations of that
-  municipality have candidature rows that add up to 1 and 2 votes less than
-  the station's own total (see below).
+### Would a difference change who gets a seat?
 
 In a local election the municipality is the constituency, so these are
-differences at the level where seats are allotted. Whether any of them could
-change an allocation has not been computed, and which of the two files
-corresponds to the proclaimed result is not known. No third source has been
-looked for yet; for the Congreso that was the summary published in the
-official gazette.
+differences at the level where seats are allotted. File `05` gives the seats
+to fill in each municipality and file `06` the seats each candidature
+obtained. `actasum es seats --mesa 04202305_MESA.zip` applies the method of
+LOREG articles 163.1 and 180 (highest quotients, 5 per cent threshold) twice,
+to the votes of the municipal file and to the votes added up from the
+stations, and compares both with the published seats.
+
+- In 5,257 municipalities both sets of votes lead to the published seats.
+- 9 municipalities are left out because the last seat falls on a tie that the
+  law settles by lot.
+- In 5 municipalities the station votes lead to a different allocation from
+  the published one, while the municipal file's own votes lead to the
+  published one:
+
+| Municipality | Published seats (and what the municipal file's votes give) | What the station votes give |
+| --- | --- | --- |
+| Garrucha (`es/04/049`) | PSOE 7, PP 6, CON ANDALUCÍA 2, UCIN 1, VOX 1 | PP 7 and CON ANDALUCÍA 1 |
+| Santanyí (`es/07/057`) | PP 11, SUMA 4, PSIB-PSOE 1, VOX 1 | SUMA 3 and PSIB-PSOE 2 |
+| Ceutí (`es/30/018`) | PSOE 8, PP 5, VOX 3, CS 1 | PSOE 9 and VOX 2 |
+| Miengo (`es/39/044`) | PP 7, PSOE 2, P.R.C. 2, EQUO 1, VOX 1 | EQUO 2 and VOX 0 |
+| Vallelado (`es/40/219`) | PP 5, PSOE 2 | PP 6 and PSOE 1 |
+
+  Party labels are the short names in file `03`.
+
+- In Guadassuar (`es/46/139`) it is the other way round. The published seats
+  (PP 6, ACORD PER GUANYAR 4, PSOE 3) are what the station votes give. The
+  municipal file's own votes (PP 1,711, ACORD PER GUANYAR 842, PSOE 842)
+  would give PP 7 and ACORD PER GUANYAR 3. The station votes are PP 1,559
+  and ACORD PER GUANYAR 994: 152 votes sit with a different candidature in
+  each file.
+
+In Vallelado the whole difference is one ballot: the station file has 93
+votes for PSOE and 9 null votes, the municipal file 94 and 8.
+
+### What a third source says, for three of them
+
+For three municipalities a source outside the Ministry's files was found. In
+all three it agrees with the municipal file, not with the per-station file.
+
+- **Fiñana and Ceutí.** A resolution of the Presidency of the Junta Electoral
+  Central of 28 December 2023
+  ([BOE-A-2024-129](https://www.boe.es/boe/dias/2024/01/02/pdfs/BOE-A-2024-129.pdf))
+  publishes the results of partial local elections held on 26 November 2023.
+  Its figures for Fiñana (PSOE 648, PP 388, VOX 329, 9 blank, 7 null) and for
+  Ceutí (PSOE 2,842 and 8 councillors, PP 1,845 and 5, VOX 956 and 3, Cs 347
+  and 1, 56 blank, 146 null) are those of the municipal file. A press report
+  of 5 July 2023 says a court had ordered the vote to be repeated in two
+  polling stations of Ceutí
+  ([elDiario.es](https://www.eldiario.es/murcia/politica/tsj-ordena-repita-votacion-mesas-electorales-municipio-murciano-ceuti_1_10352202.html)).
+- **Santanyí.** A press report of 31 May 2023 says the figures first
+  published for Santanyí were wrong and gives the corrected ones (PP 3,011,
+  Suma 1,036, PSOE 470, VOX 302), with one councillor passing from PSOE to
+  Suma
+  ([Última Hora](https://www.ultimahora.es/noticias/elecciones-28m/2023/05/31/1947535/resultados-elecciones-28m-mallorca-error-provoca-psoe-pierda.html)).
+  The corrected figures are those of the municipal file; the earlier ones
+  (PP 2,895, Suma 977, PSOE 645) are those of the per-station file.
+
+Both web sources were read through an automatic extract, not in full.
+
+What this supports, for these three municipalities: the municipal file was
+brought up to date after the results changed (a correction in one case, a
+repeated vote in two) and the per-station file was not. The dates of the
+files inside the ZIP point the same way without proving it: file `06` is
+dated June 2025 and files `09` and `10` September 2024. Whether the same
+holds for the other 21 municipalities has not been checked. No third source
+was found for Garrucha, Miengo or Vallelado with one search each.
+
+This bears on a gap noted in the profile: a statement built from the
+per-station file may describe the count as first recorded, not the result
+that stood in the end.
 
 ### Stations with internal inconsistencies
 

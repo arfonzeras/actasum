@@ -503,6 +503,34 @@ def read_municipal_totals(dataset: Dataset, *, as_constituency: bool = False) ->
     )
 
 
+def read_municipal_seats(dataset: Dataset) -> dict[str, tuple[int, dict[str, int]]]:
+    """Seats to fill and seats published per candidature, by municipality.
+
+    Only meaningful in local elections, where the municipality is the
+    constituency: file 05 gives the seats to fill (columns 214-216) and file
+    06 the candidates each candidature obtained (columns 31-33).
+    """
+    if _scope(dataset, "05") != "municipality":
+        raise FormatError(
+            f"{dataset.path}: seats per municipality are only read for local elections"
+        )
+    published: dict[str, dict[str, int]] = {}
+    for where, line in _rows(dataset, "06", 33, province_at=(10, 11)):
+        if _field(line, 15, 16) != WHOLE_MUNICIPALITY:
+            continue
+        key = f"es/{_field(line, 10, 11)}/{_field(line, 12, 14)}"
+        won = _number(line, 31, 33, where)
+        if won:
+            published.setdefault(key, {})[_field(line, 17, 22).strip()] = won
+    result: dict[str, tuple[int, dict[str, int]]] = {}
+    for where, line in _rows(dataset, "05", 216):
+        if _field(line, 17, 18) != WHOLE_MUNICIPALITY:
+            continue
+        key = f"es/{_field(line, 12, 13)}/{_field(line, 14, 16)}"
+        result[key] = (_number(line, 214, 216, where), published.get(key, {}))
+    return result
+
+
 def read_overseas_residuals(dataset: Dataset) -> OfficialTotals:
     """What the official totals imply for each province's overseas row.
 

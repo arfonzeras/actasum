@@ -3,6 +3,7 @@
     actasum es replay   --mesa MESA.zip [--tota TOTA.zip]
                         [--level constituency|province|municipality|overseas]
     actasum es describe --mesa MESA.zip
+    actasum es seats    --mesa MESA.zip            (local elections only)
     actasum es convert  --mesa MESA.zip --out statements.jsonl
     actasum es official --tota TOTA.zip --out official.json
     actasum verify      --statements statements.jsonl --official official.json
@@ -45,9 +46,9 @@ from .log import (
     verify_inclusion_proof,
 )
 from .note import SignatureError
-from .profiles.es import infoelectoral
+from .profiles.es import infoelectoral, seats as es_seats
 from .statement import FormatError, OfficialTotals, read_jsonl, write_jsonl
-from .verify import VerificationError, format_report, verify
+from .verify import VerificationError, aggregate, format_report, verify
 
 
 def _open_out(path: str):
@@ -111,6 +112,68 @@ def _es_describe(args) -> int:
     )
     sys.stdout.write("\n")
     return 0
+
+
+def _es_seats(args) -> int:
+    """Would the differences change who gets a seat? Local elections only."""
+    dataset = infoelectoral.load_dataset(args.mesa)
+    official = infoelectoral.read_official_totals(dataset)
+    published = infoelectoral.read_municipal_seats(dataset)
+    recomputed = aggregate(infoelectoral.read_statements(dataset))
+    rows = []
+    by_lot = 0
+    for area in sorted(set(official.areas) & set(recomputed) & set(published)):
+        to_fill, in_file = published[area]
+        theirs, mine = official.areas[area], recomputed[area]
+        threshold = es_seats.LOCAL_THRESHOLD_PERCENT
+        from_totals = es_seats.allocate(theirs.candidatures, theirs.blank, to_fill, threshold)
+        from_stations = es_seats.allocate(mine.candidatures, mine.blank, to_fill, threshold)
+        if from_totals.by_lot or from_stations.by_lot:
+            by_lot += 1
+            continue
+        if from_totals.seats != in_file or from_stations.seats != in_file:
+            rows.append(
+                {
+                    "area": area,
+                    "seats_to_fill": to_fill,
+                    "published": dict(sorted(in_file.items())),
+                    "from_published_votes": dict(sorted(from_totals.seats.items())),
+                    "from_station_votes": dict(sorted(from_stations.seats.items())),
+                }
+            )
+    doc = {
+        "election": official.election,
+        "municipalities_compared": len(set(official.areas) & set(recomputed) & set(published)),
+        "left_out_last_seat_settled_by_lot": by_lot,
+        "municipalities_where_an_allocation_differs": rows,
+    }
+    if args.json:
+        json.dump(doc, sys.stdout, indent=2, ensure_ascii=False)
+        sys.stdout.write("\n")
+    else:
+        print(f"Election: {doc['election']}")
+        print(f"Municipalities compared: {doc['municipalities_compared']}")
+        print(f"Left out because the last seat is settled by lot: {by_lot}")
+        print(
+            "Municipalities where the published seats differ from the allocation "
+            f"computed from either set of votes: {len(rows)}"
+        )
+
+        def show(seats: dict[str, int]) -> str:
+            return ", ".join(f"{code}: {count}" for code, count in seats.items()) or "none"
+
+        for row in rows:
+            print(f"  {row['area']} ({row['seats_to_fill']} seats)")
+            print(f"    seats in the municipal file:        {show(row['published'])}")
+            print(f"    computed from its own votes:        {show(row['from_published_votes'])}")
+            print(f"    computed from the station votes:    {show(row['from_station_votes'])}")
+        print(
+            "Result: the two sets of votes lead to the published seats everywhere."
+            if not rows
+            else "Result: there are allocations to explain. "
+            "A difference is not, by itself, evidence of wrongdoing."
+        )
+    return 0 if not rows else 1
 
 
 def _verify(args) -> int:
@@ -485,6 +548,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     describe.add_argument("--mesa", required=True, help="a ZIP file or a directory")
     describe.set_defaults(run=_es_describe)
+
+    seats = es_commands.add_parser(
+        "seats",
+        help="local elections: do the station votes and the municipal totals "
+        "lead to the published seats?",
+    )
+    seats.add_argument("--mesa", required=True, help="the _MESA ZIP file or a directory")
+    seats.add_argument("--json", action="store_true", help="print the result as JSON")
+    seats.set_defaults(run=_es_seats)
     return parser
 
 

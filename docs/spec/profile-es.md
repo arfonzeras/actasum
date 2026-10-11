@@ -150,6 +150,12 @@ candidatures merged in 2024, and the totals match once merged)*. Province
 rows can be compared as a lower level (`--level province`), overseas rows
 included *(seen: no merging at that level)*.
 
+`actasum es seats --mesa ZIP` (local elections only) allocates the seats of
+each municipality from the municipal file's votes and from the station
+votes, by LOREG articles 163.1 and 180, and compares both with the seats
+published in file `06` (columns 31–33; seats to fill in file `05`, columns
+214–216). Ties that the law settles by lot are left out.
+
 `actasum es describe --mesa ZIP` lists what a ZIP contains (files, line
 lengths, subtotal and overseas rows, merged candidatures) without comparing
 anything. It is the first thing to run on an election type or year that has
@@ -197,9 +203,13 @@ take part in verification.
 4. Overseas votes (CERA) appear as one station-like row per province
    (municipality `999`). In the November 2019 files, station rows plus these
    rows add up exactly to the province totals.
-5. It is not known whether the per-station files hold provisional or final
-   results, nor how they treat corrections made during the general canvass
-   (LOREG arts. 103–108). Differences may therefore be legitimate.
+5. It is not known in general whether the per-station files hold provisional
+   or final results, nor how they treat corrections made during the general
+   canvass (LOREG arts. 103–108). Differences may therefore be legitimate. In
+   the May 2023 local elections there are three municipalities where the
+   result changed afterwards (one correction, two repeated votes) and the
+   municipal file shows the later figures while the per-station file shows
+   the earlier ones; see the findings.
 6. A statement built from these files is evidence about the **published
    dataset**, not about the paper tally sheet. Matching totals show that the
    Ministry's two publications are consistent with each other.
