@@ -6,8 +6,8 @@ This English text is the normative one.
 
 Status: **draft, run against five Congreso elections** (2008 to 2023; see
 section 5 and [`../findings/es-congreso.md`](../findings/es-congreso.md)).
-One European Parliament election (2024) and one local election (2023) have
-been run as well; see
+Two European Parliament elections (2019, 2024) and two local elections
+(2019, 2023) have been run as well; see
 [`../findings/es-other-elections.md`](../findings/es-other-elections.md).
 
 This profile maps Spanish election results onto the core format.
@@ -19,7 +19,7 @@ The governing law is the Ley Orgánica 5/1985 del Régimen Electoral General
 - Supported and run on real files: elections to the Congreso de los
   Diputados (Ministry election type `02`), where the constituency is the
   province. Ceuta and Melilla carry their own province codes.
-- Supported and run on one real file each: local elections (type `04`),
+- Supported and run on two real files each: local elections (type `04`),
   where the constituency is the municipality, and European Parliament
   elections (type `07`), where the constituency is the whole country. See
   section 3.3.
@@ -191,7 +191,7 @@ take part in verification.
    law has not been read for this profile. The July 2026 amendment (Organic
    Law 2/2026) changes articles 161.2 and 165.2, on Senate constituencies,
    and does not touch the count.
-   One European Parliament election and one local election have been run.
+   Two European Parliament elections and two local elections have been run.
    In the local-election files, 3,223 of 5,423 candidatures are accumulated
    under another code at province level, so the province rows of file `08`
    cannot be compared with station sums without that mapping; this profile
