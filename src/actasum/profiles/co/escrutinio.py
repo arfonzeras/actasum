@@ -239,6 +239,7 @@ def read_statements(table: Table, year_month: str) -> list[Statement]:
 class Modification:
     """One change to one figure of one station, as the AGE records it."""
 
+    municipality: str  # the name as printed, with single spaces
     zona: str
     puesto: str
     mesa: str
@@ -253,6 +254,7 @@ _FURNITURE = re.compile(
     r"\n[ \t]*Fecha de Generación:[^\n]*\n[^\n]*\n[^\n]*\n[ \t]*Página\s*\d+\s*de\s*\d+[ \t]*\n"
 )
 _ENTRY = re.compile(
+    r"MUNICIPIO\s+(?P<municipality>[^,]{1,60}?),\s+"
     r"ZONA\s+(\w+),\s+PUESTO\s+(\w+)-\s*(.{1,120}?),\s+MESA\s+N°\s+(\d+)\s*:\s*"
     r"(?:[A-ZÁÉÍÓÚ]+:)?\s*En\s+la\s+fecha\s+(\d\d-\s*\d\d-\s*\d{4}\s+\d\d:\d\d:\d\d\s+[ap]\.\s+m\.)"
     r"\s+-\s+se\s+modificó\s+la\s+votación\.",
@@ -281,14 +283,15 @@ def read_modifications(text: str) -> tuple[list[Modification], int]:
         previous, new, party, option = rows[0]
         found.append(
             Modification(
-                zona=entry.group(1),
-                puesto=entry.group(2),
-                mesa=entry.group(4),
+                municipality=" ".join(entry.group("municipality").split()),
+                zona=entry.group(2),
+                puesto=entry.group(3),
+                mesa=entry.group(5),
                 party=party,
                 option=option,
                 previous=int(previous),
                 new=int(new),
-                when=re.sub(r"-\s+", "-", " ".join(entry.group(5).split())),
+                when=re.sub(r"-\s+", "-", " ".join(entry.group(6).split())),
             )
         )
     return found, len(_MENTION.findall(text)) - len(found)
@@ -307,10 +310,28 @@ class Chain:
     unknown_station: list[Modification] = None  # type: ignore[assignment]
 
 
+def municipalities(table: Table) -> dict[str, tuple[str, str]]:
+    """Municipality name -> (department code, municipality code), from an MMV file.
+
+    The AGE names municipalities; the station identifier uses their codes.
+    A name that stands for two codes is left out, so changes under it are
+    reported as unknown rather than applied to the wrong place.
+    """
+    found: dict[str, set[tuple[str, str]]] = {}
+    for row in table.rows:
+        found.setdefault(" ".join(row["MUNNOMBRE"].split()), set()).add((row["DEP"], row["MUN"]))
+    return {name: next(iter(codes)) for name, codes in found.items() if len(codes) == 1}
+
+
 def chain(
-    statements: list[Statement], modifications: list[Modification], dep: str, mun: str
+    statements: list[Statement],
+    modifications: list[Modification],
+    places: dict[str, tuple[str, str]],
 ) -> Chain:
     """Add, for each changed station, the statement the commission started from.
+
+    ``places`` maps the municipality names of the record to codes; see
+    ``municipalities``.
 
     The changes are undone from last to first. Each one is checked on the way:
     its "new vote" has to be the figure that stands at that point. The statement
@@ -321,7 +342,12 @@ def chain(
     result = Chain(statements=[], inconsistent=[], unknown_station=[])
     per_station: dict[str, list[Modification]] = {}
     for change in modifications:
-        key = station_id(dep, mun, change.zona, change.puesto, change.mesa)
+        place = places.get(change.municipality)
+        key = (
+            station_id(place[0], place[1], change.zona, change.puesto, change.mesa)
+            if place
+            else None
+        )
         if key in by_station:
             per_station.setdefault(key, []).append(change)
         else:

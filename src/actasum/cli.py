@@ -133,15 +133,8 @@ def _co_convert(args) -> int:
         "stations": len(statements),
     }
     if args.age_text:
-        places = {(row["DEP"], row["MUN"]) for row in table.rows}
-        if len(places) != 1:
-            raise FormatError(
-                f"{table.path}: the record of changes can only be applied to a file "
-                "with a single municipality"
-            )
-        (dep, mun), = places
         changes, unparsed = co_escrutinio.read_modifications(age_text)
-        chained = co_escrutinio.chain(statements, changes, dep, mun)
+        chained = co_escrutinio.chain(statements, changes, co_escrutinio.municipalities(table))
         statements = chained.statements
         summary.update(
             {

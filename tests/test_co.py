@@ -109,6 +109,7 @@ def test_modifications_are_parsed_across_wraps_and_page_breaks():
         ("01", "1", "1006", "009", 1, 0), ("01", "1", "0000", "998", 2, 3),
     ]
     assert changes[0].when == "02-06-2026 10:14:15 a. m."
+    assert {c.municipality for c in changes} == {"CIUDAD"}
 
 
 def test_a_date_broken_across_lines_is_still_read():
@@ -157,7 +158,7 @@ def test_entries_that_cannot_be_parsed_are_counted():
 
 def chained(tmp_path, age=AGE):
     statements = co.read_statements(co.load_mmv(write_mmv(tmp_path)), "2026-05")
-    return co.chain(statements, co.read_modifications(age)[0], "16", "001")
+    return co.chain(statements, co.read_modifications(age)[0], {"CIUDAD": ("16", "001")})
 
 
 def test_undoing_the_changes_gives_the_earlier_statement(tmp_path):
@@ -181,8 +182,18 @@ def test_a_change_that_does_not_match_the_file_builds_nothing(tmp_path):
 
 
 def test_a_change_for_an_unknown_station_is_listed(tmp_path):
-    result = chained(tmp_path, AGE + entry("09", "01", 7, 1, 0, "0026", "001"))
-    assert [(c.zona, c.mesa) for c in result.unknown_station] == [("09", "7")]
+    elsewhere = entry("01", "01", 1, 1, 0, "0026", "001").replace("MUNICIPIO CIUDAD", "MUNICIPIO OTRA")
+    result = chained(tmp_path, AGE + entry("09", "01", 7, 1, 0, "0026", "001") + elsewhere)
+    assert [(c.municipality, c.zona, c.mesa) for c in result.unknown_station] == [
+        ("CIUDAD", "09", "7"), ("OTRA", "01", "1")]
+
+
+def test_municipality_names_are_mapped_to_codes(tmp_path):
+    other = row("01", "01", 1, "0026", "001", 5).replace("16;DEPTO;001;CIUDAD", "16;DEPTO;002;VILLA  NUEVA")
+    table = co.load_mmv(write_mmv(tmp_path, ROWS + [other]))
+    assert co.municipalities(table) == {"CIUDAD": ("16", "001"), "VILLA NUEVA": ("16", "002")}
+    clash = other.replace("VILLA  NUEVA", "CIUDAD")
+    assert co.municipalities(co.load_mmv(write_mmv(tmp_path, ROWS + [clash]))) == {}
 
 
 def test_chain_within_the_canvass_is_not_a_conflict(tmp_path):
