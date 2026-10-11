@@ -1,6 +1,8 @@
 """Command-line interface.
 
-    actasum es replay   --mesa MESA.zip [--tota TOTA.zip] [--level municipality|overseas]
+    actasum es replay   --mesa MESA.zip [--tota TOTA.zip]
+                        [--level constituency|province|municipality|overseas]
+    actasum es describe --mesa MESA.zip
     actasum es convert  --mesa MESA.zip --out statements.jsonl
     actasum es official --tota TOTA.zip --out official.json
     actasum verify      --statements statements.jsonl --official official.json
@@ -90,12 +92,25 @@ def _es_replay(args) -> int:
     official = infoelectoral.load_dataset(args.tota or args.mesa)
     if args.level == "municipality":
         totals = infoelectoral.read_municipal_totals(official)
+    elif args.level == "province":
+        totals = infoelectoral.read_province_totals(official, as_level=True)
     elif args.level == "overseas":
         totals = infoelectoral.read_overseas_residuals(official)
         statements = [s for s in statements if s.unit == "aggregate"]
     else:
         totals = infoelectoral.read_official_totals(official)
     return _emit(verify(statements, totals), args)
+
+
+def _es_describe(args) -> int:
+    json.dump(
+        infoelectoral.describe(infoelectoral.load_dataset(args.mesa)),
+        sys.stdout,
+        indent=2,
+        ensure_ascii=False,
+    )
+    sys.stdout.write("\n")
+    return 0
 
 
 def _verify(args) -> int:
@@ -454,14 +469,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
     replay.add_argument(
         "--level",
-        choices=["constituency", "municipality", "overseas"],
+        choices=["constituency", "province", "municipality", "overseas"],
         default="constituency",
-        help="compare per constituency (default); per municipality, to locate a difference; "
-        "or the overseas row of each constituency against what the official totals leave for it",
+        help="compare per constituency (default: the province for the Congreso, the "
+        "municipality for local elections, the country for the European Parliament); per "
+        "province or per municipality, to locate a difference; or the overseas row of each "
+        "province against what the official totals leave for it",
     )
     replay.add_argument("--json", action="store_true", help="print the report as JSON")
     replay.add_argument("--limit", type=int, default=20, help="lines to list per section")
     replay.set_defaults(run=_es_replay)
+
+    describe = es_commands.add_parser(
+        "describe", help="list what a ZIP contains, without comparing anything"
+    )
+    describe.add_argument("--mesa", required=True, help="a ZIP file or a directory")
+    describe.set_defaults(run=_es_describe)
     return parser
 
 

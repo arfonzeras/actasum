@@ -134,7 +134,8 @@ def test_short_line_is_a_format_error(tmp_path):
 
 
 def test_unsupported_election_type(tmp_path, monkeypatch):
-    monkeypatch.setattr(synth, "ELECTION", ("04", "2019", "05"))
+    # Type 03 is the Senate, where votes go to candidates, not candidatures.
+    monkeypatch.setattr(synth, "ELECTION", ("03", "2019", "11"))
     mesa, _ = synth.build(tmp_path)
     with pytest.raises(FormatError, match="not supported"):
         infoelectoral.read_statements(infoelectoral.load_dataset(str(mesa)))

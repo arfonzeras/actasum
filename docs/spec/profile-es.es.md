@@ -15,18 +15,24 @@ Electoral General (LOREG).
 
 ## 1. Alcance
 
-- Admitidas: elecciones al Congreso de los Diputados (tipo de elección `02`
-  del Ministerio), donde la circunscripción es la provincia. Ceuta y Melilla
-  tienen su propio código de provincia.
-- Aún no admitidas: Senado, municipales, europeas y autonómicas. Las
-  autonómicas tienen leyes y modelos de acta propios.
+- Admitidas y ejecutadas con ficheros reales: elecciones al Congreso de los
+  Diputados (tipo de elección `02` del Ministerio), donde la circunscripción
+  es la provincia. Ceuta y Melilla tienen su propio código de provincia.
+- Implementadas, aún sin ejecutar con ficheros reales: municipales (tipo
+  `04`), donde la circunscripción es el municipio, y europeas (tipo `07`),
+  donde la circunscripción es todo el país. Véase la sección 3.3 del texto
+  en inglés.
+- No admitidas: Senado (se vota a candidatos, no a candidaturas),
+  autonómicas (leyes y modelos de acta propios), cabildos y referéndums.
 
 ## 2. Identificadores
 
 | Campo del núcleo | Forma | Ejemplo |
 | --- | --- | --- |
-| `election` | `es/congreso/<aaaa>-<mm>` | `es/congreso/2019-11` |
-| `constituency` | `es/<provincia>` | `es/08` |
+| `election` | `es/<tipo>/<aaaa>-<mm>`, con tipo `congreso`, `municipales` o `europeas` | `es/congreso/2019-11` |
+| `constituency` (Congreso) | `es/<provincia>` | `es/08` |
+| `constituency` (municipales) | `es/<provincia>/<municipio>` | `es/08/019` |
+| `constituency` (europeas) | `es` | `es` |
 | `station` | `es/<provincia>/<municipio>/<distrito>/<sección>/<mesa>` | `es/08/019/01/001/A` |
 
 Los códigos son los de los ficheros del Ministerio: provincia (2 dígitos),

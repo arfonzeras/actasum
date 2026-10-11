@@ -81,6 +81,15 @@ To see in which municipalities a difference arises, compare one level down:
 actasum es replay --mesa 02202307_MESA.zip --level municipality
 ```
 
+Local elections (`04…_MESA.zip`) and European Parliament elections
+(`07…_MESA.zip`) are read too, with the municipality and the whole country as
+constituency. That part follows the Ministry's layout document and has not
+been run on real files yet. For a first look at a ZIP:
+
+```sh
+actasum es describe --mesa 07202406_MESA.zip
+```
+
 The command prints how many constituencies match and lists every difference.
 It exits with `0` when everything matches, `1` when there are differences or
 gaps, and `2` when the input cannot be read.

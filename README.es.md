@@ -84,6 +84,15 @@ Para ver en qué municipios nace una diferencia, compara un nivel más abajo:
 actasum es replay --mesa 02202307_MESA.zip --level municipality
 ```
 
+También se leen las municipales (`04…_MESA.zip`) y las europeas
+(`07…_MESA.zip`), con el municipio y el país entero como circunscripción. Esa
+parte sigue el diseño de registro del Ministerio y aún no se ha ejecutado con
+ficheros reales. Para un primer vistazo a un ZIP:
+
+```sh
+actasum es describe --mesa 07202406_MESA.zip
+```
+
 La orden indica cuántas circunscripciones cuadran y lista cada diferencia.
 Termina con `0` si todo cuadra, con `1` si hay diferencias o lagunas, y con
 `2` si no puede leer la entrada.

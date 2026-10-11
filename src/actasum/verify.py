@@ -122,9 +122,15 @@ def check_station(statement: Statement) -> list[StationIssue]:
 
 
 def aggregate(
-    statements: Iterable[Statement], grouping: str = GROUP_BY_CONSTITUENCY
+    statements: Iterable[Statement],
+    grouping: str = GROUP_BY_CONSTITUENCY,
+    merge: dict[str, str] | None = None,
 ) -> dict[str, AreaTotals]:
-    """Sum statements by area."""
+    """Sum statements by area.
+
+    ``merge`` maps a candidature code to the code its votes are added to.
+    """
+    merge = merge or {}
     sums: dict[str, dict] = {}
     for statement in statements:
         bucket = sums.setdefault(
@@ -136,6 +142,7 @@ def aggregate(
         if statement.unit == "station":
             bucket["stations"] += 1
         for code, votes in statement.candidatures.items():
+            code = merge.get(code, code)
             bucket["candidatures"][code] = bucket["candidatures"].get(code, 0) + votes
     return {
         key: AreaTotals(
@@ -175,12 +182,19 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         report.station_issues.extend(check_station(statement))
 
     if official.grouping != GROUP_BY_CONSTITUENCY:
-        # An aggregate is assigned to a constituency only. Below that level it
-        # belongs to no area, so it is left out and counted.
-        report.aggregates_left_out = report.aggregates
-        statements = [s for s in statements if s.unit == "station"]
+        # An aggregate has no place of its own below the constituency. It is
+        # kept when the official totals have an area for it (an overseas row
+        # counts towards its province) and otherwise left out and counted (it
+        # counts towards no municipality).
+        kept = [
+            s
+            for s in statements
+            if s.unit == "station" or area_of(s, official.grouping) in official.areas
+        ]
+        report.aggregates_left_out = len(statements) - len(kept)
+        statements = kept
 
-    recomputed = aggregate(statements, official.grouping)
+    recomputed = aggregate(statements, official.grouping, official.merge)
     report.missing_official = sorted(set(recomputed) - set(official.areas))
     report.missing_statements = sorted(set(official.areas) - set(recomputed))
 

@@ -6,25 +6,33 @@ This English text is the normative one.
 
 Status: **draft, run against five Congreso elections** (2008 to 2023; see
 section 5 and [`../findings/es-congreso.md`](../findings/es-congreso.md)).
+Local and European Parliament elections are implemented from the Ministry's
+layout document and **have not been run on real files yet**.
 
-This profile maps Spanish general-election results onto the core format.
+This profile maps Spanish election results onto the core format.
 The governing law is the Ley Orgánica 5/1985 del Régimen Electoral General
 (LOREG).
 
 ## 1. Scope
 
-- Supported: elections to the Congreso de los Diputados (Ministry election
-  type `02`), where the constituency is the province. Ceuta and Melilla carry
-  their own province codes.
-- Not supported yet: Senate, municipal, European and regional elections.
-  Regional elections have their own laws and tally-sheet models.
+- Supported and run on real files: elections to the Congreso de los
+  Diputados (Ministry election type `02`), where the constituency is the
+  province. Ceuta and Melilla carry their own province codes.
+- Implemented, not yet run on real files: local elections (type `04`), where
+  the constituency is the municipality, and European Parliament elections
+  (type `07`), where the constituency is the whole country. See section 3.3.
+- Not supported: Senate (votes go to candidates, not candidatures), regional
+  elections (their own laws and tally-sheet models), island councils and
+  referendums.
 
 ## 2. Identifiers
 
 | Core field | Form | Example |
 | --- | --- | --- |
-| `election` | `es/congreso/<yyyy>-<mm>` | `es/congreso/2019-11` |
-| `constituency` | `es/<province>` | `es/08` |
+| `election` | `es/<type>/<yyyy>-<mm>`, type being `congreso`, `municipales` or `europeas` | `es/congreso/2019-11` |
+| `constituency` (Congreso) | `es/<province>` | `es/08` |
+| `constituency` (local) | `es/<province>/<municipality>` | `es/08/019` |
+| `constituency` (European Parliament) | `es` | `es` |
 | `station` | `es/<province>/<municipality>/<district>/<section>/<station>` | `es/08/019/01/001/A` |
 
 Codes are the ones used in the Ministry's files: province (2 digits),
@@ -106,6 +114,40 @@ residual with the overseas row of the per-station file. Together with the
 municipality level it tells whether a province-level difference sits in the
 polling stations or in the overseas row.
 
+### 3.3 Local and European Parliament elections
+
+What follows comes from the layout document, dated 2010. It has not been
+checked against real files of these election types.
+
+**Local elections (type `04`).** The constituency is the municipality, so the
+official totals per constituency are the whole-municipality rows of files
+`05` and `06`. According to the layout document:
+
+- the per-station files hold only municipalities of more than 250
+  inhabitants and no overseas rows. Smaller municipalities are in files `11`
+  and `12`, with one row per municipality and no station detail. This profile
+  does not read them, so those municipalities are outside the comparison;
+- the ZIP also carries files of election type `10` (judicial districts and
+  provincial councils) that reuse file numbers `05` to `08`. They are set
+  aside.
+
+The 250-inhabitant threshold is the one in the 2010 document. The law on
+small municipalities changed after that date and this has not been followed
+up here.
+
+**European Parliament elections (type `07`).** There is one national
+constituency. The official totals are the national row of files `07` and
+`08` (region `99`, province `99`). File `03` gives, for each candidature, the
+code under which its votes are accumulated at national level (columns
+227–232); the reader passes that mapping to the verifier as `merge`
+(core, section 4.2). Without file `03` nothing is merged. Province rows can
+be compared as a lower level (`--level province`), overseas rows included.
+
+`actasum es describe --mesa ZIP` lists what a ZIP contains (files, line
+lengths, subtotal and overseas rows, merged candidatures) without comparing
+anything. It is the first thing to run on an election type or year that has
+not been tried.
+
 ## 4. Mapping to the tally sheet
 
 Article 97.2 LOREG lists what the polling station's tally sheet (*acta de
@@ -136,6 +178,12 @@ take part in verification.
    law has not been read for this profile. The July 2026 amendment (Organic
    Law 2/2026) changes articles 161.2 and 165.2, on Senate constituencies,
    and does not touch the count.
+   Local and European Parliament elections have been run on synthetic files
+   only. Open points there: whether the province rows of file `08` use the
+   candidature's own code or the provincial accumulation code of file `03`
+   (for the Congreso the own code matched in every run), and whether the
+   per-station file of a local election really leaves out the smaller
+   municipalities.
 3. Candidature codes in file 10 and file 08 are the same code set in the
    November 2019 files, since every candidature total matches. This is not
    confirmed for other elections; if it fails, the mapping is in file `03`.

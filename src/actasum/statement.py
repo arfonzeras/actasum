@@ -257,6 +257,10 @@ class OfficialTotals:
     level: str = "constituency"
     # How statements are assigned to areas. See ``area_of``.
     grouping: str = GROUP_BY_CONSTITUENCY
+    # Candidature codes these totals report under another code: when the
+    # authority adds up several candidatures at this level, the verifier has
+    # to add them up the same way before comparing.
+    merge: dict[str, str] = field(default_factory=dict)
     source: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -268,6 +272,8 @@ class OfficialTotals:
             "grouping": self.grouping,
             "areas": {key: value.to_dict() for key, value in sorted(self.areas.items())},
         }
+        if self.merge:
+            doc["merge"] = dict(sorted(self.merge.items()))
         if self.source:
             doc["source"] = self.source
         return doc
@@ -279,11 +285,17 @@ class OfficialTotals:
         areas = doc.get("areas")
         if not isinstance(areas, dict):
             raise FormatError("areas must be an object")
+        merge = doc.get("merge") or {}
+        if not isinstance(merge, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in merge.items()
+        ):
+            raise FormatError("merge must map candidature codes to candidature codes")
         return cls(
             profile=str(doc.get("profile", "")),
             election=str(doc.get("election", "")),
             areas={key: AreaTotals.from_dict(value) for key, value in areas.items()},
             level=str(doc.get("level", "constituency")),
             grouping=str(doc.get("grouping", GROUP_BY_CONSTITUENCY)),
+            merge=dict(merge),
             source=doc.get("source") or {},
         )

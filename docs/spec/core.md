@@ -87,6 +87,7 @@ A later version will define `image`, for a photograph of the tally sheet.
 | `level` | string | no | What an area is, for display: `constituency` (default), `municipality`… |
 | `grouping` | string | no | How statements are assigned to areas (section 4.1). Default `constituency` |
 | `areas` | object | yes | Area identifier → totals |
+| `merge` | object | no | Candidature code → the code these totals report it under (section 4.2) |
 | `source` | object | no | Where the totals come from |
 
 Totals for one area:
@@ -110,8 +111,18 @@ station sums and published totals part ways.
   N `/`-separated parts of its `station` identifier. Profiles define
   hierarchical station identifiers so that this is meaningful.
 
-An aggregate (section 3, `unit`) is assigned to a constituency only. Under any
-other grouping it belongs to no area: it is left out and counted as such.
+An aggregate (section 3, `unit`) has no place of its own below the
+constituency. Under a `station-prefix/N` grouping it is kept when the official
+totals have an area for it, and otherwise left out and counted as such. An
+overseas row counts towards its province; it counts towards no municipality.
+
+### 4.2 Merged candidatures
+
+An authority may add up several candidatures under one code at a given level,
+for example one list that runs under different names in different regions.
+When `merge` is present, the verifier replaces each candidature code of a
+statement by the code `merge` gives for it, if any, before adding up. Statements
+themselves keep the code that appears on the tally sheet.
 
 ## 5. Verification procedure
 

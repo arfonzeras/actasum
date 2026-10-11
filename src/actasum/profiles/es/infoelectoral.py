@@ -11,6 +11,13 @@ Files used here:
   station and candidature).
 * ``_TOTA`` ZIP: 07 (one row per province or higher) and 08 (one row per
   province or higher and candidature).
+* 05 and 06 (one row per municipality, and per municipality and candidature).
+* 03 (the list of candidatures), only to learn under which code the national
+  totals merge several candidatures.
+
+Three election types are read. What differs between them is the constituency:
+the province for the Congreso, the municipality for local elections and the
+whole country for the European Parliament.
 
 Column positions follow the Ministry's record-layout document, "Ficheros de
 Carga de Datos de Elecciones" (2010), which ships inside the ZIP files as
@@ -36,9 +43,14 @@ ENCODING = "iso-8859-1"
 # does not count it as a polling station.
 OVERSEAS_MUNICIPALITY = "999"
 
-# Election types whose constituency is the province, which is the unit the
-# Ministry's totals files report. Other types need their own mapping.
-ELECTION_TYPES = {"02": "congreso"}
+# Election types this profile reads, and what the constituency is in each.
+# Other types (Senate, regional parliaments, island councils...) need their
+# own mapping and are refused.
+ELECTION_TYPES = {"02": "congreso", "04": "municipales", "07": "europeas"}
+CONSTITUENCY = {"02": "province", "04": "municipality", "07": "country"}
+
+# Identifier of the single constituency of European Parliament elections.
+COUNTRY = "es"
 
 # Province code 99 marks rows that are subtotals, not a province: national and
 # regional totals in files 07/08, and overseas-vote (CERA) totals per region in
@@ -50,11 +62,19 @@ _MEMBER = re.compile(r"^(\d{2})(\d{2})(\d{2})(\d{2})\.DAT$", re.IGNORECASE)
 
 @dataclass(frozen=True)
 class Dataset:
-    """The ``.DAT`` files of one ZIP (or directory), keyed by file number."""
+    """The ``.DAT`` files of one election in a ZIP (or directory).
+
+    A ZIP can carry files of more than one election type: the local-election
+    ZIP also holds the files of the provincial councils, which use type 10.
+    ``files`` holds the files of the main type, keyed by file number, and
+    ``other`` the names of the members that were set aside.
+    """
 
     path: str
     sha256: str | None
     files: dict[str, tuple[str, list[str]]]  # number -> (member name, lines)
+    kind: str = ""
+    other: tuple[str, ...] = ()
 
     def lines(self, number: str) -> list[str]:
         if number not in self.files:
@@ -67,16 +87,19 @@ class Dataset:
 
 def load_dataset(path: str) -> Dataset:
     """Read every ``NNTTYYMM.DAT`` member of a ZIP file or directory."""
-    files: dict[str, tuple[str, list[str]]] = {}
+    by_kind: dict[str, dict[str, tuple[str, list[str]]]] = {}
     digest: str | None = None
 
     def add(name: str, raw: bytes) -> None:
         match = _MEMBER.match(os.path.basename(name))
         if not match:
             return
-        number = match.group(1)
+        number, kind = match.group(1), match.group(2)
+        files = by_kind.setdefault(kind, {})
         if number in files:
-            raise FormatError(f"{path}: more than one file numbered {number}")
+            raise FormatError(
+                f"{path}: more than one file numbered {number} for election type {kind}"
+            )
         files[number] = (os.path.basename(name), raw.decode(ENCODING).splitlines())
 
     if os.path.isdir(path):
@@ -95,9 +118,31 @@ def load_dataset(path: str) -> Dataset:
                         add(info.filename, archive.read(info))
         except zipfile.BadZipFile as exc:
             raise FormatError(f"{path}: not a ZIP file") from exc
-    if not files:
+    if not by_kind:
         raise FormatError(f"{path}: no NNTTYYMM.DAT files found")
-    return Dataset(path=path, sha256=digest, files=files)
+    kind = _main_kind(path, by_kind)
+    other = tuple(
+        sorted(name for k, files in by_kind.items() if k != kind for name, _ in files.values())
+    )
+    return Dataset(path=path, sha256=digest, files=by_kind[kind], kind=kind, other=other)
+
+
+def _main_kind(path: str, by_kind: dict[str, dict]) -> str:
+    """Pick the election type a dataset is about when it carries several."""
+    if len(by_kind) == 1:
+        return next(iter(by_kind))
+    # The per-station file exists for one type only in the ZIPs seen so far.
+    for number in ("09", "07", "05"):
+        holders = [kind for kind, files in by_kind.items() if number in files]
+        if len(holders) == 1:
+            return holders[0]
+        supported = [kind for kind in holders if kind in ELECTION_TYPES]
+        if len(supported) == 1:
+            return supported[0]
+    raise FormatError(
+        f"{path}: files of several election types ({', '.join(sorted(by_kind))}) "
+        "and no way to tell which one is meant"
+    )
 
 
 def _field(line: str, start: int, end: int) -> str:
@@ -143,6 +188,26 @@ def _election_id(line: str, where: str) -> str:
             f"{where}: election type {kind!r} is not supported by this profile version"
         )
     return f"es/{ELECTION_TYPES[kind]}/{_field(line, 3, 6)}-{_field(line, 7, 8)}"
+
+
+def _constituency(line: str) -> str:
+    """The constituency of a per-station row, which depends on the election."""
+    scope = CONSTITUENCY[_field(line, 1, 2)]
+    if scope == "country":
+        return COUNTRY
+    if scope == "municipality":
+        return f"es/{_field(line, 12, 13)}/{_field(line, 14, 16)}"
+    return f"es/{_field(line, 12, 13)}"
+
+
+def _scope(dataset: Dataset, number: str) -> str:
+    """What the constituency is in this dataset, read from its first row."""
+    name = dataset.name(number)
+    for index, line in enumerate(dataset.lines(number), start=1):
+        if line.strip():
+            _election_id(line, f"{name}:{index}")
+            return CONSTITUENCY[_field(line, 1, 2)]
+    raise FormatError(f"{name}: no rows found")
 
 
 def _station_id(line: str) -> str:
@@ -199,7 +264,7 @@ def read_statements(dataset: Dataset) -> list[Statement]:
                 profile=PROFILE,
                 election=election,
                 station=station,
-                constituency=f"es/{_field(line, 12, 13)}",
+                constituency=_constituency(line),
                 registered=registered,
                 blank=_number(line, 66, 72, where),
                 null=_number(line, 73, 79, where),
@@ -222,7 +287,26 @@ def read_statements(dataset: Dataset) -> list[Statement]:
 
 
 def read_official_totals(dataset: Dataset) -> OfficialTotals:
-    """Turn the province-level files (07 and 08) into official totals."""
+    """Official totals per constituency, whatever the constituency is.
+
+    Province rows for the Congreso, whole-municipality rows for local
+    elections and the national row for the European Parliament.
+    """
+    scope = _scope(dataset, "05" if "07" not in dataset.files else "07")
+    if scope == "municipality":
+        return read_municipal_totals(dataset, as_constituency=True)
+    if scope == "country":
+        return read_national_totals(dataset)
+    return read_province_totals(dataset)
+
+
+def read_province_totals(dataset: Dataset, *, as_level: bool = False) -> OfficialTotals:
+    """Turn the province rows of files 07 and 08 into official totals.
+
+    With ``as_level`` the provinces are a level below the constituency (or the
+    same thing under another name) and statements are assigned to them by the
+    province part of the station identifier, overseas rows included.
+    """
 
     votes: dict[str, dict[str, int]] = {}
     for where, line in _rows(dataset, "08", 28):
@@ -256,8 +340,104 @@ def read_official_totals(dataset: Dataset) -> OfficialTotals:
     source: dict[str, object] = {"kind": "official-dataset"}
     if dataset.sha256:
         source["sha256"] = dataset.sha256
+    if as_level:
+        return OfficialTotals(
+            profile=PROFILE,
+            election=election,
+            areas=constituencies,
+            level="province",
+            grouping="station-prefix/2",
+            source=source,
+        )
     return OfficialTotals(
         profile=PROFILE, election=election, areas=constituencies, source=source
+    )
+
+
+def read_candidature_heads(dataset: Dataset, columns: tuple[int, int]) -> dict[str, str]:
+    """Which code the totals at some level use for each candidature.
+
+    File 03 gives, for every candidature, the code under which its votes are
+    accumulated at province, region and national level (columns 215-220,
+    221-226 and 227-232). Only pairs where the two codes differ are returned.
+    A dataset without file 03 gives an empty mapping.
+    """
+    if "03" not in dataset.files:
+        return {}
+    heads: dict[str, str] = {}
+    name = dataset.name("03")
+    for index, line in enumerate(dataset.lines("03"), start=1):
+        if not line.strip():
+            continue
+        where = f"{name}:{index}"
+        if len(line) < columns[1]:
+            raise FormatError(
+                f"{where}: line has {len(line)} characters, expected at least {columns[1]}"
+            )
+        code = _field(line, 9, 14).strip()
+        head = _field(line, *columns).strip()
+        if head and head.strip("0") and head != code:
+            heads[code] = head
+    return heads
+
+
+NATIONAL_HEAD = (227, 232)
+
+
+def read_national_totals(dataset: Dataset) -> OfficialTotals:
+    """Turn the national row of files 07 and 08 into official totals.
+
+    The national row has region 99 and province 99. Its candidature rows use
+    the national accumulation code of file 03, so the mapping travels with the
+    totals and the verifier merges the station votes the same way.
+    """
+    name07, name08 = dataset.name("07"), dataset.name("08")
+    votes: dict[str, int] = {}
+    for index, line in enumerate(dataset.lines("08"), start=1):
+        if not line.strip():
+            continue
+        where = f"{name08}:{index}"
+        if len(line) < 28:
+            raise FormatError(f"{where}: line has {len(line)} characters, expected at least 28")
+        if _field(line, 10, 13) != "9999":
+            continue
+        _election_id(line, where)
+        code = _field(line, 15, 20).strip()
+        if code in votes:
+            raise FormatError(f"{where}: candidature {code} repeated in the national rows")
+        votes[code] = _number(line, 21, 28, where)
+
+    election: str | None = None
+    national: AreaTotals | None = None
+    for index, line in enumerate(dataset.lines("07"), start=1):
+        if not line.strip():
+            continue
+        where = f"{name07}:{index}"
+        if len(line) < 149:
+            raise FormatError(f"{where}: line has {len(line)} characters, expected at least 149")
+        if _field(line, 10, 13) != "9999":
+            continue
+        if national is not None:
+            raise FormatError(f"{where}: more than one national row")
+        election = _election_id(line, where)
+        national = AreaTotals(
+            stations=_number(line, 73, 77, where),
+            blank=_number(line, 126, 133, where),
+            null=_number(line, 134, 141, where),
+            candidature_total=_number(line, 142, 149, where),
+            candidatures=votes,
+        )
+    if national is None or election is None:
+        raise FormatError(f"{name07}: no national row found")
+    source: dict[str, object] = {"kind": "official-dataset"}
+    if dataset.sha256:
+        source["sha256"] = dataset.sha256
+    return OfficialTotals(
+        profile=PROFILE,
+        election=election,
+        areas={COUNTRY: national},
+        merge=read_candidature_heads(dataset, NATIONAL_HEAD),
+        source=source,
     )
 
 
@@ -265,12 +445,13 @@ def read_official_totals(dataset: Dataset) -> OfficialTotals:
 WHOLE_MUNICIPALITY = "99"
 
 
-def read_municipal_totals(dataset: Dataset) -> OfficialTotals:
+def read_municipal_totals(dataset: Dataset, *, as_constituency: bool = False) -> OfficialTotals:
     """Turn the municipality-level files (05 and 06) into official totals.
 
-    Used to locate a difference: the constituency is still the province, but
-    comparing per municipality shows where the station sums and the published
-    totals part ways. Overseas rows belong to no municipality and are left out.
+    In local elections the municipality is the constituency. In the others it
+    is a level below, used to locate a difference: comparing per municipality
+    shows where the station sums and the published totals part ways. Overseas
+    rows belong to no municipality and are left out.
     """
     votes: dict[str, dict[str, int]] = {}
     for where, line in _rows(dataset, "06", 30, province_at=(10, 11)):
@@ -308,6 +489,10 @@ def read_municipal_totals(dataset: Dataset) -> OfficialTotals:
     source: dict[str, object] = {"kind": "official-dataset"}
     if dataset.sha256:
         source["sha256"] = dataset.sha256
+    if as_constituency:
+        return OfficialTotals(
+            profile=PROFILE, election=election, areas=municipalities, source=source
+        )
     return OfficialTotals(
         profile=PROFILE,
         election=election,
@@ -330,7 +515,11 @@ def read_overseas_residuals(dataset: Dataset) -> OfficialTotals:
     A residual can be negative when the two official levels disagree with each
     other; that is reported as a difference like any other.
     """
-    provinces = read_official_totals(dataset)
+    if _scope(dataset, "07") == "municipality":
+        raise FormatError(
+            f"{dataset.path}: local elections have no overseas rows to compare"
+        )
+    provinces = read_province_totals(dataset)
     municipalities = read_municipal_totals(dataset)
     sums: dict[str, dict] = {}
     for key, totals in municipalities.areas.items():
@@ -359,5 +548,80 @@ def read_overseas_residuals(dataset: Dataset) -> OfficialTotals:
         election=provinces.election,
         areas=residuals,
         level="overseas row",
+        grouping="station-prefix/2",
         source=dict(provinces.source, derived="province total minus municipalities"),
     )
+
+
+def describe(dataset: Dataset) -> dict:
+    """What a dataset contains, without interpreting any result.
+
+    Meant for a first look at an election type or year that has not been run
+    before: which files are there, how long their lines are, how many rows are
+    subtotals or overseas rows, and whether file 03 merges candidatures.
+    """
+    files = []
+    for number in sorted(dataset.files):
+        name, lines = dataset.files[number]
+        rows = [line for line in lines if line.strip()]
+        lengths = sorted({len(line) for line in rows})
+        entry: dict[str, object] = {
+            "file": name,
+            "rows": len(rows),
+            "line_lengths": lengths[:6] + (["..."] if len(lengths) > 6 else []),
+        }
+        if number not in ("11", "12"):
+            # Files 11 and 12 use columns 1-2 for something else.
+            entry["types_in_rows"] = sorted({_field(line, 1, 2) for line in rows})
+        if number in ("09", "10"):
+            entry["subtotal_rows_province_99"] = sum(
+                1 for line in rows if _field(line, 12, 13) == AGGREGATE_PROVINCE
+            )
+            entry["overseas_rows_municipality_999"] = sum(
+                1
+                for line in rows
+                if _field(line, 14, 16) == OVERSEAS_MUNICIPALITY
+                and _field(line, 12, 13) != AGGREGATE_PROVINCE
+            )
+            entry["provinces"] = len(
+                {_field(line, 12, 13) for line in rows} - {AGGREGATE_PROVINCE}
+            )
+        if number in ("07", "08"):
+            entry["national_rows"] = sum(1 for line in rows if _field(line, 10, 13) == "9999")
+            entry["region_rows"] = sum(
+                1
+                for line in rows
+                if _field(line, 12, 13) == AGGREGATE_PROVINCE and _field(line, 10, 11) != "99"
+            )
+            entry["province_rows"] = sum(
+                1 for line in rows if _field(line, 12, 13) != AGGREGATE_PROVINCE
+            )
+            if number == "07":
+                entry["district_codes"] = sorted({_field(line, 14, 14) for line in rows})
+        if number == "05":
+            entry["whole_municipality_rows"] = sum(
+                1 for line in rows if _field(line, 17, 18) == WHOLE_MUNICIPALITY
+            )
+        if number == "03":
+            entry["candidatures"] = len(rows)
+            for label, columns in (
+                ("province", (215, 220)),
+                ("region", (221, 226)),
+                ("national", NATIONAL_HEAD),
+            ):
+                usable = [line for line in rows if len(line) >= columns[1]]
+                entry[f"merged_under_another_code_{label}"] = sum(
+                    1
+                    for line in usable
+                    if _field(line, *columns).strip("0 ")
+                    and _field(line, *columns) != _field(line, 9, 14)
+                )
+        files.append(entry)
+    return {
+        "path": dataset.path,
+        "sha256": dataset.sha256,
+        "election_type": dataset.kind,
+        "supported": dataset.kind in ELECTION_TYPES,
+        "files": files,
+        "files_of_other_types_set_aside": list(dataset.other),
+    }
