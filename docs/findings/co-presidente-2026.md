@@ -14,7 +14,7 @@ Bogotá D.C., downloaded that day from the Registraduría's scrutiny site
 pdftotext -layout AGE.pdf AGE.txt
 actasum co convert --mmv MMV.csv --election 2026-05 --age-text AGE.txt --out statements.jsonl
 actasum verify --statements statements.jsonl \
-    --official docs/findings/data/co-presidente-2026-05-bogota.official.json
+    --official docs/findings/official/co-presidente-2026-05-bogota.official.json
 ```
 
 Everything below compares the commission's publications **with each other**,
@@ -68,7 +68,7 @@ published file is not the original, nor to prove that the repair is right.
 
 Each of the thirteen candidates matches too; the two who withdrew have zero
 in both. The E-26 and E-24 are scans: their figures were typed by hand into
-[`data/co-presidente-2026-05-bogota.official.json`](data/co-presidente-2026-05-bogota.official.json)
+[`official/co-presidente-2026-05-bogota.official.json`](official/co-presidente-2026-05-bogota.official.json)
 and checked against the amounts in words on the E-26 and against the municipal
 total of the E-24.
 

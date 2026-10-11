@@ -1,0 +1,42 @@
+{
+  "areas": {
+    "co/16": {
+      "blank": 70220,
+      "candidature_total": 4019154,
+      "candidatures": {
+        "0009-011": 372210,
+        "0015-012": 258400,
+        "0020-006": 3926,
+        "0021-010": 729,
+        "0022-008": 1791,
+        "0026-001": 1705455,
+        "1001-003": 22003,
+        "1002-007": 2587,
+        "1003-004": 1543282,
+        "1004-002": 102451,
+        "1005-013": 0,
+        "1006-009": 0,
+        "3001-005": 6320
+      },
+      "null": 33257,
+      "other": {
+        "unmarked": 5699
+      },
+      "stations": 17164
+    }
+  },
+  "election": "co/presidente/2026-05",
+  "grouping": "station-prefix/2",
+  "level": "department",
+  "profile": "co/codigo-electoral/v0.1",
+  "source": {
+    "candidature_codes": "party code from the MMV file joined to the option code printed on the E-26",
+    "documents": [
+      "E-26 PRE, acta del escrutinio general, Bogotá D.C., generated 2 June 2026 10:43 (file E26_PRE_1_16_001_XXX_XX_XX_X_1009_F_35)",
+      "E-24 PRE, cuadro de resultados del escrutinio, Bogotá D.C., generated 2 June 2026 (number of stations)"
+    ],
+    "kind": "official-publication",
+    "transcription": "typed by hand from the scanned forms on 11 October 2026; figures checked against the amounts in words on the E-26 and against the municipal total column of the E-24"
+  },
+  "spec": "actasum/official-totals/v0.1"
+}
