@@ -12,7 +12,7 @@
                         --out statements.jsonl
 
     actasum mx replay   --prep PRES_2024.csv --computos PRES_2024.csv --election 2024-06
-                        [--unreadable-as-zero] [--out statements.jsonl]
+                        [--official official.json] [--out statements.jsonl]
 
     actasum log build       --statements statements.jsonl --out LOGDIR
     actasum log append      --log LOGDIR --statements more.jsonl
@@ -56,7 +56,14 @@ from .profiles.co import escrutinio as co_escrutinio
 from .profiles.es import infoelectoral, seats as es_seats
 from .profiles.mx import ine as mx_ine
 from .statement import FormatError, OfficialTotals, read_jsonl, write_jsonl
-from .verify import VerificationError, aggregate, compare, format_comparison, resolve
+from .verify import (
+    VerificationError,
+    aggregate,
+    compare,
+    format_comparison,
+    resolve,
+    verify,
+)
 
 
 def _open_out(path: str):
@@ -179,9 +186,7 @@ def _mx_replay(args) -> int:
         checks = mx_ine.check_header(table)
         headers_ok = headers_ok and all(check.ok for check in checks)
         if kind == mx_ine.PREP:
-            reading = mx_ine.read_prep(
-                table, args.election, unreadable_as_zero=args.unreadable_as_zero
-            )
+            reading = mx_ine.read_prep(table, args.election)
             counts = reading.identifiers
         else:
             reading = mx_ine.read_computos(table, args.election, counts)
@@ -203,11 +208,10 @@ def _mx_replay(args) -> int:
         if kind == mx_ine.PREP:
             entry.update(
                 {
-                    "tally_sheets_counted_with_unreadable_figures": reading.with_unreadable_figures,
-                    "they_were": "given a statement, the unreadable figures as zero"
-                    if args.unreadable_as_zero
-                    else "given no statement",
-                    "unreadable_cells": dict(reading.unreadable_cells),
+                    "tally_sheets_counted_with_unread_figures": dict(
+                        sorted(reading.with_unread_figures.items())
+                    ),
+                    "unread_cells": dict(sorted(reading.unread_cells.items())),
                     "tally_sheets_whose_written_total_is_not_the_sum": reading.stated_total_differs,
                     "ballots_in_rows_of_the_vote_from_abroad_per_state": reading.state_wide_ballots,
                 }
@@ -220,21 +224,57 @@ def _mx_replay(args) -> int:
         area = aggregate(group, merge=merge).get(mx_ine.COUNTRY)
         if area is None:
             return {"stations": 0}
-        return {
+        doc = {
             "stations": area.stations,
             "candidatures": dict(sorted(area.candidatures.items())),
             "other": dict(sorted((area.other or {}).items())),
             "null": area.null,
             "ballots": area.candidature_total + area.null + sum((area.other or {}).values()),
         }
+        if area.unread:
+            doc["these_are_lower_bounds"] = (
+                "figures could not be read; statements concerned, by item"
+            )
+            doc["unread"] = dict(sorted(area.unread.items()))
+        return doc
 
     report["as_counted"] = totals(resolution.counted)
     report["as_standing"] = totals(resolution.standing)
     report["between_the_two_acts"] = mx_ine.describe(resolution, merge)
-    if args.unreadable_as_zero:
-        report["unreadable_figures_against_the_canvass"] = mx_ine.unreadable_against_canvass(
-            resolution
-        )
+    report["unread_figures_against_the_canvass"] = mx_ine.unread_against_canvass(resolution)
+    matched = True
+    if args.official:
+        with open(args.official, encoding="utf-8") as handle:
+            totals = OfficialTotals.from_dict(json.load(handle))
+
+        def against(found) -> dict:
+            return {
+                "stations": found.stations,
+                "matches": found.ok,
+                "undecided": found.undecided,
+                "differences": [
+                    {"item": d.item, "recomputed": d.recomputed, "official": d.official,
+                     "delta": d.delta}
+                    for d in found.differences
+                ],
+                "lower_bounds": [
+                    {"item": b.item, "at_least": b.at_least, "official": b.official,
+                     "statements_with_the_figure_unread": b.statements}
+                    for b in found.bounds
+                ],
+            }  # fmt: skip
+
+        comparison = compare(statements, totals)
+        canvass = [s for s in statements if s.stage == "canvass"]
+        report["against_the_official_totals"] = {
+            "source": totals.source,
+            "official_matches": comparison.official_matches,
+            "as_counted": against(comparison.counted),
+            "as_standing": against(comparison.standing),
+            # The standing sum also holds stations whose count nothing replaced.
+            "statements_of_the_canvass_alone": against(verify(canvass, totals)),
+        }
+        matched = comparison.ok
     if args.out:
         out = _open_out(args.out)
         try:
@@ -244,7 +284,7 @@ def _mx_replay(args) -> int:
                 out.close()
     json.dump(report, sys.stderr if args.out == "-" else sys.stdout, indent=2, ensure_ascii=False)
     (sys.stderr if args.out == "-" else sys.stdout).write("\n")
-    return 0 if headers_ok else 1
+    return 0 if headers_ok and matched else 1
 
 
 def _es_describe(args) -> int:
@@ -687,11 +727,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     mx_replay.add_argument("--election", required=True, help="election date as YYYY-MM")
     mx_replay.add_argument(
-        "--unreadable-as-zero",
-        action="store_true",
-        help="give a statement to tally sheets the PREP counted without capturing every "
-        "figure, with those figures as zero, as the PREP's own total does "
-        "(default: give them no statement)",
+        "--official",
+        help="official totals (JSON) from a source other than these two files, to compare "
+        "both sums with",
     )
     mx_replay.add_argument("--out", help="also write the statements to this file")
     mx_replay.set_defaults(run=_mx_replay)

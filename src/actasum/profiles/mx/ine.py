@@ -41,9 +41,10 @@ UNREGISTERED = "unregistered"
 # Reason given for PREP rows that add up the vote from abroad of a whole state.
 STATE_WIDE = "vote from abroad given per state, not per counting table"
 
-# What the PREP writes in a vote cell it could not capture.
+# What the PREP writes in a vote cell it could not capture, and the reason
+# the core gives for an unread figure (core, section 3.4).
 NO_FIGURE, ILLEGIBLE = "Sin dato", "Ilegible"
-UNREADABLE = {NO_FIGURE: "no-figure", ILLEGIBLE: "illegible"}
+UNREADABLE = {NO_FIGURE: "empty", ILLEGIBLE: "illegible"}
 
 _KEY_COLUMN = "CLAVE_CASILLA"
 _UNREGISTERED_COLUMNS = ("NO_REGISTRADAS", "CANDIDATO/A NO REGISTRADO/A")
@@ -211,9 +212,9 @@ class Reading:
     # Rows that gave no statement, by the reason the file itself states.
     left_out: Counter = field(default_factory=Counter)
     # PREP only: tally sheets the PREP counted although it could not capture
-    # every figure, and the cells concerned, by what the file says of them.
-    with_unreadable_figures: int = 0
-    unreadable_cells: Counter = field(default_factory=Counter)
+    # every figure, by which marks they carry, and the cells concerned.
+    with_unread_figures: Counter = field(default_factory=Counter)
+    unread_cells: Counter = field(default_factory=Counter)
     # PREP only: tally sheets whose written total is not the sum of their figures.
     stated_total_differs: int = 0
     # PREP only: ballots in the rows left out as STATE_WIDE.
@@ -239,12 +240,17 @@ def _figures(table: Table, row: dict[str, str]) -> tuple[dict[str, int], dict[st
     return known, unknown
 
 
+def _item(name: str) -> str:
+    """A cell as the core names it: ``candidature:PAN``, ``other:...``, ``null``."""
+    return name if name == "null" or name.startswith("other:") else f"candidature:{name}"
+
+
 def _registered(row: dict[str, str]) -> int | None:
     # Special stations have no voter list: the files give zero or N/A.
     return _number(row.get("LISTA_NOMINAL", "")) or None
 
 
-def _statement(table, row, election, station, known, **more) -> Statement:
+def _statement(table, row, election, station, known, unread=None, **more) -> Statement:
     codes = set(table.codes)
     other = known.get(f"other:{UNREGISTERED}")
     return Statement(
@@ -254,27 +260,24 @@ def _statement(table, row, election, station, known, **more) -> Statement:
         constituency=COUNTRY,
         # These tally sheets have no blank-vote figure; the core requires one.
         blank=0,
-        null=known.get("null", 0),
+        null=known.get("null"),
         candidatures={item: votes for item, votes in known.items() if item in codes},
         other={} if other is None else {UNREGISTERED: other},
+        unread=unread or {},
         registered=_registered(row),
         evidence={"kind": "official-dataset", "sha256": table.sha256},
         **more,
     )
 
 
-def read_prep(table: Table, year_month: str, *, unreadable_as_zero: bool = False) -> Reading:
+def read_prep(table: Table, year_month: str) -> Reading:
     """One statement of the count per tally sheet the PREP counted.
 
     The PREP counts a tally sheet when at least one figure could be captured,
-    and adds up the cells it could not capture (``Sin dato``, ``Ilegible``) as
-    zero. A figure that could not be read is not a zero, and the core format
-    has no way to say "unknown". By default such a tally sheet therefore gives
-    no statement and is counted in ``with_unreadable_figures``. With
-    ``unreadable_as_zero`` it gives one, with those cells left out, which the
-    core treats as zero, and named under ``extra.unreadable``; the sum then
-    reproduces the total the PREP itself publishes, except for the rows of
-    the vote from abroad, which give no statement in either case (see
+    and adds up the cells it could not capture as zero. A figure that could
+    not be read is not a zero: those cells go to ``counts.unread``, as
+    ``empty`` for ``Sin dato`` and ``illegible`` for ``Ilegible``, and carry
+    no value. The rows of the vote from abroad give no statement (see
     ``STATE_WIDE``).
     """
     if table.kind != PREP:
@@ -304,14 +307,13 @@ def read_prep(table: Table, year_month: str, *, unreadable_as_zero: bool = False
         for item, text in unknown.items():
             if text not in UNREADABLE:
                 raise FormatError(f"{table.path}: {station}: {item} is not a number: {text!r}")
-            reading.unreadable_cells[UNREADABLE[text]] += 1
+            reading.unread_cells[UNREADABLE[text]] += 1
         stated = _number(row.get("TOTAL_VOTOS_ASENTADO", ""))
         if stated is not None and stated != sum(known.values()):
             reading.stated_total_differs += 1
         if unknown:
-            reading.with_unreadable_figures += 1
-            if not unreadable_as_zero:
-                continue
+            marks = sorted({UNREADABLE[text] for text in unknown.values()})
+            reading.with_unread_figures[" and ".join(marks)] += 1
         extra: dict = {}
         if row.get("TIPO_DOCUMENTO", "-") not in ("", "-"):
             extra["document"] = row["TIPO_DOCUMENTO"]
@@ -320,19 +322,19 @@ def read_prep(table: Table, year_month: str, *, unreadable_as_zero: bool = False
             extra["image_sha256"] = row["CODIGO_INTEGRIDAD"]
         if stated is not None:
             extra["stated_total"] = stated
-        if unknown:
-            extra["unreadable"] = {item: UNREADABLE[text] for item, text in sorted(unknown.items())}
-        statement = _statement(table, row, election, station, known, extra=extra)
+        unread = {_item(name): UNREADABLE[text] for name, text in unknown.items()}
+        statement = _statement(table, row, election, station, known, unread, extra=extra)
         reading.statements.append(statement)
         reading.identifiers[station] = statement.statement_id()
     return reading
 
 
-def canvass_kind(observation: str) -> str:
-    """``recount`` when the ballots were counted again, ``collation`` when the
-    tally sheets were compared, as the file's OBSERVACIONES column says."""
+def recounted(observation: str) -> bool | None:
+    """True when the ballots were counted again (*recuento*), False when the
+    tally sheets were compared (*cotejo*), as the file's OBSERVACIONES column
+    says; None when it says neither."""
     word = observation.split(" ", 1)[0].lower()
-    return {"recuento": "recount", "cotejo": "collation"}.get(word, "other")
+    return {"recuento": True, "cotejo": False}.get(word)
 
 
 def read_computos(
@@ -362,14 +364,14 @@ def read_computos(
                 raise FormatError(f"{table.path}: {station}: figures are not numbers")
             reading.left_out[row["OBSERVACIONES"] or "no figures"] += 1
             continue
+        extra: dict = {"observation": row["OBSERVACIONES"]}
+        recount = recounted(row["OBSERVACIONES"])
+        if recount is not None:
+            # The key shared across profiles: core, section 7.
+            extra["recount"] = recount
         statement = _statement(
             table, row, election, station, known,
-            stage="canvass",
-            supersedes=counts.get(station),
-            extra={
-                "canvass": canvass_kind(row["OBSERVACIONES"]),
-                "observation": row["OBSERVACIONES"],
-            },
+            stage="canvass", supersedes=counts.get(station), extra=extra,
         )  # fmt: skip
         reading.statements.append(statement)
         reading.identifiers[station] = statement.statement_id()
@@ -412,54 +414,76 @@ def check_header(table: Table) -> list[HeaderCheck]:
     return checks
 
 
-_SIZES = (
-    (5, "up to 5 votes"),
-    (20, "6 to 20"),
-    (100, "21 to 100"),
-    (float("inf"), "more than 100"),
-)
+_SIZES = ((1, "1 vote"), (10, "2 to 10"), (100, "11 to 100"), (float("inf"), "more than 100"))
+
+
+def _how(statement: Statement) -> str:
+    recount = statement.extra.get("recount")
+    return "not stated" if recount is None else "recount" if recount else "collation"
 
 
 def describe(resolution, merge: dict[str, str]) -> dict:
     """What the core's resolution of the two acts says, in this profile's terms.
 
     ``resolution`` is the result of ``actasum.verify.resolve`` on the
-    statements of both files. Changes are split by whether the ballots were
-    counted again, and those that only move votes between the columns of one
-    coalition are told apart from those that change what a candidature gets.
+    statements of both files. Stations whose figures changed are split by
+    whether the ballots were counted again and by the largest change in a
+    single figure of the sheet. Changes that only move votes between the
+    columns of one coalition are told apart from those that change what a
+    candidature gets. Figures the count could not read are not changes: the
+    core leaves them out, and they are described by ``unread_against_canvass``.
     """
-    kinds = {s.station: s.extra.get("canvass", "") for s in resolution.standing}
+    how = {s.station: _how(s) for s in resolution.standing}
     changed: Counter = Counter()
+    sizes: dict[str, Counter] = {}
     within_coalition = 0
     net: Counter = Counter()
-    sizes: Counter = Counter()
     net_of_largest: Counter = Counter()
+    net_in_part: Counter = Counter()
+    in_part = set(resolution.partly_compared)
+    changed_in_part = 0
     for change in resolution.changes:
-        changed[kinds.get(change.station, "")] += 1
+        kind = how.get(change.station, "not stated")
+        changed[kind] += 1
         moved: Counter = Counter()
+        largest = 0
         for item, (earlier, standing) in change.items.items():
             name = item.removeprefix("candidature:")
             moved[merge.get(name, name)] += standing - earlier
-        size = sum(abs(votes) for votes in moved.values())
-        if size == 0:
+            largest = max(largest, abs(standing - earlier))
+        label = next(label for limit, label in _SIZES if largest <= limit)
+        sizes.setdefault(kind, Counter())[label] += 1
+        if not any(moved.values()):
             within_coalition += 1
-        else:
-            sizes[next(label for limit, label in _SIZES if size <= limit)] += 1
-            if size > _SIZES[-2][0]:
-                net_of_largest.update(moved)
+        if largest > _SIZES[-2][0]:
+            net_of_largest.update(moved)
+        if change.station in in_part:
+            changed_in_part += 1
+            net_in_part.update(moved)
         net.update(moved)
     compared = [s for s in resolution.standing if s.supersedes]
-    by_kind = Counter(s.extra.get("canvass", "") for s in compared)
+    by_kind = Counter(_how(s) for s in compared)
     return {
         "stations_with_both_acts": len(compared),
         "of_them_by_canvass": dict(sorted(by_kind.items())),
+        "of_them_compared_only_in_part": len(resolution.partly_compared),
         "stations_whose_figures_changed": len(resolution.changes),
         "changed_by_canvass": dict(sorted(changed.items())),
+        # Size of a change: the largest change in one figure of the sheet.
+        "changed_by_canvass_and_size": {
+            kind: {label: tally[label] for _, label in _SIZES if tally[label]}
+            for kind, tally in sorted(sizes.items())
+        },
         "changed_only_within_a_coalition": within_coalition,
         "net_change_by_candidature": {k: v for k, v in sorted(net.items()) if v},
-        # Size of a change: votes that changed hands, added up over candidatures.
-        "changed_by_size": {label: sizes[label] for _, label in _SIZES if sizes[label]},
-        "net_change_of_the_largest": {k: v for k, v in sorted(net_of_largest.items()) if v},
+        "net_change_where_a_figure_changed_by_more_than_100": {
+            k: v for k, v in sorted(net_of_largest.items()) if v
+        },
+        # Stations where the count has unread figures: only the others are compared.
+        "changed_among_those_compared_only_in_part": changed_in_part,
+        "net_change_among_those_compared_only_in_part": {
+            k: v for k, v in sorted(net_in_part.items()) if v
+        },
         "stations_with_a_canvass_but_no_count": len(resolution.without_count),
         "stations_with_a_count_but_no_canvass": sum(
             1 for s in resolution.standing if s.stage == "count"
@@ -469,27 +493,20 @@ def describe(resolution, merge: dict[str, str]) -> dict:
     }
 
 
-def unreadable_against_canvass(resolution) -> dict:
-    """What the canvass gives where the PREP could not read a figure.
-
-    Only meaningful when the PREP was read with ``unreadable_as_zero``, which
-    keeps those tally sheets and names the cells under ``extra.unreadable``.
-    """
+def unread_against_canvass(resolution) -> dict:
+    """What the canvass gives where the count could not read a figure, by reason."""
     standing = {s.station: s for s in resolution.standing if s.stage != "count"}
     result: dict[str, Counter] = {}
     for counted in resolution.counted:
         later = standing.get(counted.station)
         if later is None:
             continue
-        for item, mark in counted.extra.get("unreadable", {}).items():
-            if item == "null":
-                value = later.null
-            elif item.startswith("other:"):
-                value = later.other.get(item.removeprefix("other:"), 0)
-            else:
-                value = later.candidatures.get(item, 0)
-            tally = result.setdefault(mark, Counter())
+        for item, reason in counted.unread.items():
+            value = later.value(item)
+            if value is None:
+                continue
+            tally = result.setdefault(reason, Counter())
             tally["cells"] += 1
             tally["zero_in_the_canvass" if value == 0 else "not_zero_in_the_canvass"] += 1
             tally["votes_in_the_canvass"] += value
-    return {mark: dict(tally) for mark, tally in sorted(result.items())}
+    return {reason: dict(tally) for reason, tally in sorted(result.items())}

@@ -8,8 +8,9 @@ for them. Nothing has been checked against the law, no tally sheet has been
 looked at, and no Mexican organisation has reviewed it.
 
 This profile was written to find out whether a third country fits the core
-format without changing it. It does, and section 6 lists what did not fit and
-was left as a limit of the profile.
+format without changing it. It does not: figures the source could not read
+needed a change to the core (core, section 3.4). Section 6 lists that change
+and what else did not fit and was left as a limit of the profile.
 
 ## 1. How the count travels
 
@@ -70,11 +71,12 @@ of votes and registered voters. The reader recomputes all three from the rows
 | `NO_REGISTRADAS` | `counts.other.unregistered` |
 | `NULOS` | `counts.null` |
 | `LISTA_NOMINAL` | `counts.registered`; absent for special stations, which have no voter list |
+| a vote cell marked `Sin dato` or `Ilegible` (PREP) | `counts.unread`, as `empty` or `illegible`; the figure carries no value |
 | PREP: `CONTABILIZADA` | only rows with `1` give a statement |
 | PREP: `TOTAL_VOTOS_ASENTADO` | `extra.stated_total`: the total written on the sheet |
 | PREP: `CODIGO_INTEGRIDAD` | `extra.image_sha256`: SHA-256 of the scanned sheet, as the file gives it |
 | PREP: `TIPO_DOCUMENTO` | `extra.document`: which copy was captured |
-| Cómputos: `OBSERVACIONES` | `extra.observation`, and `extra.canvass`: `recount` or `collation` |
+| Cómputos: `OBSERVACIONES` | `extra.observation`, and `extra.recount`: `true` for a *recuento*, `false` for a *cotejo* (the key shared across profiles: core, section 7) |
 
 `counts.blank` is always `0`: these tally sheets have no figure for blank
 votes, and the core requires one.
@@ -93,9 +95,14 @@ in the form the core's `merge` expects (core, section 4.2).
 The core then works out, without anything specific to Mexico, the sum of what
 the stations counted, the sum of what was left standing, and the stations
 whose figures changed (core, section 5.2). `actasum mx replay` prints them and
-adds two things from `extra.canvass` and from the coalition mapping: how many
+adds two things from `extra.recount` and from the coalition mapping: how many
 changes come from a recount, and how many only move votes between columns of
 one coalition.
+
+With `--official FILE` the same command compares both sums with official
+totals taken from another source. The one used so far is an INE press
+statement, typed into
+[`../findings/official/mx-presidencia-2024-06.official.json`](../findings/official/mx-presidencia-2024-06.official.json).
 
 A PREP statement is not the tally sheet: it is the INE's capture of one copy
 of it. A difference between the two acts can be a capture error, a correction
@@ -106,7 +113,6 @@ or the result of counting the ballots again, and these files do not say which.
 | Rows | Why |
 | --- | --- |
 | PREP rows with `CONTABILIZADA` other than `1` | The PREP itself did not count them: no tally sheet at the cut, all figures empty or illegible, more votes than registered voters, or a sheet that could not be matched to a station |
-| PREP rows counted with a cell marked `Sin dato` or `Ilegible` | See section 6, point 1. `--unreadable-as-zero` gives them a statement |
 | PREP rows of the vote from abroad, one per state (section `0000`) | See section 6, point 3 |
 | Cómputos rows with `-` in every vote cell | Package not received, or station not installed |
 
@@ -115,45 +121,57 @@ silently.
 
 ## 6. What did not fit the core
 
-The core was not changed for this profile. These are the cases where it had
-to be worked around, in the order of how much they matter.
+One case changed the core. The others were worked around and are limits of
+this profile, in the order of how much they matter.
 
-1. **A figure that could not be read is not a zero.** The PREP counts a tally
-   sheet when at least one figure was captured, marks the others `Sin dato` or
-   `Ilegible`, and adds them up as zero. The core only has non-negative
-   integers, and treats a missing candidature as zero when it compares two
-   statements. By default this profile gives such a sheet no statement.
+1. **A figure that could not be read is not a zero.** *Changed the core.* The
+   PREP counts a tally sheet when at least one figure was captured, marks the
+   others `Sin dato` or `Ilegible`, and adds them up as zero. The core only
+   had non-negative integers. It now has `counts.unread`, and a sum that
+   includes an unread figure is a lower bound (core, sections 3.4 and 5).
 2. **No blank-vote figure.** `counts.blank` is required by the core. It is
-   written as `0`, which says something the tally sheet does not say.
+   written as `0`, which says something the tally sheet does not say. A
+   change to the core for this is under discussion.
 3. **One earlier row, several later ones.** The PREP gives the vote from
    abroad as one row per state; the Cómputos file gives it per counting
    table, under other keys. The core replaces one statement by one statement.
    Kept as statements, those 32 rows would stand next to the rows that
    replaced them and their votes would be added twice, so they give none.
 4. **Recount or collation.** Whether the ballots were counted again changes
-   what a difference means. The core has one stage, `canvass`, for both; the
-   distinction is kept under `extra`, where the verifier does not look.
-5. **Official totals with only a grand total.** The files print the total of
-   votes but no total per candidature other than the rows themselves. The
-   core's official totals need figures per candidature, so `actasum verify`
-   is not run; the header check is done by this profile.
-6. **The total written on the sheet** includes null votes and votes for
+   what a difference means. The core has one stage, `canvass`, for both, and
+   that is kept: the distinction goes under `extra.recount`, a key shared
+   across profiles, where the verifier does not look.
+5. **A count that nothing replaced.** For 16 stations the PREP has a tally
+   sheet and the Cómputos file has no figures (package not received) or no
+   row. The core leaves their count standing, so the standing sum is the
+   canvass plus those 16 stations and does not equal the official result,
+   which does not include them.
+6. **Totals printed in the files are only a grand total.** The core's
+   official totals need figures per candidature, so the files' own headers
+   cannot be used as official totals; the header check is done by this
+   profile.
+7. **The total written on the sheet** includes null votes and votes for
    unregistered candidates. The core's `candidature_total` does not, so the
    figure is kept under `extra` and the verifier does not check it.
-7. **A hash per tally-sheet image.** The core says image evidence will be
+8. **A hash per tally-sheet image.** The core says image evidence will be
    specified later, so the hash is kept under `extra`.
 
 ## 7. Known gaps and unverified assumptions
 
 1. The profile is named after the *Ley General de Instituciones y
-   Procedimientos Electorales*, by analogy with the other profiles. That law
-   has not been read. Section 1 rests on the INE's two manuals.
+   Procedimientos Electorales* (LGIPE). An automatic extract of a
+   non-official copy of the law places the district canvass in its Book
+   Five, Title Four, Chapter III, articles 309 to 318, with collation and
+   recount in article 311 and the presidential canvass in article 314. The
+   official text has not been read, and the rules for the PREP have not been
+   looked up. Section 1 rests on the INE's two manuals.
 2. One election, one pair of files: the PREP as generated on 3 June 2024 at
    20:05 and the Cómputos as generated on 8 June 2024 at 20:30. Whether these
    are the last versions the INE published has not been checked.
-3. No official result has been compared with either file. The results
-   declared by the INE and those validated by the electoral court have not
-   been read.
+3. The only outside source compared is an INE press statement of 9 June
+   2024, read through an automatic extract. It is another publication of the
+   same authority. The result validated by the electoral court has not been
+   read.
 4. No tally-sheet image has been downloaded, so `extra.image_sha256` has not
    been checked against any image.
 5. All rows are given `unit: station`, including counting tables for the vote

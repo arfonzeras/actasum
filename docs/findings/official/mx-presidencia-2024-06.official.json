@@ -1,0 +1,45 @@
+{
+  "areas": {
+    "mx": {
+      "blank": 0,
+      "candidature_total": 58631926,
+      "candidatures": {
+        "MC": 6204710,
+        "PAN-PRI-PRD": 16502697,
+        "PVEM-PT-MORENA": 35924519
+      },
+      "null": 1400144,
+      "other": {
+        "unregistered": 83114
+      }
+    }
+  },
+  "election": "mx/presidencia/2024-06",
+  "grouping": "constituency",
+  "level": "constituency",
+  "merge": {
+    "MORENA": "PVEM-PT-MORENA",
+    "PAN": "PAN-PRI-PRD",
+    "PAN-PRD": "PAN-PRI-PRD",
+    "PAN-PRI": "PAN-PRI-PRD",
+    "PRD": "PAN-PRI-PRD",
+    "PRI": "PAN-PRI-PRD",
+    "PRI-PRD": "PAN-PRI-PRD",
+    "PT": "PVEM-PT-MORENA",
+    "PT-MORENA": "PVEM-PT-MORENA",
+    "PVEM": "PVEM-PT-MORENA",
+    "PVEM-MORENA": "PVEM-PT-MORENA",
+    "PVEM-PT": "PVEM-PT-MORENA"
+  },
+  "profile": "mx/lgipe/v0.1",
+  "source": {
+    "blank": "the statement gives no figure for blank votes; 0 is written because the format requires one",
+    "candidature_total": "not given in the statement; the sum of the three candidatures",
+    "document": "Instituto Nacional Electoral, Comunicado de prensa 368, 9 June 2024: \"Informa INE que se computaron 60 millones 115 mil 184 votos en la elección presidencial\"",
+    "kind": "official-publication",
+    "stations": "not given in the statement",
+    "transcription": "typed on 11 October 2026 from an automatic extract of the page, not from the page itself; the three candidatures, unregistered candidates and null votes add up to the total the statement gives, 60,115,184",
+    "url": "https://centralelectoral.ine.mx/2024/06/09/informa-ine-que-se-computaron-60-millones-115-mil-184-votos-en-la-eleccion-presidencial/"
+  },
+  "spec": "actasum/official-totals/v0.1"
+}

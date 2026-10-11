@@ -10,7 +10,7 @@ import pytest
 
 from actasum.cli import main
 from actasum.profiles.mx import ine
-from actasum.statement import FormatError
+from actasum.statement import AreaTotals, FormatError, OfficialTotals
 from actasum.verify import resolve
 
 PARTIES = ["PAN", "PRI", "PVEM", "MC", "MORENA"]
@@ -141,45 +141,45 @@ def test_header_totals_are_recomputed_from_the_rows(tmp_path):
     assert [check.ok for check in ine.check_header(computos)] == [True, True, True]
 
 
-def test_a_figure_that_could_not_be_read_is_not_a_zero(tmp_path):
-    votes = [69, 14, 17, 40, 193, "Sin dato", "Ilegible", 0, 12]
+def test_a_figure_that_could_not_be_read_is_unread_with_its_reason_and_no_value(tmp_path):
+    votes = [69, 14, 17, 40, 193, "Sin dato", "Ilegible", "Sin dato", "Ilegible"]
     table = ine.load(write_prep(tmp_path, [prep_row(A, votes), prep_row(B, VOTES_B)]))
     reading = ine.read_prep(table, "2024-06")
-    assert [s.station for s in reading.statements] == ["mx/01/0338/C0100"]
-    assert reading.with_unreadable_figures == 1
-    assert reading.unreadable_cells == {"no-figure": 1, "illegible": 1}
-    assert "mx/01/0338/B0100" not in reading.identifiers
-
-
-def test_unreadable_as_zero_reproduces_the_total_the_file_prints(tmp_path):
-    votes = [69, 14, 17, 40, 193, "Sin dato", "Ilegible", 0, "Sin dato"]
-    table = ine.load(write_prep(tmp_path, [prep_row(A, votes), prep_row(B, VOTES_B)]))
-    reading = ine.read_prep(table, "2024-06", unreadable_as_zero=True)
-    assert sum(s.ballots for s in reading.statements) == int(table.summary["TOTAL_VOTOS_C_CS"])
-    first = reading.statements[0]
-    assert "PAN-PRI" not in first.candidatures and first.null == 0
-    assert first.extra["unreadable"] == {
-        "PAN-PRI": "no-figure", "PVEM-MORENA": "illegible", "null": "no-figure",
+    first, second = reading.statements
+    assert first.unread == {
+        "candidature:PAN-PRI": "empty", "candidature:PVEM-MORENA": "illegible",
+        "other:unregistered": "empty", "null": "illegible",
     }  # fmt: skip
+    assert "PAN-PRI" not in first.candidatures and first.null is None and first.other == {}
+    assert not second.unread
+    assert reading.with_unread_figures == {"empty and illegible": 1}
+    assert reading.unread_cells == {"empty": 2, "illegible": 2}
+    # The file's own total adds those cells up as zero; the statements do not
+    # claim it, they say the sheet has at least that many ballots.
+    assert all(check.ok for check in ine.check_header(table))
+    assert sum(s.ballots for s in reading.statements) == int(table.summary["TOTAL_VOTOS_C_CS"])
 
 
 def test_what_the_canvass_gives_for_figures_the_prep_could_not_read(tmp_path):
     votes = [69, 14, 17, 40, 193, "Sin dato", "Ilegible", "Sin dato", 12]
-    counts = ine.read_prep(
-        ine.load(write_prep(tmp_path, [prep_row(A, votes)])), "2024-06", unreadable_as_zero=True
-    )
+    counts = ine.read_prep(ine.load(write_prep(tmp_path, [prep_row(A, votes)])), "2024-06")
     canvass = ine.read_computos(
         ine.load(write_computos(tmp_path, [computos_row(A, [69, 14, 17, 40, 193, 0, 7, 2, 12])])),
         "2024-06",
         counts.identifiers,
     )
-    assert ine.unreadable_against_canvass(resolve(counts.statements + canvass.statements)) == {
-        "illegible": {"cells": 1, "not_zero_in_the_canvass": 1, "votes_in_the_canvass": 7},
-        "no-figure": {
+    resolution = resolve(counts.statements + canvass.statements)
+    assert ine.unread_against_canvass(resolution) == {
+        "empty": {
             "cells": 2, "zero_in_the_canvass": 1, "not_zero_in_the_canvass": 1,
             "votes_in_the_canvass": 2,
         },
+        "illegible": {"cells": 1, "not_zero_in_the_canvass": 1, "votes_in_the_canvass": 7},
     }  # fmt: skip
+    # Nothing both acts read differs: unread figures are not changes.
+    described = ine.describe(resolution, MERGE)
+    assert described["stations_whose_figures_changed"] == 0
+    assert described["of_them_compared_only_in_part"] == 1
 
 
 def test_rows_the_prep_did_not_count_give_no_statement(tmp_path):
@@ -225,8 +225,8 @@ def test_the_canvass_replaces_the_count_and_says_how(tmp_path):
     assert first.stage == second.stage == "canvass"
     assert first.supersedes == counts.statements[0].statement_id()
     assert second.supersedes is None
-    assert first.extra == {"canvass": "recount", "observation": "Recuento (Para recuento-SRA)"}
-    assert second.extra["canvass"] == "collation"
+    assert first.extra == {"observation": "Recuento (Para recuento-SRA)", "recount": True}
+    assert second.extra["recount"] is False
     assert reading.left_out == {"Paquete no recibido": 1}
 
 
@@ -267,8 +267,10 @@ def test_changes_inside_a_coalition_are_told_apart(tmp_path):
     assert described["changed_by_canvass"] == {"collation": 1, "recount": 1}
     assert described["changed_only_within_a_coalition"] == 1
     assert described["net_change_by_candidature"] == {"PVEM-MORENA": 3, "null": -3}
-    assert described["changed_by_size"] == {"6 to 20": 1}
-    assert described["net_change_of_the_largest"] == {}
+    assert described["changed_by_canvass_and_size"] == {
+        "collation": {"1 vote": 1}, "recount": {"2 to 10": 1},
+    }  # fmt: skip
+    assert described["net_change_where_a_figure_changed_by_more_than_100"] == {}
     assert described["stations_with_a_canvass_but_no_count"] == 1
     assert described["stations_with_a_count_but_no_canvass"] == 0
 
@@ -308,6 +310,38 @@ def test_cli_replay_reports_both_sums_and_writes_the_statements(tmp_path, capsys
     assert report["as_standing"]["candidatures"]["PVEM-MORENA"] == 17 + 193 + 10 + 17 + 185 + 13
     assert report["between_the_two_acts"]["stations_whose_figures_changed"] == 1
     assert report["statements_written"] == 4 and len(out.read_text().splitlines()) == 4
+
+
+def test_cli_replay_compares_with_official_totals_from_another_source(tmp_path, capsys):
+    recounted = [74, 11, 17, 42, 185, 3, 13, 1, 17]
+    prep = write_prep(tmp_path, [prep_row(A, VOTES_A), prep_row(B, VOTES_B), prep_row(C, VOTES_A)])
+    computos = write_computos(
+        tmp_path,
+        [
+            computos_row(A, VOTES_A),
+            computos_row(B, recounted, note="Recuento (Para recuento-SC)"),
+            computos_row(C, ["-"] * 9, note="Paquete no recibido"),
+        ],
+    )
+    both = [a + b for a, b in zip(VOTES_A, recounted)]
+    totals = OfficialTotals(
+        profile="mx/lgipe/v0.1", election="mx/presidencia/2024-06", merge=MERGE,
+        areas={"mx": AreaTotals(
+            blank=0, null=both[8], other={"unregistered": both[7]},
+            candidatures={"MC": both[3], "PAN-PRI": both[0] + both[1] + both[5],
+                          "PVEM-MORENA": both[2] + both[4] + both[6]},
+        )},
+    )  # fmt: skip
+    path = tmp_path / "official.json"
+    path.write_text(json.dumps(totals.to_dict()), encoding="utf-8")
+    code = main(["mx", "replay", "--prep", prep, "--computos", computos,
+                 "--election", "2024-06", "--official", str(path)])  # fmt: skip
+    found = json.loads(capsys.readouterr().out)["against_the_official_totals"]
+    # The canvass adds up to the official totals. The standing sum does not:
+    # the count of station C stands, because the canvass has no figures for it.
+    assert found["statements_of_the_canvass_alone"]["matches"] is True
+    assert found["as_standing"]["matches"] is False and found["official_matches"] == "neither"
+    assert code == 1
 
 
 def test_cli_replay_fails_when_a_file_does_not_add_up_to_its_own_header(tmp_path, capsys):
