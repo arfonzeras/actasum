@@ -111,13 +111,21 @@ jurors. None of that is read or stored.
 5. E-14 forms are scanned handwriting. Nothing here transcribes them. Bulk
    download of the scans is offered to parties and observer missions with
    credentials, not to the public; the site's terms of use have not been read.
-6. The legal basis (Código Electoral, Ley 1475 de 2011, resolutions of the
-   Consejo Nacional Electoral) has not been read. The profile's name was
-   checked on 11 October 2026 against one document only: the Registraduría's
-   handbook for scrutiny commissions of the 2026 presidential election, read
-   through an automatic extract, bases them on the Código Electoral (Decreto
-   Ley 2241 de 1986, articles 134 to 193) and on Ley 1475 de 2011 (articles
-   41 to 45), and mentions no newer code. The description in section 1
+6. **The law has not been read.** The profile is named after the Código
+   Electoral.
+   - Articles read in the official text: **none**.
+   - The only check made, on 11 October 2026: an automatic extract of the
+     Registraduría's handbook for scrutiny commissions of the 2026
+     presidential election says it rests on the Código Electoral (Decreto Ley
+     2241 de 1986, articles 134 to 193) and on Ley 1475 de 2011 (articles 41
+     to 45), and mentions no newer code. That is a summary of a handbook,
+     not a reading of the law.
+   - Not looked up: which version of each was in force on 31 May 2026.
+   - Nothing in this profile states what the law says. Section 1 rests on
+     the Registraduría's own explanatory document and on the records.
+
+   **Before publication:** read, in the official text in force on election
+   day, the articles this profile relies on, and list them here. The description in section 1
    rests on the Registraduría's own explanatory document and on the records.
 7. Whether a withdrawn candidate's votes must become unmarked votes is taken
    from what the record shows the commission did, not from the rule.

@@ -142,10 +142,12 @@ this profile, in the order of how much they matter.
    that is kept: the distinction goes under `extra.recount`, a key shared
    across profiles, where the verifier does not look.
 5. **A count that nothing replaced.** For 16 stations the PREP has a tally
-   sheet and the Cómputos file has no figures (package not received) or no
-   row. The core leaves their count standing, so the standing sum is the
-   canvass plus those 16 stations and does not equal the official result,
-   which does not include them.
+   sheet and the Cómputos file has a row with `-` in every vote cell and
+   `Paquete no recibido` as its observation. Such a row gives no statement,
+   so nothing replaces the count and the core leaves it standing: the
+   standing sum is the canvass plus those 16 counts, and does not equal the
+   official result, which does not include them. Known limit; the core has
+   no way for a later act to say "no figures".
 6. **Totals printed in the files are only a grand total.** The core's
    official totals need figures per candidature, so the files' own headers
    cannot be used as official totals; the header check is done by this
@@ -158,13 +160,22 @@ this profile, in the order of how much they matter.
 
 ## 7. Known gaps and unverified assumptions
 
-1. The profile is named after the *Ley General de Instituciones y
-   Procedimientos Electorales* (LGIPE). An automatic extract of a
-   non-official copy of the law places the district canvass in its Book
-   Five, Title Four, Chapter III, articles 309 to 318, with collation and
-   recount in article 311 and the presidential canvass in article 314. The
-   official text has not been read, and the rules for the PREP have not been
-   looked up. Section 1 rests on the INE's two manuals.
+1. **The law has not been read.** The profile is named after the *Ley
+   General de Instituciones y Procedimientos Electorales* (LGIPE), by
+   analogy with the other profiles.
+   - Articles read in the official text: **none**.
+   - The only check made: an automatic extract of a non-official copy of the
+     law (Justia) places the district canvass in articles 309 to 318, with
+     collation and recount in article 311 and the presidential canvass in
+     article 314. That is a search summary, not a reading.
+   - Not looked up at all: the rules for the PREP, for the tally sheet and
+     for the vote from abroad, and which version of the law was in force on
+     2 June 2024.
+   - Nothing in this profile states what the law says. Section 1 rests on
+     the INE's two manuals and says so.
+
+   **Before publication:** read, in the official text in force on election
+   day, the articles this profile relies on, and list them here.
 2. One election, one pair of files: the PREP as generated on 3 June 2024 at
    20:05 and the Cómputos as generated on 8 June 2024 at 20:30. Whether these
    are the last versions the INE published has not been checked.

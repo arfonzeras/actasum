@@ -42,7 +42,7 @@ for null votes.
 | The PREP's rows add up to the totals it prints | Yes |
 | The Cómputos rows add up to the totals it prints | Yes |
 | The statements of the canvass add up to the INE's press statement | Yes, in the three candidatures, unregistered candidates and null votes |
-| The core's standing sum equals that press statement | No: it also holds 16 stations the canvass has no figures for |
+| The core's standing sum equals that press statement | No: it also holds the count of 16 stations the canvass file has no figures for |
 | Stations with a statement of both acts | 158,956 |
 | Of them, with no figure changed among those both acts read | 56,681 |
 | Of them, with at least one figure changed | 102,275 |
@@ -89,14 +89,47 @@ It does not show that either reflects the tally sheets.
 The verifier's own answer is that the official totals match **neither** sum:
 
 - **As counted**, the sums are lower bounds for null votes and for the three
-  candidatures, because of the unread cells, and none exceeds the official
-  figure. Unregistered candidates do: the PREP statements add up to 84,997
-  against 83,114.
-- **As standing**, every figure is slightly above the official one, by 5,265
-  ballots in all. The standing sum holds the canvass and, in addition, the
-  PREP count of 16 stations for which the Cómputos file has no figures
-  (package not received) or no row. Nothing replaced those counts, so the
-  core leaves them standing; the official result does not include them.
+  candidatures, because of the unread cells. None exceeds the official
+  figure, so nothing is said about them. Unregistered candidates do: the
+  PREP statements add up to at least 84,997 against 83,114, at least 1,883
+  above.
+- **As standing**, every figure is above the official one, by 5,265 ballots
+  in all: 203 null votes and 512 for `MC`, and at least 1,305, 3,235 and 10
+  for the other three items, which are lower bounds. The standing sum holds
+  the canvass and, in addition, the PREP count of the 16 stations listed
+  below.
+
+## Stations with a count and no figures in the canvass
+
+16 stations have a statement of the count and none of the canvass. All 16
+have a row in the Cómputos file. In each, every vote cell holds `-`,
+`TOTAL_VOTOS_CALCULADOS` is `0`, and `OBSERVACIONES` holds the text in the
+last column:
+
+| Station | Ballots read in the PREP | Cells unread in the PREP | `OBSERVACIONES` in the Cómputos file |
+| --- | --- | --- | --- |
+| `mx/07/0119/B0100` | 104 | 0 | `Paquete no recibido` |
+| `mx/07/0120/B0100` | 161 | 0 | `Paquete no recibido` |
+| `mx/07/0894/E0100` | 340 | 0 | `Paquete no recibido` |
+| `mx/08/1139/E0100` | 222 | 6 | `Paquete no recibido` |
+| `mx/08/1139/E0101` | 249 | 0 | `Paquete no recibido` |
+| `mx/13/0264/C0500` | 292 | 0 | `Paquete no recibido` |
+| `mx/13/0265/B0100` | 394 | 0 | `Paquete no recibido` |
+| `mx/13/0270/B0100` | 383 | 0 | `Paquete no recibido` |
+| `mx/13/0273/C0300` | 355 | 0 | `Paquete no recibido` |
+| `mx/13/0273/C0400` | 351 | 0 | `Paquete no recibido` |
+| `mx/14/1466/B0100` | 322 | 7 | `Paquete no recibido (Para recuento-SRA)` |
+| `mx/16/0245/B0100` | 340 | 0 | `Paquete no recibido` |
+| `mx/20/0943/B0100` | 467 | 0 | `Paquete no recibido` |
+| `mx/20/0943/C0100` | 475 | 0 | `Paquete no recibido` |
+| `mx/21/0870/C0100` | 369 | 0 | `Paquete no recibido` |
+| `mx/21/2764/B0100` | 441 | 3 | `Paquete no recibido` |
+
+The reader gives no statement to a row without figures. With no statement of
+a later act, the core leaves the count of these stations standing, and their
+5,265 ballots enter the standing sum. The other 129 rows of the Cómputos
+file without figures belong to stations that have no statement of the count
+either.
 
 ## What gives no statement
 
@@ -158,7 +191,7 @@ for unregistered candidates, where a sheet often has nothing written.
 | As standing | 170,637 | at least 60,120,449 |
 
 Both are lower bounds. The count has unread cells in 20,160 statements; the
-standing sum in 3, among the 16 stations whose count nothing replaced. The
+standing sum in 3, among the 16 stations listed above. The
 two sums are over different sets of stations and cannot be subtracted from
 each other.
 

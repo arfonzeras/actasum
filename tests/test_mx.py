@@ -336,7 +336,12 @@ def test_cli_replay_compares_with_official_totals_from_another_source(tmp_path, 
     path.write_text(json.dumps(totals.to_dict()), encoding="utf-8")
     code = main(["mx", "replay", "--prep", prep, "--computos", computos,
                  "--election", "2024-06", "--official", str(path)])  # fmt: skip
-    found = json.loads(capsys.readouterr().out)["against_the_official_totals"]
+    report = json.loads(capsys.readouterr().out)
+    assert report["stations_with_a_count_but_no_canvass"] == [
+        {"station": "mx/01/0339/B0100", "ballots_read_in_the_count": sum(VOTES_A),
+         "figures_unread_in_the_count": 0, "the_canvass_file_says": "Paquete no recibido"}
+    ]  # fmt: skip
+    found = report["against_the_official_totals"]
     # The canvass adds up to the official totals. The standing sum does not:
     # the count of station C stands, because the canvass has no figures for it.
     assert found["statements_of_the_canvass_alone"]["matches"] is True

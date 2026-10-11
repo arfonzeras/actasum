@@ -174,6 +174,7 @@ def _mx_replay(args) -> int:
     report: dict = {"files": []}
     statements = []
     counts: dict[str, str] = {}
+    no_figures: dict[str, str] = {}
     headers_ok = True
     codes: list[str] = []
     for path, kind in ((args.prep, mx_ine.PREP), (args.computos, mx_ine.COMPUTOS)):
@@ -190,6 +191,7 @@ def _mx_replay(args) -> int:
             counts = reading.identifiers
         else:
             reading = mx_ine.read_computos(table, args.election, counts)
+            no_figures = reading.no_figures
         statements.extend(reading.statements)
         entry: dict = {
             "file": table.path,
@@ -242,6 +244,17 @@ def _mx_replay(args) -> int:
     report["as_standing"] = totals(resolution.standing)
     report["between_the_two_acts"] = mx_ine.describe(resolution, merge)
     report["unread_figures_against_the_canvass"] = mx_ine.unread_against_canvass(resolution)
+    # Their count is left standing by the core: nothing replaces it.
+    report["stations_with_a_count_but_no_canvass"] = [
+        {
+            "station": s.station,
+            "ballots_read_in_the_count": s.ballots,
+            "figures_unread_in_the_count": len(s.unread),
+            "the_canvass_file_says": no_figures.get(s.station, "no row for this station"),
+        }
+        for s in resolution.standing
+        if s.stage == "count" and args.computos
+    ]
     matched = True
     if args.official:
         with open(args.official, encoding="utf-8") as handle:
@@ -254,11 +267,11 @@ def _mx_replay(args) -> int:
                 "undecided": found.undecided,
                 "differences": [
                     {"item": d.item, "recomputed": d.recomputed, "official": d.official,
-                     "delta": d.delta}
+                     "difference": d.describe_delta}
                     for d in found.differences
                 ],
-                "lower_bounds": [
-                    {"item": b.item, "at_least": b.at_least, "official": b.official,
+                "nothing_is_said_about": [
+                    {"item": b.item, "recomputed_at_least": b.recomputed, "official": b.official,
                      "statements_with_the_figure_unread": b.statements}
                     for b in found.bounds
                 ],

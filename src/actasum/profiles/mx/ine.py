@@ -217,6 +217,8 @@ class Reading:
     unread_cells: Counter = field(default_factory=Counter)
     # PREP only: tally sheets whose written total is not the sum of their figures.
     stated_total_differs: int = 0
+    # Cómputos only: station -> what the file says of a row without figures.
+    no_figures: dict[str, str] = field(default_factory=dict)
     # PREP only: ballots in the rows left out as STATE_WIDE.
     state_wide_ballots: int = 0
     # Station -> identifier of its statement, to chain a later act to it.
@@ -363,6 +365,7 @@ def read_computos(
             if any(text != "-" for text in unknown.values()) or known:
                 raise FormatError(f"{table.path}: {station}: figures are not numbers")
             reading.left_out[row["OBSERVACIONES"] or "no figures"] += 1
+            reading.no_figures[station] = row["OBSERVACIONES"]
             continue
         extra: dict = {"observation": row["OBSERVACIONES"]}
         recount = recounted(row["OBSERVACIONES"])
