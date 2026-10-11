@@ -86,8 +86,9 @@ actasum es replay --mesa 02202307_MESA.zip --level municipality
 
 También se leen las municipales (`04…_MESA.zip`) y las europeas
 (`07…_MESA.zip`), con el municipio y el país entero como circunscripción. Esa
-parte sigue el diseño de registro del Ministerio y aún no se ha ejecutado con
-ficheros reales. Para un primer vistazo a un ZIP:
+momento se ha ejecutado una elección de cada tipo; véase
+[`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md)
+(en inglés). Para un primer vistazo a un ZIP:
 
 ```sh
 actasum es describe --mesa 07202406_MESA.zip

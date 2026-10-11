@@ -50,6 +50,7 @@ difference does not say which published figure is right.
 | [`docs/spec/witness.md`](docs/spec/witness.md) | Signed checkpoints and witnesses that cosign them |
 | [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](docs/spec/profile-es.es.md)) |
 | [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
+| [`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md) | Runs on one European Parliament election and one local election |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
 | `tests/` | Tests on synthetic data |
@@ -83,8 +84,9 @@ actasum es replay --mesa 02202307_MESA.zip --level municipality
 
 Local elections (`04…_MESA.zip`) and European Parliament elections
 (`07…_MESA.zip`) are read too, with the municipality and the whole country as
-constituency. That part follows the Ministry's layout document and has not
-been run on real files yet. For a first look at a ZIP:
+constituency. One election of each type has been run so far; see
+[`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md).
+For a first look at a ZIP:
 
 ```sh
 actasum es describe --mesa 07202406_MESA.zip

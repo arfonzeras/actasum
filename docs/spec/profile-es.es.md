@@ -18,10 +18,10 @@ Electoral General (LOREG).
 - Admitidas y ejecutadas con ficheros reales: elecciones al Congreso de los
   Diputados (tipo de elección `02` del Ministerio), donde la circunscripción
   es la provincia. Ceuta y Melilla tienen su propio código de provincia.
-- Implementadas, aún sin ejecutar con ficheros reales: municipales (tipo
+- Admitidas y ejecutadas con un fichero real cada una: municipales (tipo
   `04`), donde la circunscripción es el municipio, y europeas (tipo `07`),
-  donde la circunscripción es todo el país. Véase la sección 3.3 del texto
-  en inglés.
+  donde la circunscripción es todo el país. Véanse la sección 3.3 del texto
+  en inglés y [`../findings/es-other-elections.md`](../findings/es-other-elections.md).
 - No admitidas: Senado (se vota a candidatos, no a candidaturas),
   autonómicas (leyes y modelos de acta propios), cabildos y referéndums.
 
