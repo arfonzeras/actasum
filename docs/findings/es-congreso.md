@@ -127,6 +127,15 @@ RaTDqfj7aHzjaTdadU8GJq9omf6di07amxCw3DARqAc=
 ```
 
 The 59,607 entries are the 59,555 polling stations plus the 52 overseas rows.
+The source file `02201911_MESA.zip` had SHA-256
+`e7b621f295d7bf79b794941d4f11e7bcf7bd971ecbd6eb21dd4269d59926e441`; every
+entry carries that hash as its evidence.
+
+Two checks were run on that log the same day. An inclusion proof for station
+`es/04/003/02/001/B` (entry 0) verified against the checkpoint. And after
+changing one figure in a copy of the log, the tool refused to open the copy,
+reporting the same size but a different root.
+
 Anyone who starts from the same ZIP file and the same version of the format
 should obtain the same three lines. The checkpoint is not signed; it is
 recorded here so that the computation can be repeated, not as an attestation.
