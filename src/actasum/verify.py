@@ -100,6 +100,34 @@ class Inconsistent:
 
 
 @dataclass(frozen=True)
+class CountedAs:
+    """Votes of a candidature compared as another item, because the official
+    totals declare that they count them so (``OfficialTotals.count_as``)."""
+
+    area: str
+    candidature: str
+    counted_as: str  # "null", "blank" or "other:<category>"
+    votes: int
+    statements: int  # statements that give the candidature a figure
+    unread: int = 0  # statements that could not read it
+
+    def describe(self) -> str:
+        def count(n: int, noun: str) -> str:
+            return f"{n} {noun}" if n == 1 else f"{n} {noun}s"
+
+        unread = (
+            f"; at least that many, since {count(self.unread, 'statement')} could not read it"
+            if self.unread
+            else ""
+        )
+        return (
+            f"{self.area}: {count(self.votes, 'vote')} of candidature {self.candidature}, "
+            f"from {count(self.statements, 'statement')}, compared as {self.counted_as}, "
+            f"because the official totals declare that they count them so{unread}"
+        )
+
+
+@dataclass(frozen=True)
 class Conflict:
     """Statements about the same act of the same station that do not agree."""
 
@@ -355,6 +383,8 @@ class Report:
     station_issues: list[StationIssue] = field(default_factory=list)
     missing_official: list[str] = field(default_factory=list)  # in statements only
     missing_statements: list[str] = field(default_factory=list)  # in official only
+    # Votes compared as another item because the official totals say so.
+    counted_as: list[CountedAs] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -447,6 +477,23 @@ class Report:
             ],
             "areas_without_official_totals": self.missing_official,
             "areas_without_statements": self.missing_statements,
+            **(
+                {
+                    "counted_as_the_official_totals_declare": [
+                        {
+                            "area": c.area,
+                            "candidature": c.candidature,
+                            "counted_as": c.counted_as,
+                            "votes": c.votes,
+                            "statements": c.statements,
+                            "statements_with_the_figure_unread": c.unread,
+                        }
+                        for c in self.counted_as
+                    ]
+                }
+                if self.counted_as
+                else {}
+            ),
         }
 
 
@@ -487,18 +534,23 @@ def aggregate(
     statements: Iterable[Statement],
     grouping: str = GROUP_BY_CONSTITUENCY,
     merge: dict[str, str] | None = None,
+    count_as: dict[str, str] | None = None,
 ) -> dict[str, AreaTotals]:
     """Sum statements by area.
 
     ``merge`` maps a candidature code to the code its votes are added to.
+    ``count_as`` maps a candidature code to the item its votes are added to
+    instead: ``null``, ``blank`` or ``other:<category>``. What was moved is
+    kept in ``AreaTotals.counted_as``.
     """
     merge = merge or {}
+    count_as = count_as or {}
     sums: dict[str, dict] = {}
     for statement in statements:
         bucket = sums.setdefault(
             area_of(statement, grouping),
             {"blank": 0, "null": 0, "stations": 0, "candidatures": {}, "other": {}, "unread": {},
-             "absent": {}, "present": {}},
+             "absent": {}, "present": {}, "moved": {}},
         )  # fmt: skip
         for item in statement.not_on_sheet:
             bucket["absent"][item] = bucket["absent"].get(item, 0) + 1
@@ -506,12 +558,19 @@ def aggregate(
             bucket["present"][item] = bucket["present"].get(item, 0) + 1
         bucket["blank"] += statement.blank or 0
         bucket["null"] += statement.null or 0
+        some_candidature_unread = False
         for item in statement.unread:
             if item.startswith("candidature:"):
                 code = item.removeprefix("candidature:")
-                item = "candidature:" + merge.get(code, code)
+                if code in count_as:
+                    moved = bucket["moved"].setdefault(code, [count_as[code], 0, 0, 0])
+                    moved[3] += 1
+                    item = count_as[code]
+                else:
+                    item = "candidature:" + merge.get(code, code)
+                    some_candidature_unread = True
             bucket["unread"][item] = bucket["unread"].get(item, 0) + 1
-        if any(item.startswith("candidature:") for item in statement.unread):
+        if some_candidature_unread:
             # Statements, not figures, behind the bound on the candidature total.
             bucket["unread"]["candidature_total"] = (
                 bucket["unread"].get("candidature_total", 0) + 1
@@ -521,6 +580,17 @@ def aggregate(
         if statement.unit == "station":
             bucket["stations"] += 1
         for code, votes in statement.candidatures.items():
+            if code in count_as:
+                target = count_as[code]
+                moved = bucket["moved"].setdefault(code, [target, 0, 0, 0])
+                moved[1] += votes
+                moved[2] += 1
+                if target.startswith("other:"):
+                    name = target.removeprefix("other:")
+                    bucket["other"][name] = bucket["other"].get(name, 0) + votes
+                else:
+                    bucket[target] += votes
+                continue
             code = merge.get(code, code)
             bucket["candidatures"][code] = bucket["candidatures"].get(code, 0) + votes
     return {
@@ -538,6 +608,7 @@ def aggregate(
                 for item in value["absent"]
                 if value["present"].get(item)
             },
+            counted_as={code: tuple(moved) for code, moved in sorted(value["moved"].items())},
         )
         for key, value in sums.items()
     }
@@ -673,7 +744,7 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
         report.aggregates_left_out = len(statements) - len(kept)
         statements = kept
 
-    recomputed = aggregate(statements, official.grouping, official.merge)
+    recomputed = aggregate(statements, official.grouping, official.merge, official.count_as)
     report.missing_official = sorted(set(recomputed) - set(official.areas))
     report.missing_statements = sorted(set(official.areas) - set(recomputed))
 
@@ -740,6 +811,8 @@ def verify(statements: Iterable[Statement], official: OfficialTotals) -> Report:
                 mine.candidatures.get(code, 0),
                 theirs.candidatures.get(code, 0),
             )
+        for code, (item, votes, given, unread) in mine.counted_as.items():
+            report.counted_as.append(CountedAs(key, code, item, votes, given, unread))
         report.areas_checked += 1
         if not found and not open_sums and not undecided:
             report.areas_matching += 1
@@ -828,6 +901,15 @@ def format_report(
             f"{i.not_on_sheet} say the sheet has no such figure, {i.with_a_figure} give one "
             "or say it could not be read. Nothing is said about this item."
         )
+    if report.counted_as:
+        lines.append(
+            "Votes compared as another item, because the official totals declare that "
+            f"they count them so: {len(report.counted_as)}"
+        )
+        for c in report.counted_as[:limit]:
+            lines.append(f"  {c.describe()}")
+        if len(report.counted_as) > limit:
+            lines.append(f"  ... and {len(report.counted_as) - limit} more")
     if station_issues and report.station_issues:
         lines.append(
             f"Polling stations with internal inconsistencies: {len(report.station_issues)}"
@@ -843,6 +925,12 @@ def format_report(
                 "Not compared: " + ", ".join(sorted({n.item for n in report.not_comparable})) + "."
                 if report.not_comparable
                 else "Result: recomputed totals match the official totals."
+            )
+            + (
+                " Some votes were compared as another item because the official totals "
+                "declare that they count them so; see above."
+                if report.counted_as
+                else ""
             )
             if report.ok
             else "Result: undecided. Some sums are lower bounds, because figures could not "
