@@ -4,6 +4,9 @@
   "election": "br/presidente/2026-10-04",
   "level": "state",
   "grouping": "station-prefix/2",
+  "count_as": {
+    "28": "null"
+  },
   "areas": {
     "br/rr": {
       "candidatures": {
@@ -34,8 +37,9 @@
     "zip_sha256": "d3766b7ba1abba6ebbcb17b263f51ba60323af7c8f11b86f181c72f717f6ba26",
     "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_RR.zip",
     "transcription": "taken on 12 October 2026 from the PDF's own text layer (pdftotext), not typed and not read from an image; the twelve candidatures add up to the valid votes the report gives, and valid, null and blank votes to its total of votes, 332,772",
-    "candidatures": "Anexo IV, by candidate number; the report gives no figure for number 28, whose votes Anexo III destines as \"Nulo técnico\"",
+    "candidatures": "Anexo IV, by candidate number; the report gives no figure for number 28 (see count_as)",
     "null": "item 2.5.1 b) of the report: 4,595 null votes in the machines and 14 \"nulos técnicos\"",
-    "stations": "item 2.1.1: sections counted in electronic voting machines; the report also lists 108 sections aggregated to others"
+    "stations": "item 2.1.1: sections counted in electronic voting machines; the report also lists 108 sections aggregated to others",
+    "count_as": "Anexo III of the report: number 28, current status \"Renúncia\", destination of votes \"Nulo técnico\"; its summary counts those votes among the null votes (item 2.5.1 b)"
   }
 }

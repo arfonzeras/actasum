@@ -157,8 +157,8 @@ def test_not_a_ballot_box_report_file(tmp_path):
         tse.load(str(path))
 
 
-def official(tmp_path, candidatures, null):
-    doc = {
+def official(tmp_path, candidatures, null, **top):
+    doc = {**top,
         "spec": "actasum/official-totals/v0.1",
         "profile": "br/codigo-eleitoral/v0.1",
         "election": "br/presidente/2026-10-04",
@@ -185,8 +185,8 @@ def test_replay_matches_totals_that_add_up_the_same_way(tmp_path, capsys):
 
 
 def test_replay_reports_votes_the_totals_give_another_destination(tmp_path, capsys):
-    # The totals count the withdrawn candidate's vote as null: the verifier
-    # reports it as a difference and does not explain it.
+    # The totals count the withdrawn candidate's vote as null without saying
+    # so: the verifier reports it as a difference and does not explain it.
     bu = write(tmp_path / "b.csv", ROWS)
     totals = official(tmp_path, {"22": 310, "13": 90}, 9)
     assert main(["br", "replay", "--bu", bu, "--official", totals]) == 1
@@ -196,3 +196,14 @@ def test_replay_reports_votes_the_totals_give_another_destination(tmp_path, caps
         ("candidature_total", "+1"),
         ("candidature:28", "+1"),
     }
+
+
+def test_replay_with_the_reclassification_declared_matches_and_says_so(tmp_path, capsys):
+    bu = write(tmp_path / "b.csv", ROWS)
+    totals = official(tmp_path, {"22": 310, "13": 90}, 9, count_as={"28": "null"})
+    assert main(["br", "replay", "--bu", bu, "--official", totals]) == 0
+    found = json.loads(capsys.readouterr().out)["against_the_official_totals"]
+    assert found["matches"] is True
+    [moved] = found["counted_as_the_official_totals_declare"]
+    assert (moved["candidature"], moved["counted_as"], moved["votes"]) == ("28", "null", 1)
+    assert "because the official totals declare" in moved["said"]

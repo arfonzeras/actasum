@@ -366,6 +366,13 @@ def _br_replay(args) -> int:
                 for i in found.station_issues
             ],
         }  # fmt: skip
+        if found.counted_as:
+            # Never a silent match: what was compared as what, and why.
+            report["against_the_official_totals"]["counted_as_the_official_totals_declare"] = [
+                {"area": c.area, "candidature": c.candidature, "counted_as": c.counted_as,
+                 "votes": c.votes, "statements": c.statements, "said": c.describe()}
+                for c in found.counted_as
+            ]  # fmt: skip
         matched = found.ok
     if args.out:
         out = _open_out(args.out)

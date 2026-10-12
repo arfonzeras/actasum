@@ -10,10 +10,10 @@ printed ballot-box report has been looked at, and no Brazilian organisation
 has reviewed it.
 
 This profile was written to find out whether a fourth country fits the core
-format without changing it. The reader needed nothing the core lacks. The
-comparison with official totals shows one thing the core cannot express:
-official totals that give the votes of a candidature another destination
-(section 6, point 1). No change to the core has been made.
+format without changing it. It does not: the reader needed nothing the core
+lacks, but the official totals needed one change, `count_as`, for votes an
+authority counts as another item (section 6, point 1; core, sections 4.3
+and 8).
 
 ## 1. How the count travels
 
@@ -112,19 +112,19 @@ in Roraima has 32. Those figures are already public.
 
 ## 6. What did not fit the core
 
-1. **Votes the totalisation gives another destination.** In Roraima the
-   machines accepted votes for number 28, whose candidate withdrew according
-   to the official report. The machines' reports give those votes to the
-   candidate; the official report counts them as null ("nulo técnico"). The statement keeps what the machine's report says. The
-   verifier then reports a difference in three items (that candidature, null
-   votes and the candidature total), the same in size, and cannot say why.
-   In Roraima this is 14 votes for number 28.
+1. **Votes the totalisation gives another destination.** *Changed the
+   core.* In Roraima the machines accepted votes for number 28, whose
+   candidate withdrew according to the official report. The machines'
+   reports give those votes to the candidate; the official report counts
+   them as null ("nulo técnico"). The statement keeps what the machine's
+   report says. Without a way to declare the reclassification, the verifier
+   reported a difference of 14 in three items (that candidature, null votes
+   and the candidature total) and could not say why.
 
-   **Proposed change to the core, not made:** let official totals say that
-   they count the votes of a candidature as null, as `merge` already lets
-   them say that they count it under another candidature. The verifier would
-   then add up the statements the same way before comparing, and report the
-   reclassification instead of a difference. Awaiting a decision.
+   The official totals now declare it: `count_as: {"28": "null"}`, taken
+   from the report's annex III. The verifier counts those votes as null
+   before comparing, and its result always says so, with the votes and
+   statements concerned (core, section 4.3).
 2. **Official totals per state for a national office.** Solved without a
    change: `grouping: station-prefix/2`.
 3. **Sections that vote on another section's machine.** One report covers

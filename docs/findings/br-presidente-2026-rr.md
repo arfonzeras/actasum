@@ -1,12 +1,17 @@
 # Findings: Brazil, presidential election of 4 October 2026, first round, Roraima
 
+**One state of 27, and the vote from abroad is not included.** The official
+figures compared are those of the TSE's totalisation report for Roraima as
+issued on election night, which the report itself says are subject to
+change ("sujeito a modificações"). Nothing here is a result for Brazil.
+
 Run of 12 October 2026 on two files published by the Tribunal Superior
 Eleitoral (TSE), with `actasum` on branch `profile-br`:
 
 | File | Generated | SHA-256 |
 | --- | --- | --- |
 | Ballot-box reports, `bweb_1t_RR_051020261403.zip` | 5 October 2026, 14:03:43 (Brasília) | ZIP `b2833692aaa3b51e814b223206cf98b66c9d1a9faeb75ae2f914ae308fe847e2`; CSV inside `40544177c4a72deb5533d0d9ba099de351837710ff1eda254d8c014c7e5b1741` |
-| Totalisation report, `6257_RR_RORAIMA_2026_T1_PRESIDENTE.pdf`, inside `Relatorio_Resultado_Totalizacao_2026_RR.zip` | 4 October 2026, 20:13:45 | PDF `306c1fa7ff1637d5ac20d7df29314d7d543e2467346f8721dd15e4ba1c96005b`; ZIP `d3766b7ba1abba6ebbcb17b263f51ba60323af7c8f11b86f181c72f717f6ba26` |
+| Totalisation report, `6257_RR_RORAIMA_2026_T1_PRESIDENTE.pdf`, inside `Relatorio_Resultado_Totalizacao_2026_RR.zip` | issued 4 October 2026, 20:13:45; result as of 20:05:17 | PDF `306c1fa7ff1637d5ac20d7df29314d7d543e2467346f8721dd15e4ba1c96005b`; ZIP `d3766b7ba1abba6ebbcb17b263f51ba60323af7c8f11b86f181c72f717f6ba26` |
 
 The SHA-512 of the ballot-box ZIP file is the one the TSE publishes next to
 it (`4cde1919…a8dc5c6`). No hash published for the totalisation report was
@@ -34,29 +39,28 @@ machines counted correctly.
 | Sections whose votes add up to their turnout | All 1,519 |
 | Blank votes | Equal: 2,618 |
 | Each of the twelve candidatures in the report | Equal |
-| Null votes | 4,595 in the file, 4,609 in the report: 14 fewer |
-| Votes for candidatures | 325,559 in the file, 325,545 in the report: 14 more |
-| Number 28 | 14 votes in the file; no figure in the report |
+| Null votes | Equal, 4,609, with the 14 votes for number 28 counted as null, as the report declares |
+| Votes for candidatures | Equal, 325,545, on the same terms |
+| Verifier's answer | The official totals are the sum of the statements, with 14 votes of candidature 28 compared as null because the official totals declare it |
 
-## The difference of 14
-
-The verifier reports the three last lines as differences. It does not say
-why. The two files say this:
+## The 14 votes for number 28
 
 - The ballot-box file gives 14 votes to number 28, one in each of 14
-  sections, as votes for a candidate (`Nominal`).
+  sections, as votes for a candidate (`Nominal`). The statements keep that.
 - The report's annex III lists number 28 with *Renúncia* as its current
   status and *Nulo técnico* as the destination of its votes. Its summary
   gives 4,609 null votes: 4,595 "nulos na urna" and 14 "nulos técnicos".
+- The official totals transcribed from the report declare
+  `count_as: {"28": "null"}`. The verifier adds those 14 votes to null votes
+  before comparing, and says so in its result:
 
-The statements keep what the machines' reports say. The core has no way for
-official totals to say that they count a candidature's votes as null, so
-the reclassification shows as a difference. A change to the core that would
-let them say so is proposed in the profile, section 6, and has not been
-made.
+  > br/rr: 14 votes of candidature 28, from 14 statements, compared as null,
+  > because the official totals declare that they count them so
 
-Apart from those 14 votes, every figure of the report is the sum of the
-sections in the file.
+Without that declaration the same comparison gives three differences of 14
+(null votes, votes for candidatures and candidature 28), which the TSE's own
+report explains. The core could not express this before; `count_as` was
+added for it (core, sections 4.3 and 8).
 
 ## The two sums
 
@@ -82,9 +86,9 @@ election; the log holds Roraima only.
 
 ## What this run says about the format
 
-The reader needed nothing the core lacks. The one thing that did not fit is
-the destination of votes described above. Whether Brazil meets the stopping
-rule depends on whether that becomes a change to the core.
+Brazil did not enter without changing the core. The reader needed nothing
+new, but the official totals did: `count_as`, for votes an authority counts
+as another item (core, section 8). The stopping rule is not met.
 
 ## What is not known
 
