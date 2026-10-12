@@ -14,7 +14,7 @@
     actasum mx replay   --prep PRES_2024.csv --computos PRES_2024.csv --election 2024-06
                         [--official official.json] [--out statements.jsonl]
 
-    actasum br replay   --bu bweb_1t_RR_....zip [--official official.json]
+    actasum br replay   --bu bweb_1t_RR_....zip [--bu ...] [--official official.json ...]
                         [--out statements.jsonl]
 
     actasum log build       --statements statements.jsonl --out LOGDIR
@@ -315,42 +315,66 @@ def _mx_replay(args) -> int:
 
 
 def _br_replay(args) -> int:
-    """A TSE ballot-box report file to statements of the count, and a comparison."""
-    table = br_tse.load(args.bu)
-    reading = br_tse.read_bu(table, args.office)
-    statements = reading.statements
-    area = aggregate(statements).get(br_tse.COUNTRY)
-    report: dict = {
-        "file": {
-            "path": table.path,
-            "csv": table.name,
-            "sha256_of_the_csv": table.sha256,
-            "generated": table.generated,
-            "rows_of_this_office": reading.rows,
-        },
-        "election": statements[0].election if statements else None,
-        "statements": len(statements),
-        "sections_without_a_statement": dict(reading.left_out.most_common()),
-        "votes_in_sections_without_a_statement": dict(reading.votes_left_out.most_common()),
-        "sections_whose_report_covers_other_sections": reading.with_aggregated_sections,
-        "sections_whose_votes_are_not_their_turnout": reading.turnout_differs,
-        "sum_of_the_statements": {
+    """TSE ballot-box report files to statements of the count, and a comparison."""
+    statements = []
+    files = []
+    parties: dict[str, str] = {}
+    for path in args.bu:
+        table = br_tse.load(path)
+        reading = br_tse.read_bu(table, args.office)
+        statements.extend(reading.statements)
+        parties.update(reading.parties)
+        files.append(
+            {
+                "path": table.path,
+                "csv": table.name,
+                "sha256_of_the_csv": table.sha256,
+                "generated": table.generated,
+                "rows_in_the_file": reading.rows_in_file,
+                "rows_of_this_office": reading.rows,
+                "statements": len(reading.statements),
+                "sections_without_a_statement": dict(reading.left_out.most_common()),
+                "votes_in_sections_without_a_statement": dict(
+                    reading.votes_left_out.most_common()
+                ),
+                "sections_whose_report_covers_other_sections": reading.with_aggregated_sections,
+                "sections_whose_votes_are_not_their_turnout": reading.turnout_differs,
+            }
+        )
+    elections = sorted({s.election for s in statements})
+    if len(elections) > 1:
+        raise FormatError(f"the files belong to different elections: {elections}")
+    stations = [s.station for s in statements]
+    if len(set(stations)) != len(stations):
+        raise FormatError("a section appears in more than one file")
+
+    def summed(group) -> dict:
+        area = aggregate(group).get(br_tse.COUNTRY)
+        return {
             "stations": area.stations,
             "candidatures": dict(sorted(area.candidatures.items())),
             "blank": area.blank,
             "null": area.null,
             "ballots": area.candidature_total + area.blank + area.null,
-            "registered": sum(s.registered or 0 for s in statements),
-            "turnout": sum(s.extra.get("turnout", 0) for s in statements),
-        },
-        "party_of_each_candidature_number": dict(sorted(reading.parties.items())),
+            "registered": sum(s.registered or 0 for s in group),
+            "turnout": sum(s.extra.get("turnout", 0) for s in group),
+        }
+
+    report: dict = {
+        "files": files,
+        "election": elections[0] if elections else None,
+        "statements": len(statements),
+        "sum_of_the_statements": summed(statements),
+        "party_of_each_candidature_number": dict(sorted(parties.items())),
     }
     matched = True
-    if args.official:
-        with open(args.official, encoding="utf-8") as handle:
+    comparisons = []
+    for official in args.official or []:
+        with open(official, encoding="utf-8") as handle:
             totals = OfficialTotals.from_dict(json.load(handle))
         found = verify(statements, totals)
-        report["against_the_official_totals"] = {
+        comparisons.append({
+            "file": official,
             "source": totals.source,
             "areas_compared": sorted(totals.areas),
             "matches": found.ok,
@@ -365,15 +389,19 @@ def _br_replay(args) -> int:
                 {"station": i.station, "issue": i.code, "detail": i.detail}
                 for i in found.station_issues
             ],
-        }  # fmt: skip
+        })  # fmt: skip
         if found.counted_as:
             # Never a silent match: what was compared as what, and why.
-            report["against_the_official_totals"]["counted_as_the_official_totals_declare"] = [
+            comparisons[-1]["counted_as_the_official_totals_declare"] = [
                 {"area": c.area, "candidature": c.candidature, "counted_as": c.counted_as,
                  "votes": c.votes, "statements": c.statements, "said": c.describe()}
                 for c in found.counted_as
             ]  # fmt: skip
-        matched = found.ok
+        matched = matched and found.ok
+    if comparisons:
+        report["against_the_official_totals"] = (
+            comparisons[0] if len(comparisons) == 1 else comparisons
+        )
     if args.out:
         out = _open_out(args.out)
         try:
@@ -841,11 +869,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="a ballot-box report file (bweb_*.csv, or its ZIP) -> statements of the "
         "count, their sum, and a comparison with official totals",
     )
-    br_replay.add_argument("--bu", required=True, help="the bweb ZIP or CSV file of one state")
+    br_replay.add_argument(
+        "--bu", required=True, action="append",
+        help="the bweb ZIP or CSV file of one state; repeat for several states",
+    )  # fmt: skip
     br_replay.add_argument(
         "--office", default="1", help="office code in the file (default 1, president)"
     )
-    br_replay.add_argument("--official", help="official totals (JSON) to compare with")
+    br_replay.add_argument(
+        "--official", action="append",
+        help="official totals (JSON) to compare with; repeat to compare at several levels",
+    )  # fmt: skip
     br_replay.add_argument("--out", help="also write the statements to this file")
     br_replay.set_defaults(run=_br_replay)
 

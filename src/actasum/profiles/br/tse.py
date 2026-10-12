@@ -44,53 +44,78 @@ _COLUMNS = (
     "SG_UF", "NR_ZONA", "NR_SECAO", "CD_CARGO_PERGUNTA", "DT_PLEITO", "NR_TURNO",
     "CD_ELEICAO", "CD_TIPO_URNA", "DS_TIPO_URNA", "CD_TIPO_VOTAVEL", "NR_VOTAVEL",
     "QT_VOTOS", "QT_APTOS", "QT_COMPARECIMENTO", "DS_SECOES_AGREGADAS",
-    "DT_GERACAO", "HH_GERACAO",
+    "DT_GERACAO", "HH_GERACAO", "CD_MUNICIPIO",
 )  # fmt: skip
 # Fields that describe the section, not one recipient of votes: every row of a
 # section and office must give them the same value.
 _SECTION_FIELDS = (
     "DT_PLEITO", "NR_TURNO", "CD_ELEICAO", "CD_TIPO_URNA", "DS_TIPO_URNA",
-    "QT_APTOS", "QT_COMPARECIMENTO", "DS_SECOES_AGREGADAS",
+    "QT_APTOS", "QT_COMPARECIMENTO", "DS_SECOES_AGREGADAS", "CD_MUNICIPIO",
 )  # fmt: skip
 _NULL_TEXT = "#NULO#"
 
 
-@dataclass(frozen=True)
+@dataclass
 class Table:
-    """The rows of one ballot-box report file."""
+    """One ballot-box report file, not yet read.
+
+    The files are large (several GB for the largest states), so they are read
+    once, row by row, by ``read_bu``; the hash of the CSV and the time it was
+    generated are filled in by that pass.
+    """
 
     path: str
-    sha256: str  # of the CSV file itself, not of the ZIP around it
     name: str  # file name of the CSV
-    generated: str  # DT_GERACAO and HH_GERACAO, as the file gives them
-    rows: list[dict[str, str]]
+    columns: list[str]
+    sha256: str = ""  # of the CSV file itself, not of the ZIP around it
+    generated: str = ""  # DT_GERACAO and HH_GERACAO, as the file gives them
+
+    def open(self) -> io.RawIOBase:
+        if zipfile.is_zipfile(self.path):
+            archive = zipfile.ZipFile(self.path)
+            return archive.open(self.name)
+        return open(self.path, "rb")
 
 
-def load(path: str) -> Table:
-    """Read ``bweb_*.csv``, or the ZIP file the TSE publishes it in."""
+class _Hashing(io.RawIOBase):
+    """A binary stream that hashes what is read through it."""
+
+    def __init__(self, raw):
+        self.raw, self.hash = raw, hashlib.sha256()
+
+    def readable(self) -> bool:
+        return True
+
+    def readinto(self, buffer) -> int:
+        data = self.raw.read(len(buffer))
+        self.hash.update(data)
+        buffer[: len(data)] = data
+        return len(data)
+
+
+def _csv_name(path: str) -> str:
     if zipfile.is_zipfile(path):
         with zipfile.ZipFile(path) as archive:
             names = [n for n in archive.namelist() if n.lower().endswith(".csv")]
-            if len(names) != 1:
-                raise FormatError(f"{path}: expected one CSV file inside, found {len(names)}")
-            name, raw = names[0], archive.read(names[0])
-    else:
-        with open(path, "rb") as handle:
-            raw = handle.read()
-        name = path.replace("\\", "/").rsplit("/", 1)[-1]
-    digest = "sha256:" + hashlib.sha256(raw).hexdigest()
-    # The leiame: Latin 1, fields in quotes and separated by semicolons.
-    reader = csv.DictReader(io.StringIO(raw.decode("latin-1"), newline=""), delimiter=";")
-    missing = [c for c in _COLUMNS if c not in (reader.fieldnames or [])]
+        if len(names) != 1:
+            raise FormatError(f"{path}: expected one CSV file inside, found {len(names)}")
+        return names[0]
+    return path.replace("\\", "/").rsplit("/", 1)[-1]
+
+
+def load(path: str) -> Table:
+    """Open ``bweb_*.csv``, or the ZIP file the TSE publishes it in, and check
+    its columns. The rows are read by ``read_bu``."""
+    table = Table(path=path, name=_csv_name(path), columns=[])
+    with table.open() as raw:
+        # The leiame: Latin 1, fields in quotes and separated by semicolons.
+        text = io.TextIOWrapper(raw, encoding="latin-1", newline="")
+        header = next(csv.reader(text, delimiter=";"), [])
+    missing = [c for c in _COLUMNS if c not in header]
     if missing:
         raise FormatError(f"{path}: not a ballot-box report file; missing {missing}")
-    rows = list(reader)
-    if not rows:
-        raise FormatError(f"{path}: no rows")
-    generated = {f"{r['DT_GERACAO']} {r['HH_GERACAO']}" for r in rows}
-    if len(generated) != 1:
-        raise FormatError(f"{path}: rows generated at different times: {sorted(generated)}")
-    return Table(path=path, sha256=digest, name=name, generated=generated.pop(), rows=rows)
+    table.columns = header
+    return table
 
 
 def _number(text: str, what: str) -> int:
@@ -138,25 +163,52 @@ class Reading:
     with_aggregated_sections: int = 0
     # Party acronym per candidature number, as the file gives it.
     parties: dict[str, str] = field(default_factory=dict)
+    rows_in_file: int = 0  # all rows, of every office
 
 
 def read_bu(table: Table, office: str = "1") -> Reading:
     """One statement of the count per section whose machine was counted.
 
-    Rows of other offices are skipped. A section whose machine status is not
-    *Apurada* gives no statement; it is counted in ``left_out`` with the
-    status as the file writes it.
+    The file is read once. Rows of other offices are skipped. A section whose
+    machine status is not *Apurada* gives no statement; it is counted in
+    ``left_out`` with the status as the file writes it. The hash of the CSV
+    and the time it was generated are set on ``table``.
     """
     if office not in OFFICES:
         raise FormatError(f"office {office!r} is not supported by this profile version")
+    at = {name: table.columns.index(name) for name in _COLUMNS + ("SG_PARTIDO", "DS_TIPO_VOTAVEL")
+          if name in table.columns}  # fmt: skip
+    kept = [n for n in _COLUMNS + ("SG_PARTIDO", "DS_TIPO_VOTAVEL") if n in at]
+    office_at, width = at["CD_CARGO_PERGUNTA"], len(table.columns)
+    generated_at = (at["DT_GERACAO"], at["HH_GERACAO"])
     sections: dict[str, list[dict[str, str]]] = {}
     reading = Reading()
-    for row in table.rows:
-        if row["CD_CARGO_PERGUNTA"] != office:
-            continue
-        reading.rows += 1
-        key = station_id(row["SG_UF"], row["NR_ZONA"], row["NR_SECAO"])
-        sections.setdefault(key, []).append(row)
+    generated: set[str] = set()
+    with table.open() as raw:
+        hashing = _Hashing(raw)
+        text = io.TextIOWrapper(io.BufferedReader(hashing, 1 << 20), encoding="latin-1", newline="")
+        rows = csv.reader(text, delimiter=";")
+        next(rows)  # the header, read by load()
+        for fields in rows:
+            reading.rows_in_file += 1
+            if len(fields) != width:
+                raise FormatError(
+                    f"{table.path}: data line {reading.rows_in_file + 1}: "
+                    f"{len(fields)} columns, expected {width}"
+                )
+            generated.add(f"{fields[generated_at[0]]} {fields[generated_at[1]]}")
+            if fields[office_at] != office:
+                continue
+            reading.rows += 1
+            row = {name: fields[at[name]] for name in kept}
+            key = station_id(row["SG_UF"], row["NR_ZONA"], row["NR_SECAO"])
+            sections.setdefault(key, []).append(row)
+        table.sha256 = "sha256:" + hashing.hash.hexdigest()
+    if not reading.rows_in_file:
+        raise FormatError(f"{table.path}: no rows")
+    if len(generated) != 1:
+        raise FormatError(f"{table.path}: rows generated at different times: {sorted(generated)}")
+    table.generated = generated.pop()
     if not sections:
         raise FormatError(f"{table.path}: no rows for office {office}")
     for station, rows in sorted(sections.items()):

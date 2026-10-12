@@ -109,7 +109,10 @@ def test_one_statement_per_section_of_the_office(tmp_path):
 def test_reads_the_zip_and_hashes_the_csv_inside(tmp_path):
     from_zip = tse.load(write(tmp_path / "b.zip", ROWS, as_zip=True))
     from_csv = tse.load(write(tmp_path / "b.csv", ROWS))
+    # The file is read once, by read_bu, which also hashes it.
+    assert tse.read_bu(from_zip).statements == tse.read_bu(from_csv).statements
     assert from_zip.sha256 == from_csv.sha256
+    assert from_zip.sha256.startswith("sha256:") and len(from_zip.sha256) == 71
     assert from_zip.name == "bweb_1t_RR_051020261403.csv"
     assert from_zip.generated == "05/10/2026 14:03:43"
 
@@ -207,3 +210,60 @@ def test_replay_with_the_reclassification_declared_matches_and_says_so(tmp_path,
     [moved] = found["counted_as_the_official_totals_declare"]
     assert (moved["candidature"], moved["counted_as"], moved["votes"]) == ("28", "null", 1)
     assert "because the official totals declare" in moved["said"]
+
+
+def test_a_row_with_the_wrong_number_of_columns_is_refused(tmp_path):
+    rows = section(1, 1, {"22": 10, "null": 0})
+    rows[0] = rows[0][:-1]
+    with pytest.raises(FormatError, match="44 columns, expected 45"):
+        tse.read_bu(tse.load(write(tmp_path / "b.csv", rows)))
+
+
+def test_rows_generated_at_different_times_are_refused(tmp_path):
+    rows = section(1, 1, {"22": 10, "null": 0})
+    rows[1][COLUMNS.index("HH_GERACAO")] = "15:00:00"
+    with pytest.raises(FormatError, match="generated at different times"):
+        tse.read_bu(tse.load(write(tmp_path / "b.csv", rows)))
+
+
+def test_replay_reads_several_states_and_compares_at_several_levels(tmp_path, capsys):
+    other = [r[:] for r in section(2, 7, {"22": 5, "13": 6, "blank": 1, "null": 0})]
+    for r in other:
+        r[COLUMNS.index("SG_UF")] = "AC"
+    rr = write(tmp_path / "rr.csv", ROWS)
+    ac = write(tmp_path / "ac.csv", other)
+    states = official(tmp_path, {"22": 310, "13": 90}, 9, count_as={"28": "null"})
+    doc = json.loads(open(states, encoding="utf-8").read())
+    doc["areas"]["br/ac"] = {"candidatures": {"22": 5, "13": 6}, "blank": 1, "null": 0,
+                             "candidature_total": 11, "stations": 1}  # fmt: skip
+    (tmp_path / "states.json").write_text(json.dumps(doc), encoding="utf-8")
+    country = dict(doc, grouping="constituency",
+                   areas={"br": {"candidatures": {"22": 315, "13": 96}, "blank": 5, "null": 9,
+                                 "candidature_total": 411, "stations": 3}})  # fmt: skip
+    (tmp_path / "country.json").write_text(json.dumps(country), encoding="utf-8")
+    argv = ["br", "replay", "--bu", rr, "--bu", ac,
+            "--official", str(tmp_path / "states.json"), "--official", str(tmp_path / "country.json")]  # fmt: skip
+    assert main(argv) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert [f["statements"] for f in report["files"]] == [2, 1]
+    assert report["statements"] == 3
+    states_found, country_found = report["against_the_official_totals"]
+    assert states_found["areas_compared"] == ["br/ac", "br/rr"]
+    assert states_found["matches"] and country_found["matches"]
+    assert country_found["counted_as_the_official_totals_declare"][0]["votes"] == 1
+
+
+def test_a_section_in_two_files_is_refused(tmp_path, capsys):
+    rr = write(tmp_path / "rr.csv", ROWS)
+    again = write(tmp_path / "again.csv", ROWS)
+    assert main(["br", "replay", "--bu", rr, "--bu", again]) == 2
+    assert "more than one file" in capsys.readouterr().err
+
+
+def test_one_section_number_in_two_municipalities_is_refused(tmp_path):
+    # The identifier leaves the municipality out; the reader checks that it
+    # can.
+    rows = section(1, 1, {"22": 10, "null": 0})
+    rows[1][COLUMNS.index("CD_MUNICIPIO")] = "3026"
+    with pytest.raises(FormatError, match="CD_MUNICIPIO"):
+        tse.read_bu(tse.load(write(tmp_path / "b.csv", rows)))

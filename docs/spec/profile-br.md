@@ -1,8 +1,8 @@
 # Brazil profile (draft `br/codigo-eleitoral/v0.1`)
 
-Status: **draft, run on one state**: the presidential election of 4 October
-2026, first round, in Roraima (see
-[`../findings/br-presidente-2026-rr.md`](../findings/br-presidente-2026-rr.md)).
+Status: **draft, run on one election**: the presidential election of
+4 October 2026, first round, in every state and abroad (see
+[`../findings/br-presidente-2026.md`](../findings/br-presidente-2026.md)).
 Everything here was learnt from files of the Tribunal Superior Eleitoral
 (TSE), the `leiame` files inside them, the pages of the TSE's open-data portal
 and two TSE news articles. Nothing has been checked against the law, no
@@ -48,15 +48,17 @@ act on a section.
 Both rounds fall in the same month, so the election identifier carries the
 full date, taken from `DT_PLEITO`. A section number is unique within its
 electoral zone, and a zone number within its state: the municipality is not
-needed and is left out. In the Roraima file no section appears under more
-than one municipality.
+needed and is left out. The reader checks it: rows of one section that give
+two municipalities are refused. In the 28 files of the first round of 2026
+none did. Abroad, the state is `ZZ` and the identifier `br/zz/<zone>/<section>`.
 
 Only the presidential election (`CD_CARGO_PERGUNTA` 1) is supported. The same
 file carries the other offices of the same election day; their rows are
 skipped.
 
 Official totals given per state use `grouping: station-prefix/2`, so that a
-statement counts towards `br/<state>`.
+statement counts towards `br/<state>` (`br/zz` abroad). National totals use
+`grouping: constituency`, area `br`.
 
 ## 3. Source
 
@@ -69,7 +71,13 @@ as "Creative Commons Atribuição".
 According to the `leiame`: Latin 1; every field in quotes and separated by
 semicolons; `#NULO#` (text) or `-1` (number) for a value that is blank in the
 database. There is one row per section, office and recipient of votes
-(*votável*).
+(*votável*). A recipient with no votes has no row, as far as the files show:
+a section abroad in which nobody voted has no row at all.
+
+The files are large: from 1 MB (abroad) to 1.4 GB (São Paulo) compressed,
+and about six times that as CSV. The reader goes through each file once, row
+by row, keeps only the rows of the office read, and hashes the CSV on the
+way.
 
 | Column | Used as |
 | --- | --- |
@@ -79,6 +87,7 @@ database. There is one row per section, office and recipient of votes
 | `CD_TIPO_VOTAVEL` 2 (*Branco*) | `counts.blank` |
 | `CD_TIPO_VOTAVEL` 3 (*Nulo*) | `counts.null` |
 | `QT_APTOS` | `counts.registered` |
+| `CD_MUNICIPIO` | not copied; the reader checks that a section has one |
 | `QT_COMPARECIMENTO` | `extra.turnout`: the reader checks that the votes add up to it |
 | `DS_SECOES_AGREGADAS` | `extra.aggregated_sections`: other sections whose voters used this machine |
 | `CD_TIPO_URNA` | only 1 (*Apurada*) gives a statement |
@@ -102,27 +111,28 @@ load code and its memory card are technical.
 Statements copy numbers and codes only: no name of a person or a place.
 
 The file gives the registered voters of each section; the smallest section
-in Roraima has 32. Those figures are already public.
+in the first round of 2026 has 20. Those figures are already public.
 
 ## 5. What gives no statement
 
 | Sections | Why |
 | --- | --- |
-| Machine status other than *Apurada* (*Não apurada*, *Anulada e apurada em separado*, *Anulada*, *Não instalada*) | Counted and reported by status, with their votes. None in the Roraima file |
+| Machine status other than *Apurada* (*Não apurada*, *Anulada e apurada em separado*, *Anulada*, *Não instalada*) | Counted and reported by status, with their votes. None in the files of the first round of 2026 |
+| A section with no row in the file | Nothing to read. The 41 sections abroad the report gives as not installed, and one section abroad counted by the system for manual counting in which, according to the report, nobody voted |
 
 ## 6. What did not fit the core
 
 1. **Votes the totalisation gives another destination.** *Changed the
-   core.* In Roraima the machines accepted votes for number 28, whose
-   candidate withdrew according to the official report. The machines'
-   reports give those votes to the candidate; the official report counts
-   them as null ("nulo técnico"). The statement keeps what the machine's
-   report says. Without a way to declare the reclassification, the verifier
-   reported a difference of 14 in three items (that candidature, null votes
-   and the candidature total) and could not say why.
+   core.* The machines accepted votes for number 28, whose candidate withdrew
+   according to the official reports. The machines' reports give those votes
+   to the candidate; the official reports count them as null ("nulo
+   técnico"). The statement keeps what the machine's report says. Without a
+   way to declare the reclassification, the verifier reported, in Roraima, a
+   difference of 14 in three items (that candidature, null votes and the
+   candidature total) and could not say why.
 
    The official totals now declare it: `count_as: {"28": "null"}`, taken
-   from the report's annex III. The verifier counts those votes as null
+   from annex III of the reports. The verifier counts those votes as null
    before comparing, and its result always says so, with the votes and
    statements concerned (core, section 4.3).
 2. **Official totals per state for a national office.** Solved without a
@@ -130,6 +140,10 @@ in Roraima has 32. Those figures are already public.
 3. **Sections that vote on another section's machine.** One report covers
    them all and the file gives one row; the statement is of the main section
    and lists the others under `extra`.
+4. **A section in which nobody voted.** The file has no row for it, so it
+   gives no statement, and the verifier counts one section fewer than the
+   official totals. Left as it is: the profile does not make up a statement
+   the file does not give. It concerns one section abroad in 2026.
 
 ## 7. Known gaps and unverified assumptions
 
@@ -141,14 +155,19 @@ in Roraima has 32. Those figures are already public.
 
    **Before publication:** read, in the official text in force on election
    day, the articles this profile relies on, and list them here.
-2. One state of 27, and no vote from abroad (`ZZ`). One file, generated on
+2. One election, the first round of 2026: 28 files, all generated on
    5 October 2026 at 14:03:43 (Brasília time); the portal says the files are
    being updated.
 3. The file read is the TSE's publication of the reports, not the reports
    themselves. The signed files the machines transmitted and the QR codes of
    the printed reports have not been read.
-4. The only official totals compared are the TSE's own totalisation report
-   for the state, issued on election night and marked as subject to change.
+4. The only official totals compared are the TSE's own totalisation reports,
+   per state and national, which say they are subject to change. They were
+   read from the PDF's text layer.
 5. The TSE's per-section results file for president is published for the
    whole country (`votacao_secao_2026_BR.zip`) and has not been read; the
    per-section file of Roraima does not include the presidential election.
+6. Of the 31 sections the reports say were counted by the system for manual
+   counting (*Sistema de Apuração*), 30 appear in the files like the others,
+   as *Apurada*; the files do not tell them apart. The other one has no row
+   (section 6, point 4).
