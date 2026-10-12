@@ -184,6 +184,7 @@ existed keep their identifier.
 | `grouping` | string | no | How statements are assigned to areas (section 4.1). Default `constituency` |
 | `areas` | object | yes | Area identifier → totals |
 | `merge` | object | no | Candidature code → the code these totals report it under (section 4.2) |
+| `count_as` | object | no | Candidature code → the item these totals count its votes as: `null`, `blank` or `other:<category>` (section 4.3). Omitted when empty |
 | `source` | object | no | Where the totals come from |
 
 Totals for one area:
@@ -222,6 +223,31 @@ When `merge` is present, the verifier replaces each candidature code of a
 statement by the code `merge` gives for it, if any, before adding up. Statements
 themselves keep the code that appears on the tally sheet.
 
+### 4.3 Votes counted as another item
+
+An authority may count the votes cast for a candidature as null, blank or
+another category of ballots, for example the votes for a candidate who
+withdrew after the ballots or the voting machines were set. The tally sheet
+still gives those votes to the candidature, and the statement says what the
+sheet says.
+
+The official totals declare the reclassification in `count_as`: candidature
+code → `null`, `blank` or `other:<category>`. The verifier adds the votes the
+statements give to that candidature to the declared item instead, before
+comparing. A figure the statements could not read for that candidature makes
+the declared item a lower bound (section 5, step 6), not the candidature
+total.
+
+- A code MUST NOT be both in `merge` and in `count_as`.
+- An area MUST NOT give a figure of its own for a code in `count_as`.
+- The verifier MUST report every reclassification it applied, per area, with
+  the candidature, the item it was counted as, the votes and the number of
+  statements, and that it did so because the official totals declare it. A
+  result is never a match without saying so.
+
+The statements are not changed, and their identifiers do not depend on
+official totals.
+
 ## 5. Verification procedure
 
 Input: a set of statements and one official-totals document. Below, *area*
@@ -239,7 +265,9 @@ means whatever the document's `grouping` defines.
 4. The verifier sums `blank`, `null` and each candidature's votes per area,
    and counts the statements whose `unit` is `station`. Aggregates add their
    votes but are not counted as stations. For each item it also counts the
-   statements that list it in `counts.unread`.
+   statements that list it in `counts.unread`. Votes of a candidature in
+   `count_as` are added to the item declared there, and reported (section
+   4.3).
 5. For every area present on both sides it compares station count, blank,
    null, candidature total and each candidature. A candidature missing on one
    side counts as zero. Each mismatch is a *difference*, except as step 6
@@ -385,6 +413,7 @@ core, the change is listed here.
 | Mexico | Figures the source could not read | `counts.unread`, with a reason; a sum that includes one is a lower bound; a difference found against a lower bound is "at least" |
 | Mexico | A figure the tally sheet does not have (blank votes) | `counts.not_on_sheet`; `blank` and `null` optional in official totals; "not comparable" and "inconsistent" in the report |
 | Mexico | Official totals whose own source could not read a figure | `unread` in official totals; two lower bounds say nothing |
+| Brazil | Official totals that count a candidature's votes as null (a candidate who withdrew) | `count_as` in official totals: `null`, `blank` or `other:<category>`; the report always says what was counted as what, with the votes |
 
 The Mexico profile also showed things that were left as they are, and are
 known limits: one earlier statement replaced by several later ones, a later
@@ -417,5 +446,6 @@ complete. None is changed in this version.
 
 **Stopping rule.** Countries stop being added when one enters without a
 change to the core. Mexico did not meet it: it needed the three changes
-above. So far no country has been added without a change to the core, and
-another one is needed.
+above. Brazil did not meet it either: it needed `count_as`. So far no
+country has been added without a change to the core, and another one is
+needed.

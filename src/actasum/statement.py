@@ -395,6 +395,11 @@ class AreaTotals:
     # others say the sheet does not have it.
     not_on_sheet: dict[str, int] = field(default_factory=dict)
     contradicted: dict[str, int] = field(default_factory=dict)
+    # Only in totals recomputed from statements, under official totals that
+    # declare ``count_as``: candidature code -> (item it was counted as,
+    # votes moved, statements with a figure for it, statements that could
+    # not read it).
+    counted_as: dict[str, tuple[str, int, int, int]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         doc: dict[str, Any] = {"candidatures": dict(sorted(self.candidatures.items()))}
@@ -478,6 +483,12 @@ class OfficialTotals:
     # authority adds up several candidatures at this level, the verifier has
     # to add them up the same way before comparing.
     merge: dict[str, str] = field(default_factory=dict)
+    # Candidature codes whose votes these totals count as another item:
+    # code -> "null", "blank" or "other:<category>", as when the authority
+    # counts the votes for a candidate who withdrew as null. Statements keep
+    # what the sheet says; the verifier counts those votes the same way
+    # before comparing, and always reports that it did so.
+    count_as: dict[str, str] = field(default_factory=dict)
     source: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -491,6 +502,8 @@ class OfficialTotals:
         }
         if self.merge:
             doc["merge"] = dict(sorted(self.merge.items()))
+        if self.count_as:
+            doc["count_as"] = dict(sorted(self.count_as.items()))
         if self.source:
             doc["source"] = self.source
         return doc
@@ -507,12 +520,35 @@ class OfficialTotals:
             isinstance(k, str) and isinstance(v, str) for k, v in merge.items()
         ):
             raise FormatError("merge must map candidature codes to candidature codes")
+        count_as = doc.get("count_as") or {}
+        if not isinstance(count_as, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in count_as.items()
+        ):
+            raise FormatError("count_as must map candidature codes to items")
+        for code, item in count_as.items():
+            if item not in ("null", "blank") and not (
+                item.startswith(_ITEM_OTHER) and len(item) > len(_ITEM_OTHER)
+            ):
+                raise FormatError(
+                    f"count_as[{code}] must be null, blank or other:<category>, not {item!r}"
+                )
+            if code in merge:
+                raise FormatError(f"candidature {code} is both merged and counted as {item}")
+        parsed = {key: AreaTotals.from_dict(value) for key, value in areas.items()}
+        for key, area in parsed.items():
+            given = sorted(set(count_as) & set(area.candidatures))
+            if given:
+                raise FormatError(
+                    f"area {key}: candidature {given[0]} is counted as "
+                    f"{count_as[given[0]]} and cannot also have a figure of its own"
+                )
         return cls(
             profile=str(doc.get("profile", "")),
             election=str(doc.get("election", "")),
-            areas={key: AreaTotals.from_dict(value) for key, value in areas.items()},
+            areas=parsed,
             level=str(doc.get("level", "constituency")),
             grouping=str(doc.get("grouping", GROUP_BY_CONSTITUENCY)),
             merge=dict(merge),
+            count_as=dict(count_as),
             source=doc.get("source") or {},
         )

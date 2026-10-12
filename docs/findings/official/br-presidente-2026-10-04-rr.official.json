@@ -1,0 +1,45 @@
+{
+  "spec": "actasum/official-totals/v0.1",
+  "profile": "br/codigo-eleitoral/v0.1",
+  "election": "br/presidente/2026-10-04",
+  "level": "state",
+  "grouping": "station-prefix/2",
+  "count_as": {
+    "28": "null"
+  },
+  "areas": {
+    "br/rr": {
+      "candidatures": {
+        "13": 74420,
+        "14": 6623,
+        "16": 60,
+        "21": 42,
+        "22": 231322,
+        "27": 168,
+        "29": 34,
+        "30": 337,
+        "35": 41,
+        "55": 3639,
+        "70": 8579,
+        "80": 280
+      },
+      "blank": 2618,
+      "null": 4609,
+      "candidature_total": 325545,
+      "stations": 1519
+    }
+  },
+  "source": {
+    "kind": "official-publication",
+    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal 2026, Roraima, 1º Turno, Oficial; issued 4 October 2026, 20:13:45; result as of 4 October 2026, 20:05:17, which the report says is subject to change (\"sujeito a modificações\")",
+    "file": "6257_RR_RORAIMA_2026_T1_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_RR.zip",
+    "sha256": "306c1fa7ff1637d5ac20d7df29314d7d543e2467346f8721dd15e4ba1c96005b",
+    "zip_sha256": "d3766b7ba1abba6ebbcb17b263f51ba60323af7c8f11b86f181c72f717f6ba26",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_RR.zip",
+    "transcription": "taken on 12 October 2026 from the PDF's own text layer (pdftotext), not typed and not read from an image; the twelve candidatures add up to the valid votes the report gives, and valid, null and blank votes to its total of votes, 332,772",
+    "candidatures": "Anexo IV, by candidate number; the report gives no figure for number 28 (see count_as)",
+    "null": "item 2.5.1 b) of the report: 4,595 null votes in the machines and 14 \"nulos técnicos\"",
+    "stations": "item 2.1.1: sections counted in electronic voting machines; the report also lists 108 sections aggregated to others",
+    "count_as": "Anexo III of the report: number 28, current status \"Renúncia\", destination of votes \"Nulo técnico\"; its summary counts those votes among the null votes (item 2.5.1 b)"
+  }
+}
