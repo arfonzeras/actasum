@@ -31,16 +31,16 @@
   },
   "source": {
     "kind": "official-publication",
-    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal 2026, 1º Turno, Oficial, Resumo Geral do Brasil; it says its result is subject to change (\"sujeito a modificações\")",
+    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal, 1º Turno, Oficial, Resumo Geral do Brasil; it says its result is subject to change (\"sujeito a modificações\")",
+    "transcription": "taken from each PDF's own text layer with pdftotext -layout by `actasum br official`, not typed and not read from an image; the command refuses a report whose candidatures do not add up to its valid votes, whose valid, null and blank votes do not add up to its total, or whose null votes in the machines and \"nulos técnicos\" do not add up to its null votes; from the national summary and the national table of votes per candidate, not from the per-state summaries that follow them",
     "file": "6257_BR_BRASIL_2026_T1_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_BR.zip",
     "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_BR.zip",
     "pdf_sha256": "857b34f401c0344276bd4d67b105b30597b188f283635422e651698a5c942ef5",
     "zip_sha256": "2a91dc9308a58d4285e57c551b6d8df7ea01ff838230007585a91f1ef7975958",
     "issued": "07/10/2026 16:37:18",
     "result_as_of": "05/10/2026 - 12:51:05",
-    "transcription": "taken on 13 October 2026 from the PDF's own text layer (pdftotext -layout), from the national summary and the national table of votes per candidate, not from the per-state summaries that follow them",
     "null": "3669003 in the machines and 5246 \"nulos técnicos\"",
-    "count_as": "the national report gives number 28 no figure and has no annex III; the 28 reports of the states and abroad each give number 28 the destination \"Nulo técnico\", and their \"nulos técnicos\" add up to the national figure, 5,246",
-    "stations": "item 2.1, sections that functioned: 499176 counted in electronic machines and 31 by the Sistema de Apuração (SA); 41 not installed"
+    "stations": "item 2.1, sections that functioned: 499176 counted in electronic machines and 31 by the Sistema de Apuração (SA); 41 not installed",
+    "count_as": "the national report has no annex III; the reports of the states and abroad given declare it, and their 5,246 \"nulos técnicos\" add up to the national figure"
   }
 }

@@ -16,6 +16,8 @@
 
     actasum br replay   --bu bweb_1t_RR_....zip [--bu ...] [--official official.json ...]
                         [--out statements.jsonl]
+    actasum br official --report Relatorio_Resultado_Totalizacao_2026_RR.zip [--report ...]
+                        --round 1|2 [--states-out FILE] [--country-out FILE]
 
     actasum log build       --statements statements.jsonl --out LOGDIR
     actasum log append      --log LOGDIR --statements more.jsonl
@@ -55,6 +57,7 @@ from .log import (
     verify_inclusion_proof,
 )
 from .note import SignatureError
+from .profiles.br import relatorio as br_relatorio
 from .profiles.br import tse as br_tse
 from .profiles.co import escrutinio as co_escrutinio
 from .profiles.es import infoelectoral, seats as es_seats
@@ -413,6 +416,30 @@ def _br_replay(args) -> int:
     json.dump(report, stream, indent=2, ensure_ascii=False)
     stream.write("\n")
     return 0 if matched else 1
+
+
+def _br_official(args) -> int:
+    """TSE totalisation reports (ZIP files) to official totals."""
+    reports = [br_relatorio.read_zip(path, args.round) for path in args.report]
+    by_state, by_country = br_relatorio.official_totals(reports)
+    written = {}
+    for doc, path, what in ((by_state, args.states_out, "states"),
+                            (by_country, args.country_out, "country")):  # fmt: skip
+        if doc is None or not path:
+            continue
+        _write_json(doc, path)
+        written[what] = {"file": path, "areas": sorted(doc["areas"])}
+    summary = {
+        "reports": [
+            {"unit": r.unit, "file": r.file, "issued": r.issued, "result_as_of": r.result_as_of,
+             "count_as": r.count_as}
+            for r in reports
+        ],
+        "written": written,
+    }  # fmt: skip
+    json.dump(summary, sys.stdout, indent=2, ensure_ascii=False)
+    sys.stdout.write("\n")
+    return 0
 
 
 def _es_describe(args) -> int:
@@ -882,6 +909,20 @@ def build_parser() -> argparse.ArgumentParser:
     )  # fmt: skip
     br_replay.add_argument("--out", help="also write the statements to this file")
     br_replay.set_defaults(run=_br_replay)
+    br_official = br_commands.add_parser(
+        "official",
+        help="TSE presidential totalisation reports (Relatorio_Resultado_Totalizacao_*.zip) "
+        "-> official totals per state and for the country; needs pdftotext",
+    )
+    br_official.add_argument(
+        "--report", required=True, action="append",
+        help="a Relatorio_Resultado_Totalizacao_<year>_<UF>.zip file; repeat for each state, "
+        "ZZ and BR",
+    )  # fmt: skip
+    br_official.add_argument("--round", type=int, choices=[1, 2], required=True)
+    br_official.add_argument("--states-out", help="official totals per state and abroad")
+    br_official.add_argument("--country-out", help="official totals for the country (BR)")
+    br_official.set_defaults(run=_br_official)
 
     es = commands.add_parser("es", help="Spain profile: Ministry of the Interior files")
     es_commands = es.add_subparsers(dest="es_command", required=True)
