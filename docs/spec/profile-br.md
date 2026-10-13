@@ -101,6 +101,33 @@ proportional offices.
 `SG_PARTIDO` is reported per candidate number, for reading, and is not part
 of the statements.
 
+### 3.1 Official totals
+
+The official totals are the TSE's presidential totalisation reports,
+`Relatorio_Resultado_Totalizacao_<year>_<UF>.zip`, one per state, abroad
+(`ZZ`) and for the country (`BR`), each with one PDF per round.
+`actasum br official` reads them:
+
+```sh
+actasum br official --report Relatorio_Resultado_Totalizacao_2026_AC.zip [--report ...] \
+    --round 1 --states-out states.official.json --country-out brasil.official.json
+```
+
+It takes the PDF's own text layer with `pdftotext -layout` (Poppler), the
+only tool outside Python's standard library this profile needs, and only for
+this command. From each report it reads the summary, the votes per candidate
+and annex III, the destination of each candidate's votes. A report whose
+candidates do not add up to its valid votes, whose valid, null and blank
+votes do not add up to its total, or whose two kinds of null votes do not add
+up to its null votes, is refused. So is a destination other than *Válido*
+and *Nulo técnico*, until one is seen. `count_as` is what annex III
+declares; the national report has none, and takes the declarations of the
+state reports only when their "nulos técnicos" add up to its own.
+
+The official totals of the first round of 2026 in `docs/findings/official/`
+were written by this command; its figures are the same as those first taken
+from the same text by a script outside the repository.
+
 ## 4. Personal data
 
 According to the `leiame`, the only personal data in the file are the names
@@ -145,7 +172,29 @@ in the first round of 2026 has 20. Those figures are already public.
    official totals. Left as it is: the profile does not make up a statement
    the file does not give. It concerns one section abroad in 2026.
 
-## 7. Known gaps and unverified assumptions
+## 7. The second round
+
+The second round is on 25 October 2026. Nothing is run before the TSE
+publishes its files. When it does:
+
+1. Download the ballot-box files of the second round,
+   `bweb_2t_<UF>_<generated>.zip`, with their `.sha512`, taking the links
+   from the dataset page (their names carry the time they were generated,
+   unknown until then), and the 29 report ZIP files again. Check every
+   SHA-512.
+2. Check that each report ZIP has a presidential report of round 2
+   (`_T2_PRESIDENTE.pdf`), and compare the hash of its round-1 report with
+   the one recorded in the official totals of the first round. A changed
+   report of round 1 is reported, not silently used.
+3. `actasum br official --round 2`, then `actasum br replay` with the 28
+   files. The election identifier comes from the files: `br/presidente/2026-10-25`.
+4. What may differ from the first round, and is checked rather than
+   assumed: the number of candidates; whether any annex III declares a
+   destination other than *Válido*; sections with no row; and rows for
+   other offices, such as governor where a state has a second round, which
+   the reader skips.
+
+## 8. Known gaps and unverified assumptions
 
 1. **The law has not been read.** The profile is named after the *Código
    Eleitoral*, by analogy with the Colombia profile.

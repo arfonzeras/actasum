@@ -571,9 +571,9 @@
   },
   "source": {
     "kind": "official-publication",
-    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal 2026, 1º Turno, Oficial: the presidential report of each of the 26 states, the Distrito Federal and abroad (ZZ). Each says its result is subject to change (\"sujeito a modificações\")",
-    "transcription": "taken on 13 October 2026 from each PDF's own text layer (pdftotext -layout), not typed and not read from an image; in every report the candidatures add up to the valid votes, valid, null and blank votes to the total of votes, and null votes in the machines plus \"nulos técnicos\" to null votes",
-    "count_as": "in every one of the 28 reports, annex III gives number 28 the destination \"Nulo técnico\", and no figure of its own in annex IV",
+    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal, 1º Turno, Oficial: the presidential report of each state and abroad given; each says its result is subject to change (\"sujeito a modificações\")",
+    "transcription": "taken from each PDF's own text layer with pdftotext -layout by `actasum br official`, not typed and not read from an image; the command refuses a report whose candidatures do not add up to its valid votes, whose valid, null and blank votes do not add up to its total, or whose null votes in the machines and \"nulos técnicos\" do not add up to its null votes",
+    "count_as": "annex III of the reports: number 28 counted as null",
     "reports": {
       "br/ac": {
         "file": "6257_AC_ACRE_2026_T1_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_AC.zip",
