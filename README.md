@@ -56,7 +56,7 @@ difference does not say which published figure is right.
 | [`docs/spec/profile-mx.md`](docs/spec/profile-mx.md) | Mexico profile (draft): INE PREP and Cómputos Distritales databases |
 | [`docs/findings/mx-presidencia-2024.md`](docs/findings/mx-presidencia-2024.md) | Mexico, presidential election of June 2024: the count as captured and the canvass, station by station |
 | [`docs/spec/profile-br.md`](docs/spec/profile-br.md) | Brazil profile (draft): TSE ballot-box report files |
-| [`docs/findings/br-presidente-2026-rr.md`](docs/findings/br-presidente-2026-rr.md) | Brazil, presidential election of October 2026, first round: Roraima against the TSE's totalisation report |
+| [`docs/findings/br-presidente-2026.md`](docs/findings/br-presidente-2026.md) | Brazil, presidential election of October 2026, first round: every state and abroad against the TSE's totalisation reports |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
 | `tests/` | Tests on synthetic data |

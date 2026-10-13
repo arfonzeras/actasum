@@ -1,0 +1,46 @@
+{
+  "spec": "actasum/official-totals/v0.1",
+  "profile": "br/codigo-eleitoral/v0.1",
+  "election": "br/presidente/2026-10-04",
+  "level": "country",
+  "grouping": "constituency",
+  "count_as": {
+    "28": "null"
+  },
+  "areas": {
+    "br": {
+      "candidatures": {
+        "13": 53879538,
+        "14": 2675887,
+        "16": 43103,
+        "21": 22693,
+        "22": 56104503,
+        "27": 40043,
+        "29": 15024,
+        "30": 326488,
+        "35": 16881,
+        "55": 2605148,
+        "70": 3448569,
+        "80": 122911
+      },
+      "blank": 2300798,
+      "null": 3674249,
+      "candidature_total": 119300788,
+      "stations": 499207
+    }
+  },
+  "source": {
+    "kind": "official-publication",
+    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal 2026, 1º Turno, Oficial, Resumo Geral do Brasil; it says its result is subject to change (\"sujeito a modificações\")",
+    "file": "6257_BR_BRASIL_2026_T1_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_BR.zip",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_BR.zip",
+    "pdf_sha256": "857b34f401c0344276bd4d67b105b30597b188f283635422e651698a5c942ef5",
+    "zip_sha256": "2a91dc9308a58d4285e57c551b6d8df7ea01ff838230007585a91f1ef7975958",
+    "issued": "07/10/2026 16:37:18",
+    "result_as_of": "05/10/2026 - 12:51:05",
+    "transcription": "taken on 13 October 2026 from the PDF's own text layer (pdftotext -layout), from the national summary and the national table of votes per candidate, not from the per-state summaries that follow them",
+    "null": "3669003 in the machines and 5246 \"nulos técnicos\"",
+    "count_as": "the national report gives number 28 no figure and has no annex III; the 28 reports of the states and abroad each give number 28 the destination \"Nulo técnico\", and their \"nulos técnicos\" add up to the national figure, 5,246",
+    "stations": "item 2.1, sections that functioned: 499176 counted in electronic machines and 31 by the Sistema de Apuração (SA); 41 not installed"
+  }
+}
