@@ -11,35 +11,138 @@ The electoral authority then adds those sheets up. `actasum` lets anyone
 repeat that addition from the station-level figures and compare it with the
 published totals.
 
-It does not handle voting, voter identity or ballots. It audits the step
+It does not handle voting, voter identity or ballots. It looks at the step
 between the polling station and the published result.
 
-> **Status: early draft (v0.1).** The format will change. The Spain reader has
-> been run against five real elections so far (see below). Do not rely on its
-> output for anything else yet.
+> **Status: early draft (v0.1).** The format will change. The verifier has
+> been run on published files of Spain, Colombia, Mexico and Brazil (below).
+> Do not rely on its output for anything else yet.
 
-## Results so far
+## Elections run
 
-On 11 October 2026 the verifier was run on the Ministry of the Interior's
-per-station files for five Congreso elections.
+Every run compares publications of one electoral authority with each other:
+its station-level files against its own totals. A **match** means those
+publications are consistent: the published totals are the sum of the
+published station figures. It is not a verification. No run has compared
+the files with paper tally sheets, and a difference does not say which
+figure is right or why.
 
-| Election | Polling stations | Constituencies whose recomputed totals match |
-| --- | --- | --- |
-| March 2008 | 59,346 | 50 of 52 |
-| June 2016 | 57,531 | 52 of 52 |
-| April 2019 | 60,038 | 52 of 52 |
-| November 2019 | 59,555 | 52 of 52 |
-| July 2023 | 60,314 | 50 of 52 |
+All runs are therefore marked **run, not verified**.
 
-Where totals match, blank votes, null votes, every candidature's votes and
-the number of polling stations all agree. In the four constituencies that
-differ, the municipalities still match their polling stations; the difference
-sits in the overseas-vote row. Details and caveats are in
-[`docs/findings/es-congreso.md`](docs/findings/es-congreso.md).
+| Country | Election | Stations | What matches | What does not | Status | Findings |
+| --- | --- | --- | --- | --- | --- | --- |
+| Spain | Congreso, March 2008 | 59,346 | 50 of 52 constituencies; 8,111 of 8,112 municipalities | Overseas rows of Barcelona and Murcia; one municipality in Soria | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
+| Spain | Congreso, June 2016 | 57,531 | 52 of 52 constituencies | — | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
+| Spain | Congreso, April 2019 | 60,038 | 52 of 52 constituencies | — | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
+| Spain | Congreso, November 2019 | 59,555 | 52 of 52 constituencies; 8,131 of 8,131 municipalities | — | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
+| Spain | Congreso, July 2023 | 60,314 | 50 of 52 constituencies; 8,131 of 8,131 municipalities | Overseas rows of Cantabria and Toledo | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
+| Spain | European Parliament, June 2024 | 58,556, plus 52 overseas rows | The country and all 52 provinces | — | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
+| Spain | European Parliament, May 2019 | 60,076, plus 52 overseas rows | 38 of 52 provinces; 8,126 of 8,131 municipalities | The country: the three levels published do not add up to each other | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
+| Spain | Local, May 2023 | 57,681 | 5,248 of 5,272 municipalities | 24 municipalities; in 5 the station votes would give other seats | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
+| Spain | Local, May 2019 | 57,188 | 5,270 of 5,291 municipalities | 21 municipalities; 8 seat allocations to explain | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
+| Colombia | President, 31 May 2026, Bogotá D.C. | 17,157 | All 16 vote figures of the official result (E-26); 6,410 of 6,410 changes recorded in the AGE agree with the file | Stations: 17,164 on the E-24. The file as published is the commission's shifted by 13 bytes; repaired and checked against the hash in the AGE | run, not verified | [co-presidente-2026](docs/findings/co-presidente-2026.md) |
+| Colombia | President, 31 May 2026, Córdoba | 4,176 | All 16 vote figures of the E-26 | — (the record of changes is a scan and was not read) | run, not verified | [co-presidente-2026](docs/findings/co-presidente-2026.md) |
+| Mexico | President, 2 June 2024 | 158,972 in the count, 170,621 in the canvass | The canvass statements equal an INE press statement in every figure it gives | Neither sum equals it: the count has unread figures and is at least 1,883 above for unregistered candidates; the standing sum includes 5,265 ballots of 16 stations whose package was not received | run, not verified | [mx-presidencia-2024](docs/findings/mx-presidencia-2024.md) |
+| Brazil | President, 4 October 2026, first round | 499,206 | Every vote figure of the 28 reports of the states and abroad, and of the national report | One section abroad has no row in the file (its report gives 0 voters) | run, not verified | [br-presidente-2026](docs/findings/br-presidente-2026.md) |
 
-These runs compare the Ministry's publications with each other. They do not
-show that the per-station figures match the paper tally sheets, and a
-difference does not say which published figure is right.
+In Brazil, 5,246 votes for number 28 are compared as null votes because the
+official reports declare that they count them so; the verifier says it in
+its result. The Brazilian reports say their result is subject to change.
+
+### How to reproduce each run
+
+No election data is in this repository. Each run starts from files
+downloaded from the authority; the hash is that of the file as downloaded.
+
+**Spain.** Per-station ZIP files `02YYYYMM_MESA.zip` (Congreso),
+`07YYYYMM_MESA.zip` (European Parliament) and `04YYYYMM_MESA.zip` (local),
+from the Ministry of the Interior's
+[download area](https://infoelectoral.interior.gob.es/es/elecciones-celebradas/area-de-descargas/).
+
+```sh
+actasum es replay --mesa 02201911_MESA.zip                       # per constituency
+actasum es replay --mesa 02202307_MESA.zip --level municipality  # per municipality
+actasum es replay --mesa 07202406_MESA.zip --level province      # per province
+actasum es seats  --mesa 04202305_MESA.zip                       # would a difference change a seat?
+```
+
+| File | SHA-256 |
+| --- | --- |
+| `02201911_MESA.zip` | `e7b621f295d7bf79b794941d4f11e7bcf7bd971ecbd6eb21dd4269d59926e441` |
+| `07202406_MESA.zip` | `ed30e4cf11772afb0785f2992f44fa191b8671f933865335b7093ac9ccb6659b` |
+| `07201905_MESA.zip` | `8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474` |
+| `04202305_MESA.zip` | `20dac696cd2efaa63c9346384ddb682f3da4fda92c6af67447159a60f1ab0de3` |
+| `04201905_MESA.zip` | `b8b1c649e3841ba735383152fd3a38259a336698d1eb79f7a653cae54c02e204` |
+| `02200803_MESA.zip`, `02201606_MESA.zip`, `02201904_MESA.zip`, `02202307_MESA.zip` | not recorded |
+
+**Colombia.** The per-station file (`MMV_…csv`) and the *Acta General de
+Escrutinio* (AGE) of each department's general scrutiny commission, from the
+Registraduría's [scrutiny site](https://escrutiniospresidente2026.registraduria.gov.co/published).
+The official totals were typed from the scanned E-26 and are in
+[`docs/findings/official/`](docs/findings/official/).
+
+```sh
+# Bogotá: the AGE's text gives the changes and the hash of the original file
+pdftotext -layout AGE.pdf AGE.txt
+actasum co convert --mmv MMV_XXX_16_000_XXX_XX_XX_XXX_1009.csv --election 2026-05 \
+    --age-text AGE.txt --out statements.jsonl
+actasum verify --statements statements.jsonl \
+    --official docs/findings/official/co-presidente-2026-05-bogota.official.json
+
+# Córdoba
+actasum co convert --mmv MMV_XXX_13_000_XXX_XX_XX_XXX_1007.csv --election 2026-05 \
+    --sha256 2799c27a52574d85753ee0d31475cebdafd7819f88f1d977fe3b718fc6d636c9 \
+    --out statements.jsonl
+actasum verify --statements statements.jsonl \
+    --official docs/findings/official/co-presidente-2026-05-cordoba.official.json
+```
+
+| File | SHA-256 |
+| --- | --- |
+| Bogotá, `MMV_XXX_16_000_XXX_XX_XX_XXX_1009.csv` as downloaded | `6cec1c68ac67c73407fb1cfd30a337bab08b8b850e6d679c918d98f5e4ec000e` |
+| Bogotá, the same file as the commission generated it, as the AGE records | `dfa5612022c2763666cd72d9553bbcfd5cfcab60076fc4a95889503a34a6ce25` |
+| Córdoba, `MMV_XXX_13_000_XXX_XX_XX_XXX_1007.csv` | `2799c27a52574d85753ee0d31475cebdafd7819f88f1d977fe3b718fc6d636c9` |
+
+**Mexico.** The INE's PREP and Cómputos Distritales databases of the
+presidential election. The address they were downloaded from was not
+recorded. The official totals are typed from INE press statement 368.
+
+```sh
+# PRES_2024.csv inside 20240603_2005_PREP.zip › 20240603_2005_PREP_PRES.zip, and
+# inside 20240608_2030_COMPUTOS.zip › 20240608_2030_COMPUTOS_PRES.zip
+actasum mx replay --prep PREP/PRES_2024.csv --computos COMPUTOS/PRES_2024.csv \
+    --election 2024-06 --official docs/findings/official/mx-presidencia-2024-06.official.json
+```
+
+| File | SHA-256 |
+| --- | --- |
+| `20240603_2005_PREP.zip` | `dcccf23088f81a4ab7c7942a79504b04c4a9347b0a4744f6c328c59fd4d6c31d` |
+| its `PRES_2024.csv` | `c9d7282e9ba0dabdc6d0378eb3383010ad3f301a26d79c3035a9f2a2fd6d5c45` |
+| `20240608_2030_COMPUTOS.zip` | `f0b0f90483720374eaac50cfb356b43425697fabfa3f963d22a5b8f2d849312f` |
+| its `PRES_2024.csv` | `860c1a539ac98b5def4dff3e82e87a19be3ebba7cb435b680ae79799942d1628` |
+
+**Brazil.** The TSE's 28 ballot-box report files `bweb_1t_<UF>_051020261403.zip`
+(26 states, the Distrito Federal and `ZZ`, abroad), from the dataset
+[Resultados - 2026 - Boletim de Urna](https://dadosabertos.tse.jus.br/dataset/resultados-2026-boletim-de-urna),
+and the 29 presidential totalisation reports
+`Relatorio_Resultado_Totalizacao_2026_<UF>.zip` (the same 27, plus `BR`),
+from `https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/`.
+`actasum br official` needs `pdftotext` (Poppler).
+
+```sh
+actasum br official --round 1 \
+    $(for f in Relatorio_Resultado_Totalizacao_2026_*.zip; do printf -- '--report %s ' "$f"; done) \
+    --states-out states.official.json --country-out brasil.official.json
+actasum br replay \
+    $(for f in bweb_1t_*_051020261403.zip; do printf -- '--bu %s ' "$f"; done) \
+    --official docs/findings/official/br-presidente-2026-10-04-states.official.json \
+    --official docs/findings/official/br-presidente-2026-10-04-brasil.official.json
+```
+
+The TSE publishes a SHA-512 next to each ballot-box file; the 28 are in
+[`docs/findings/br-presidente-2026-1t.sha512`](docs/findings/br-presidente-2026-1t.sha512)
+(`shasum -a 512 -c` checks them). The SHA-256 of each report, and its issue
+time, are in the two official-totals files above.
 
 ## What is here
 
@@ -52,13 +155,14 @@ difference does not say which published figure is right.
 | [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
 | [`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md) | Runs on two European Parliament elections and two local elections |
 | [`docs/spec/profile-co.md`](docs/spec/profile-co.md) | Colombia profile (draft, one file run) |
-| [`docs/findings/co-presidente-2026.md`](docs/findings/co-presidente-2026.md) | Colombia, presidential election of May 2026: Bogotá and Córdoba verified against the commissions' own hashes and totals |
+| [`docs/findings/co-presidente-2026.md`](docs/findings/co-presidente-2026.md) | Colombia, presidential election of May 2026: Bogotá and Córdoba compared with the commissions' own hash and totals |
 | [`docs/spec/profile-mx.md`](docs/spec/profile-mx.md) | Mexico profile (draft): INE PREP and Cómputos Distritales databases |
 | [`docs/findings/mx-presidencia-2024.md`](docs/findings/mx-presidencia-2024.md) | Mexico, presidential election of June 2024: the count as captured and the canvass, station by station |
 | [`docs/spec/profile-br.md`](docs/spec/profile-br.md) | Brazil profile (draft): TSE ballot-box report files |
 | [`docs/findings/br-presidente-2026.md`](docs/findings/br-presidente-2026.md) | Brazil, presidential election of October 2026, first round: every state and abroad against the TSE's totalisation reports |
 | [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
+| [`docs/releasing.md`](docs/releasing.md) | How a release is published to PyPI |
 | `tests/` | Tests on synthetic data |
 
 ## Quick start
@@ -165,8 +269,9 @@ mechanism works and nothing else. Formats follow the C2SP specifications; see
 
 ## What a result means, and what it does not
 
-- **Matching** means the published constituency totals equal the sum of the
-  station-level figures. Nothing more.
+- **Matching** means the published totals equal the sum of the published
+  station-level figures. That is consistency between two publications, not
+  verification. Nothing more.
 - A **difference** means they do not add up. It does not say why: lawful
   corrections during the official canvass, transcription slips and fraud all
   look the same here. A difference is a reason to ask, not a conclusion.
@@ -187,7 +292,7 @@ and several independent captures per station.
 
 ## Roadmap
 
-1. **Format and verifier** on a past election, from public data. *(done for five Congreso elections)*
+1. **Format and verifier** on a past election, from public data. *(run on elections of Spain, Colombia, Mexico and Brazil)*
 2. **Load a full election into a log** and serve inclusion proofs. *(first version)*
 3. Replay the 2026 Colombian presidential runoff from the published E-14 forms.
 4. **A witness that cosigns the log state.** *(mechanism done; no external witness yet)*
@@ -203,8 +308,11 @@ pytest
 
 ## Data sources and acknowledgements
 
-- Election results: Ministerio del Interior (Spain), *Área de descargas*.
-  No election data is included in this repository.
+- Election results: Ministerio del Interior (Spain), *Área de descargas*;
+  Registraduría Nacional del Estado Civil (Colombia), scrutiny site;
+  Instituto Nacional Electoral (Mexico); Tribunal Superior Eleitoral
+  (Brazil), open-data portal. No election data is included in this
+  repository.
 - The column layout of the Ministry's files was first taken from the
   rOpenSpain [`infoelectoral`](https://github.com/rOpenSpain/infoelectoral)
   R package by Héctor Meleiro, then checked against the Ministry's own layout
