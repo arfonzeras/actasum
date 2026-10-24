@@ -1,0 +1,5 @@
+# The source distribution carries the tests, with their helper module, and
+# the JSON Schema. No election data is in the repository or the packages.
+graft tests
+include schemas/*.json
+global-exclude __pycache__ *.py[cod]
