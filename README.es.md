@@ -1,6 +1,6 @@
 # actasum
 
-[English](README.md) · **Español**
+[English](https://github.com/arfonzeras/actasum/blob/main/README.md) · **Español**
 
 *Antes `tallylog`; renombrado el 11 de octubre de 2026.*
 
@@ -21,7 +21,7 @@ Se ocupa del tramo que va de la mesa al resultado publicado.
 > nada más.
 
 Esta página es una traducción informativa. Si difiere del
-[README en inglés](README.md), manda la versión inglesa.
+[README en inglés](https://github.com/arfonzeras/actasum/blob/main/README.md), manda la versión inglesa.
 
 ## Elecciones ejecutadas
 
@@ -36,19 +36,19 @@ Por eso todas figuran como **ejecutado, no verificado**.
 
 | País | Elección | Mesas | Qué cuadra | Qué no | Estado | Hallazgos |
 | --- | --- | --- | --- | --- | --- | --- |
-| España | Congreso, marzo de 2008 | 59.346 | 50 de 52 circunscripciones; 8.111 de 8.112 municipios | Filas del voto exterior de Barcelona y Murcia; un municipio de Soria | ejecutado, no verificado | [es-congreso](docs/findings/es-congreso.md) |
-| España | Congreso, junio de 2016 | 57.531 | 52 de 52 circunscripciones | — | ejecutado, no verificado | [es-congreso](docs/findings/es-congreso.md) |
-| España | Congreso, abril de 2019 | 60.038 | 52 de 52 circunscripciones | — | ejecutado, no verificado | [es-congreso](docs/findings/es-congreso.md) |
-| España | Congreso, noviembre de 2019 | 59.555 | 52 de 52 circunscripciones; 8.131 de 8.131 municipios | — | ejecutado, no verificado | [es-congreso](docs/findings/es-congreso.md) |
-| España | Congreso, julio de 2023 | 60.314 | 50 de 52 circunscripciones; 8.131 de 8.131 municipios | Filas del voto exterior de Cantabria y Toledo | ejecutado, no verificado | [es-congreso](docs/findings/es-congreso.md) |
-| España | Parlamento Europeo, junio de 2024 | 58.556, más 52 filas del voto exterior | El país y las 52 provincias | — | ejecutado, no verificado | [es-other-elections](docs/findings/es-other-elections.md) |
-| España | Parlamento Europeo, mayo de 2019 | 60.076, más 52 filas del voto exterior | 38 de 52 provincias; 8.126 de 8.131 municipios | El país: los tres niveles publicados no suman entre sí | ejecutado, no verificado | [es-other-elections](docs/findings/es-other-elections.md) |
-| España | Municipales, mayo de 2023 | 57.681 | 5.248 de 5.272 municipios | 24 municipios; en 5, los votos por mesa darían otros concejales | ejecutado, no verificado | [es-other-elections](docs/findings/es-other-elections.md) |
-| España | Municipales, mayo de 2019 | 57.188 | 5.270 de 5.291 municipios | 21 municipios; 8 repartos de concejales por explicar | ejecutado, no verificado | [es-other-elections](docs/findings/es-other-elections.md) |
-| Colombia | Presidente, 31 de mayo de 2026, Bogotá D.C. | 17.157 | Las 16 cifras de votos del resultado oficial (E-26); las 6.410 modificaciones del acta general concuerdan con el fichero | Mesas: 17.164 en el E-24. El fichero publicado es el de la comisión desplazado 13 bytes; reparado y comprobado con la huella del acta general | ejecutado, no verificado | [co-presidente-2026](docs/findings/co-presidente-2026.md) |
-| Colombia | Presidente, 31 de mayo de 2026, Córdoba | 4.176 | Las 16 cifras de votos del E-26 | — (el registro de modificaciones es un escaneado y no se leyó) | ejecutado, no verificado | [co-presidente-2026](docs/findings/co-presidente-2026.md) |
-| México | Presidencia, 2 de junio de 2024 | 158.972 en la captura, 170.621 en el cómputo | Las declaraciones del cómputo dan cada cifra de un comunicado del INE | Ninguna suma lo iguala: la captura tiene cifras sin leer y queda al menos 1.883 por encima en candidaturas no registradas; la suma de lo que queda en pie incluye 5.265 votos de 16 mesas cuyo paquete no se recibió | ejecutado, no verificado | [mx-presidencia-2024](docs/findings/mx-presidencia-2024.md) |
-| Brasil | Presidente, 4 de octubre de 2026, primera vuelta | 499.206 | Todas las cifras de votos de los 28 informes de los estados y el exterior, y del nacional | Una sección del exterior no tiene fila en el fichero (su informe da 0 votantes) | ejecutado, no verificado | [br-presidente-2026](docs/findings/br-presidente-2026.md) |
+| España | Congreso, marzo de 2008 | 59.346 | 50 de 52 circunscripciones; 8.111 de 8.112 municipios | Filas del voto exterior de Barcelona y Murcia; un municipio de Soria | ejecutado, no verificado | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| España | Congreso, junio de 2016 | 57.531 | 52 de 52 circunscripciones | — | ejecutado, no verificado | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| España | Congreso, abril de 2019 | 60.038 | 52 de 52 circunscripciones | — | ejecutado, no verificado | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| España | Congreso, noviembre de 2019 | 59.555 | 52 de 52 circunscripciones; 8.131 de 8.131 municipios | — | ejecutado, no verificado | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| España | Congreso, julio de 2023 | 60.314 | 50 de 52 circunscripciones; 8.131 de 8.131 municipios | Filas del voto exterior de Cantabria y Toledo | ejecutado, no verificado | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| España | Parlamento Europeo, junio de 2024 | 58.556, más 52 filas del voto exterior | El país y las 52 provincias | — | ejecutado, no verificado | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| España | Parlamento Europeo, mayo de 2019 | 60.076, más 52 filas del voto exterior | 38 de 52 provincias; 8.126 de 8.131 municipios | El país: los tres niveles publicados no suman entre sí | ejecutado, no verificado | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| España | Municipales, mayo de 2023 | 57.681 | 5.248 de 5.272 municipios | 24 municipios; en 5, los votos por mesa darían otros concejales | ejecutado, no verificado | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| España | Municipales, mayo de 2019 | 57.188 | 5.270 de 5.291 municipios | 21 municipios; 8 repartos de concejales por explicar | ejecutado, no verificado | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| Colombia | Presidente, 31 de mayo de 2026, Bogotá D.C. | 17.157 | Las 16 cifras de votos del resultado oficial (E-26); las 6.410 modificaciones del acta general concuerdan con el fichero | Mesas: 17.164 en el E-24. El fichero publicado es el de la comisión desplazado 13 bytes; reparado y comprobado con la huella del acta general | ejecutado, no verificado | [co-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/co-presidente-2026.md) |
+| Colombia | Presidente, 31 de mayo de 2026, Córdoba | 4.176 | Las 16 cifras de votos del E-26 | — (el registro de modificaciones es un escaneado y no se leyó) | ejecutado, no verificado | [co-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/co-presidente-2026.md) |
+| México | Presidencia, 2 de junio de 2024 | 158.972 en la captura, 170.621 en el cómputo | Las declaraciones del cómputo dan cada cifra de un comunicado del INE | Ninguna suma lo iguala: la captura tiene cifras sin leer y queda al menos 1.883 por encima en candidaturas no registradas; la suma de lo que queda en pie incluye 5.265 votos de 16 mesas cuyo paquete no se recibió | ejecutado, no verificado | [mx-presidencia-2024](https://github.com/arfonzeras/actasum/blob/main/docs/findings/mx-presidencia-2024.md) |
+| Brasil | Presidente, 4 de octubre de 2026, primera vuelta | 499.206 | Todas las cifras de votos de los 28 informes de los estados y el exterior, y del nacional | Una sección del exterior no tiene fila en el fichero (su informe da 0 votantes) | ejecutado, no verificado | [br-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026.md) |
 
 En Brasil, 5.246 votos del número 28 se comparan como nulos porque los
 informes oficiales declaran que los cuentan así; el verificador lo dice en
@@ -88,7 +88,7 @@ actasum es seats  --mesa 04202305_MESA.zip                       # would a diffe
 escrutinio de la comisión escrutadora general de cada departamento, del
 [sitio de escrutinios](https://escrutiniospresidente2026.registraduria.gov.co/published)
 de la Registraduría. Los totales oficiales se teclearon del E-26 escaneado y
-están en [`docs/findings/official/`](docs/findings/official/).
+están en [`docs/findings/official/`](https://github.com/arfonzeras/actasum/tree/main/docs/findings/official/).
 
 ```sh
 # Bogotá: the AGE's text gives the changes and the hash of the original file
@@ -151,7 +151,7 @@ actasum br replay \
 ```
 
 El TSE publica una SHA-512 junto a cada fichero de boletines; las 28 están en
-[`docs/findings/br-presidente-2026-1t.sha512`](docs/findings/br-presidente-2026-1t.sha512)
+[`docs/findings/br-presidente-2026-1t.sha512`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026-1t.sha512)
 (`shasum -a 512 -c` las comprueba). La SHA-256 de cada informe, y su hora de
 emisión, están en los dos ficheros de totales oficiales citados arriba.
 
@@ -159,20 +159,20 @@ emisión, están en los dos ficheros de totales oficiales citados arriba.
 
 | Ruta | Contenido |
 | --- | --- |
-| [`docs/spec/core.md`](docs/spec/core.md) | Formato y procedimiento de verificación, independientes del país (en inglés) |
-| [`docs/spec/log.md`](docs/spec/log.md) | Registro de solo añadir: puntos de control y pruebas de inclusión y de consistencia (en inglés) |
-| [`docs/spec/witness.md`](docs/spec/witness.md) | Puntos de control firmados y testigos que los cofirman (en inglés) |
-| [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Perfil España: identificadores, fuente de datos, lagunas conocidas ([traducción](docs/spec/profile-es.es.md)) |
-| [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | España, elecciones al Congreso (en inglés) |
-| [`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md) | España, dos europeas y dos municipales (en inglés) |
-| [`docs/spec/profile-co.md`](docs/spec/profile-co.md) | Perfil Colombia (borrador; en inglés) |
-| [`docs/findings/co-presidente-2026.md`](docs/findings/co-presidente-2026.md) | Colombia, presidencial de mayo de 2026: Bogotá y Córdoba comparadas con la huella y los totales de sus propias comisiones (en inglés) |
-| [`docs/spec/profile-mx.md`](docs/spec/profile-mx.md) | Perfil México (borrador): bases de datos del PREP y de los Cómputos Distritales del INE (en inglés) |
-| [`docs/findings/mx-presidencia-2024.md`](docs/findings/mx-presidencia-2024.md) | México, presidencial de junio de 2024: la captura y el cómputo, mesa por mesa (en inglés) |
-| [`docs/spec/profile-br.md`](docs/spec/profile-br.md) | Perfil Brasil (borrador): ficheros de boletines de urna del TSE (en inglés) |
-| [`docs/findings/br-presidente-2026.md`](docs/findings/br-presidente-2026.md) | Brasil, presidencial de octubre de 2026, primera vuelta: todos los estados y el exterior frente a los informes de totalización del TSE (en inglés) |
-| [`docs/releasing.md`](docs/releasing.md) | Cómo se publica una versión en PyPI (en inglés) |
-| [`schemas/statement.schema.json`](schemas/statement.schema.json) | Esquema JSON de una declaración de acta |
+| [`docs/spec/core.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/core.md) | Formato y procedimiento de verificación, independientes del país (en inglés) |
+| [`docs/spec/log.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/log.md) | Registro de solo añadir: puntos de control y pruebas de inclusión y de consistencia (en inglés) |
+| [`docs/spec/witness.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/witness.md) | Puntos de control firmados y testigos que los cofirman (en inglés) |
+| [`docs/spec/profile-es.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-es.md) | Perfil España: identificadores, fuente de datos, lagunas conocidas ([traducción](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-es.es.md)) |
+| [`docs/findings/es-congreso.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) | España, elecciones al Congreso (en inglés) |
+| [`docs/findings/es-other-elections.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) | España, dos europeas y dos municipales (en inglés) |
+| [`docs/spec/profile-co.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-co.md) | Perfil Colombia (borrador; en inglés) |
+| [`docs/findings/co-presidente-2026.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/co-presidente-2026.md) | Colombia, presidencial de mayo de 2026: Bogotá y Córdoba comparadas con la huella y los totales de sus propias comisiones (en inglés) |
+| [`docs/spec/profile-mx.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-mx.md) | Perfil México (borrador): bases de datos del PREP y de los Cómputos Distritales del INE (en inglés) |
+| [`docs/findings/mx-presidencia-2024.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/mx-presidencia-2024.md) | México, presidencial de junio de 2024: la captura y el cómputo, mesa por mesa (en inglés) |
+| [`docs/spec/profile-br.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-br.md) | Perfil Brasil (borrador): ficheros de boletines de urna del TSE (en inglés) |
+| [`docs/findings/br-presidente-2026.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026.md) | Brasil, presidencial de octubre de 2026, primera vuelta: todos los estados y el exterior frente a los informes de totalización del TSE (en inglés) |
+| [`docs/releasing.md`](https://github.com/arfonzeras/actasum/blob/main/docs/releasing.md) | Cómo se publica una versión en PyPI (en inglés) |
+| [`schemas/statement.schema.json`](https://github.com/arfonzeras/actasum/blob/main/schemas/statement.schema.json) | Esquema JSON de una declaración de acta |
 | `src/actasum/` | Implementación de referencia en Python; solo biblioteca estándar, salvo para las firmas |
 | `tests/` | Pruebas con datos sintéticos |
 
@@ -205,7 +205,7 @@ actasum es replay --mesa 02202307_MESA.zip --level municipality
 También se leen las municipales (`04…_MESA.zip`) y las europeas
 (`07…_MESA.zip`), con el municipio y el país entero como circunscripción. De
 momento se han ejecutado dos elecciones de cada tipo; véase
-[`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md)
+[`docs/findings/es-other-elections.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md)
 (en inglés). Para un primer vistazo a un ZIP:
 
 ```sh
@@ -217,7 +217,7 @@ que deben coincidir, y actos posteriores como una corrección en el
 escrutinio general o una votación repetida, que pueden diferir legítimamente.
 El verificador muestra entonces dos sumas, lo que contaron las mesas y lo que
 quedó firme, y dice con cuál coinciden los totales oficiales
-([especificación del núcleo](docs/spec/core.md), secciones 3.3 y 5.2, en
+([especificación del núcleo](https://github.com/arfonzeras/actasum/blob/main/docs/spec/core.md), secciones 3.3 y 5.2, en
 inglés).
 
 La orden indica cuántas circunscripciones cuadran y lista cada diferencia.
@@ -250,7 +250,7 @@ actasum log check-proof --proof proof.json --checkpoint checkpoint.txt
 ```
 
 Quien construya el registro a partir del mismo ZIP obtiene el mismo punto de
-control. Véase [`docs/spec/log.md`](docs/spec/log.md).
+control. Véase [`docs/spec/log.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/log.md).
 
 ### Firma y testigos
 
@@ -279,7 +279,7 @@ Un testigo se niega a cofirmar un registro que cambió o eliminó una entrada
 que ya había visto. Eso solo significa algo cuando el testigo lo opera alguien
 independiente de quien opera el registro; ejecutar ambos uno mismo demuestra
 que el mecanismo funciona y nada más. Los formatos siguen las especificaciones
-C2SP; véase [`docs/spec/witness.md`](docs/spec/witness.md) para lo que está
+C2SP; véase [`docs/spec/witness.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/witness.md) para lo que está
 hecho y lo que no.
 
 ## Qué significa un resultado y qué no
@@ -337,4 +337,4 @@ pytest
 
 ## Licencia
 
-[Apache License 2.0](LICENSE).
+[Apache License 2.0](https://github.com/arfonzeras/actasum/blob/main/LICENSE).

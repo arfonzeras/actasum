@@ -1,6 +1,6 @@
 # actasum
 
-**English** · [Español](README.es.md)
+**English** · [Español](https://github.com/arfonzeras/actasum/blob/main/README.es.md)
 
 *Formerly `tallylog`; renamed on 11 October 2026.*
 
@@ -31,19 +31,19 @@ All runs are therefore marked **run, not verified**.
 
 | Country | Election | Stations | What matches | What does not | Status | Findings |
 | --- | --- | --- | --- | --- | --- | --- |
-| Spain | Congreso, March 2008 | 59,346 | 50 of 52 constituencies; 8,111 of 8,112 municipalities | Overseas rows of Barcelona and Murcia; one municipality in Soria | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
-| Spain | Congreso, June 2016 | 57,531 | 52 of 52 constituencies | — | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
-| Spain | Congreso, April 2019 | 60,038 | 52 of 52 constituencies | — | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
-| Spain | Congreso, November 2019 | 59,555 | 52 of 52 constituencies; 8,131 of 8,131 municipalities | — | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
-| Spain | Congreso, July 2023 | 60,314 | 50 of 52 constituencies; 8,131 of 8,131 municipalities | Overseas rows of Cantabria and Toledo | run, not verified | [es-congreso](docs/findings/es-congreso.md) |
-| Spain | European Parliament, June 2024 | 58,556, plus 52 overseas rows | The country and all 52 provinces | — | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
-| Spain | European Parliament, May 2019 | 60,076, plus 52 overseas rows | 38 of 52 provinces; 8,126 of 8,131 municipalities | The country: the three levels published do not add up to each other | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
-| Spain | Local, May 2023 | 57,681 | 5,248 of 5,272 municipalities | 24 municipalities; in 5 the station votes would give other seats | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
-| Spain | Local, May 2019 | 57,188 | 5,270 of 5,291 municipalities | 21 municipalities; 8 seat allocations to explain | run, not verified | [es-other-elections](docs/findings/es-other-elections.md) |
-| Colombia | President, 31 May 2026, Bogotá D.C. | 17,157 | All 16 vote figures of the official result (E-26); 6,410 of 6,410 changes recorded in the AGE agree with the file | Stations: 17,164 on the E-24. The file as published is the commission's shifted by 13 bytes; repaired and checked against the hash in the AGE | run, not verified | [co-presidente-2026](docs/findings/co-presidente-2026.md) |
-| Colombia | President, 31 May 2026, Córdoba | 4,176 | All 16 vote figures of the E-26 | — (the record of changes is a scan and was not read) | run, not verified | [co-presidente-2026](docs/findings/co-presidente-2026.md) |
-| Mexico | President, 2 June 2024 | 158,972 in the count, 170,621 in the canvass | The canvass statements equal an INE press statement in every figure it gives | Neither sum equals it: the count has unread figures and is at least 1,883 above for unregistered candidates; the standing sum includes 5,265 ballots of 16 stations whose package was not received | run, not verified | [mx-presidencia-2024](docs/findings/mx-presidencia-2024.md) |
-| Brazil | President, 4 October 2026, first round | 499,206 | Every vote figure of the 28 reports of the states and abroad, and of the national report | One section abroad has no row in the file (its report gives 0 voters) | run, not verified | [br-presidente-2026](docs/findings/br-presidente-2026.md) |
+| Spain | Congreso, March 2008 | 59,346 | 50 of 52 constituencies; 8,111 of 8,112 municipalities | Overseas rows of Barcelona and Murcia; one municipality in Soria | run, not verified | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| Spain | Congreso, June 2016 | 57,531 | 52 of 52 constituencies | — | run, not verified | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| Spain | Congreso, April 2019 | 60,038 | 52 of 52 constituencies | — | run, not verified | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| Spain | Congreso, November 2019 | 59,555 | 52 of 52 constituencies; 8,131 of 8,131 municipalities | — | run, not verified | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| Spain | Congreso, July 2023 | 60,314 | 50 of 52 constituencies; 8,131 of 8,131 municipalities | Overseas rows of Cantabria and Toledo | run, not verified | [es-congreso](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) |
+| Spain | European Parliament, June 2024 | 58,556, plus 52 overseas rows | The country and all 52 provinces | — | run, not verified | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| Spain | European Parliament, May 2019 | 60,076, plus 52 overseas rows | 38 of 52 provinces; 8,126 of 8,131 municipalities | The country: the three levels published do not add up to each other | run, not verified | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| Spain | Local, May 2023 | 57,681 | 5,248 of 5,272 municipalities | 24 municipalities; in 5 the station votes would give other seats | run, not verified | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| Spain | Local, May 2019 | 57,188 | 5,270 of 5,291 municipalities | 21 municipalities; 8 seat allocations to explain | run, not verified | [es-other-elections](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) |
+| Colombia | President, 31 May 2026, Bogotá D.C. | 17,157 | All 16 vote figures of the official result (E-26); 6,410 of 6,410 changes recorded in the AGE agree with the file | Stations: 17,164 on the E-24. The file as published is the commission's shifted by 13 bytes; repaired and checked against the hash in the AGE | run, not verified | [co-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/co-presidente-2026.md) |
+| Colombia | President, 31 May 2026, Córdoba | 4,176 | All 16 vote figures of the E-26 | — (the record of changes is a scan and was not read) | run, not verified | [co-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/co-presidente-2026.md) |
+| Mexico | President, 2 June 2024 | 158,972 in the count, 170,621 in the canvass | The canvass statements equal an INE press statement in every figure it gives | Neither sum equals it: the count has unread figures and is at least 1,883 above for unregistered candidates; the standing sum includes 5,265 ballots of 16 stations whose package was not received | run, not verified | [mx-presidencia-2024](https://github.com/arfonzeras/actasum/blob/main/docs/findings/mx-presidencia-2024.md) |
+| Brazil | President, 4 October 2026, first round | 499,206 | Every vote figure of the 28 reports of the states and abroad, and of the national report | One section abroad has no row in the file (its report gives 0 voters) | run, not verified | [br-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026.md) |
 
 In Brazil, 5,246 votes for number 28 are compared as null votes because the
 official reports declare that they count them so; the verifier says it in
@@ -79,7 +79,7 @@ actasum es seats  --mesa 04202305_MESA.zip                       # would a diffe
 Escrutinio* (AGE) of each department's general scrutiny commission, from the
 Registraduría's [scrutiny site](https://escrutiniospresidente2026.registraduria.gov.co/published).
 The official totals were typed from the scanned E-26 and are in
-[`docs/findings/official/`](docs/findings/official/).
+[`docs/findings/official/`](https://github.com/arfonzeras/actasum/tree/main/docs/findings/official/).
 
 ```sh
 # Bogotá: the AGE's text gives the changes and the hash of the original file
@@ -140,7 +140,7 @@ actasum br replay \
 ```
 
 The TSE publishes a SHA-512 next to each ballot-box file; the 28 are in
-[`docs/findings/br-presidente-2026-1t.sha512`](docs/findings/br-presidente-2026-1t.sha512)
+[`docs/findings/br-presidente-2026-1t.sha512`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026-1t.sha512)
 (`shasum -a 512 -c` checks them). The SHA-256 of each report, and its issue
 time, are in the two official-totals files above.
 
@@ -148,21 +148,21 @@ time, are in the two official-totals files above.
 
 | Path | Content |
 | --- | --- |
-| [`docs/spec/core.md`](docs/spec/core.md) | Country-neutral format and verification procedure |
-| [`docs/spec/log.md`](docs/spec/log.md) | Append-only log: checkpoints, inclusion and consistency proofs |
-| [`docs/spec/witness.md`](docs/spec/witness.md) | Signed checkpoints and witnesses that cosign them |
-| [`docs/spec/profile-es.md`](docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](docs/spec/profile-es.es.md)) |
-| [`docs/findings/es-congreso.md`](docs/findings/es-congreso.md) | What the first runs on real data found |
-| [`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md) | Runs on two European Parliament elections and two local elections |
-| [`docs/spec/profile-co.md`](docs/spec/profile-co.md) | Colombia profile (draft, one file run) |
-| [`docs/findings/co-presidente-2026.md`](docs/findings/co-presidente-2026.md) | Colombia, presidential election of May 2026: Bogotá and Córdoba compared with the commissions' own hash and totals |
-| [`docs/spec/profile-mx.md`](docs/spec/profile-mx.md) | Mexico profile (draft): INE PREP and Cómputos Distritales databases |
-| [`docs/findings/mx-presidencia-2024.md`](docs/findings/mx-presidencia-2024.md) | Mexico, presidential election of June 2024: the count as captured and the canvass, station by station |
-| [`docs/spec/profile-br.md`](docs/spec/profile-br.md) | Brazil profile (draft): TSE ballot-box report files |
-| [`docs/findings/br-presidente-2026.md`](docs/findings/br-presidente-2026.md) | Brazil, presidential election of October 2026, first round: every state and abroad against the TSE's totalisation reports |
-| [`schemas/statement.schema.json`](schemas/statement.schema.json) | JSON Schema for a statement |
+| [`docs/spec/core.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/core.md) | Country-neutral format and verification procedure |
+| [`docs/spec/log.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/log.md) | Append-only log: checkpoints, inclusion and consistency proofs |
+| [`docs/spec/witness.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/witness.md) | Signed checkpoints and witnesses that cosign them |
+| [`docs/spec/profile-es.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-es.md) | Spain profile: identifiers, data source, known gaps ([Spanish translation](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-es.es.md)) |
+| [`docs/findings/es-congreso.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-congreso.md) | What the first runs on real data found |
+| [`docs/findings/es-other-elections.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md) | Runs on two European Parliament elections and two local elections |
+| [`docs/spec/profile-co.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-co.md) | Colombia profile (draft, one file run) |
+| [`docs/findings/co-presidente-2026.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/co-presidente-2026.md) | Colombia, presidential election of May 2026: Bogotá and Córdoba compared with the commissions' own hash and totals |
+| [`docs/spec/profile-mx.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-mx.md) | Mexico profile (draft): INE PREP and Cómputos Distritales databases |
+| [`docs/findings/mx-presidencia-2024.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/mx-presidencia-2024.md) | Mexico, presidential election of June 2024: the count as captured and the canvass, station by station |
+| [`docs/spec/profile-br.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-br.md) | Brazil profile (draft): TSE ballot-box report files |
+| [`docs/findings/br-presidente-2026.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026.md) | Brazil, presidential election of October 2026, first round: every state and abroad against the TSE's totalisation reports |
+| [`schemas/statement.schema.json`](https://github.com/arfonzeras/actasum/blob/main/schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
-| [`docs/releasing.md`](docs/releasing.md) | How a release is published to PyPI |
+| [`docs/releasing.md`](https://github.com/arfonzeras/actasum/blob/main/docs/releasing.md) | How a release is published to PyPI |
 | `tests/` | Tests on synthetic data |
 
 ## Quick start
@@ -195,7 +195,7 @@ actasum es replay --mesa 02202307_MESA.zip --level municipality
 Local elections (`04…_MESA.zip`) and European Parliament elections
 (`07…_MESA.zip`) are read too, with the municipality and the whole country as
 constituency. Two elections of each type have been run so far; see
-[`docs/findings/es-other-elections.md`](docs/findings/es-other-elections.md).
+[`docs/findings/es-other-elections.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/es-other-elections.md).
 For a first look at a ZIP:
 
 ```sh
@@ -207,7 +207,7 @@ sheet, which must agree, and later acts such as a correction in the general
 canvass or a repeated vote, which may lawfully differ. The verifier then
 shows two sums, what the stations counted and what was left standing, and
 says which one the official totals coincide with
-([core specification](docs/spec/core.md), sections 3.3 and 5.2).
+([core specification](https://github.com/arfonzeras/actasum/blob/main/docs/spec/core.md), sections 3.3 and 5.2).
 
 The command prints how many constituencies match and lists every difference.
 It exits with `0` when everything matches, `1` when there are differences or
@@ -236,7 +236,7 @@ actasum log check-proof --proof proof.json --checkpoint checkpoint.txt
 ```
 
 Anyone who builds the log from the same ZIP file obtains the same checkpoint.
-See [`docs/spec/log.md`](docs/spec/log.md).
+See [`docs/spec/log.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/log.md).
 
 ### Signing and witnesses
 
@@ -265,7 +265,7 @@ A witness refuses to cosign a log that changed or dropped an entry it had
 seen. That only means something when the witness is run by someone
 independent of the log operator; running both yourself shows that the
 mechanism works and nothing else. Formats follow the C2SP specifications; see
-[`docs/spec/witness.md`](docs/spec/witness.md) for what is and is not done.
+[`docs/spec/witness.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/witness.md) for what is and is not done.
 
 ## What a result means, and what it does not
 
@@ -320,4 +320,4 @@ pytest
 
 ## License
 
-[Apache License 2.0](LICENSE).
+[Apache License 2.0](https://github.com/arfonzeras/actasum/blob/main/LICENSE).
