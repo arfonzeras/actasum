@@ -143,18 +143,37 @@ def parse(text: str, unit: str = "") -> Report:
             raise FormatError(f"{unit}: number {row[1]} appears twice in the table")
         candidatures[row[1]] = _number(row[2])
 
+    # Annex III. Its last column, the candidate's situation in the
+    # totalisation, is empty in the reports first issued for the first round
+    # and filled ("Não eleito", "2º turno") in those issued again later; it
+    # is read when filled. Every number the annex names, on the line of the
+    # party or of the candidate, must get a destination: a layout not
+    # foreseen is refused rather than read as declaring nothing.
     destinations: dict[str, str] = {}
+    named: set[str] = set()
     for block in re.finditer(
         r"Destinação de votos de candidatas e candidatos(.*?)(?=Anexo IV|Resultado de votação|\Z)",
         text,
         re.S,
     ):
+        named.update(re.findall(r"^\s*(\d+) - ", block[1], re.M))
         for row in re.finditer(
-            r"^\s*(\d+) - .*?\s{2,}(Válido|Nulo técnico|Anulado sub judice|Anulado)\s*$",
+            r"^\s*(\d+) - .*?\s{2,}(Válido|Nulo técnico|Anulado sub judice|Anulado)"
+            r"(?:\s+(?:Não eleito|Eleito|2º turno))?\s*$",
             block[1],
             re.M,
         ):
             destinations[row[1]] = row[2]
+    if named - destinations.keys():
+        raise FormatError(
+            f"{unit}: annex III names numbers {sorted(named - destinations.keys())} "
+            "whose destination could not be read"
+        )
+    if named and summary["null_technical"] and set(destinations.values()) <= {"Válido"}:
+        raise FormatError(
+            f"{unit}: {summary['null_technical']} \"nulos técnicos\", and every number in "
+            "annex III has destination \"Válido\""
+        )
 
     report = Report(
         unit=unit,
