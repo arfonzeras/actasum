@@ -17,7 +17,8 @@ from actasum.statement import FormatError, OfficialTotals
 
 
 def report_text(*, unit="RORAIMA", date="04/10/2026", round_=1, votes=None, null=(10, 2),
-                blank=5, manual=0, destinations=None, national=False, states=()):  # fmt: skip
+                blank=5, manual=0, destinations=None, national=False, states=(),
+                situations=None):  # fmt: skip
     votes = votes or {"22": 300, "13": 100}
     valid = sum(votes.values())
     null_total = sum(null)
@@ -71,7 +72,13 @@ Descrição                                                                     
     if destinations:
         annex = "                                    Anexo III - Destinação de votos de candidatas e candidatos\nCargo: Presidente\n"
         for number, destination in destinations.items():
-            annex += f"{number} - FULANO DE TAL               Deferido    Deferido   Deferido                                                               {destination}\n"
+            if situations is None:
+                annex += f"{number} - FULANO DE TAL               Deferido    Deferido   Deferido                                                               {destination}\n"
+            else:
+                # As in reports issued again later: the line naming the party,
+                # and the candidate's situation filled in the last column.
+                annex += f"{number} - PARTIDO DE TAL\n"
+                annex += f"{number} - FULANO DE TAL               Deferido    Deferido   Deferido                                                               {destination}     {situations[number]}\n"
     table = "                                                              Anexo IV - Resultado de votação\nCargo: Presidente\n"
     for number, n in votes.items():
         table += f"{number} - FULANO DE TAL                                            {n:,}".replace(",", ".") + "           50,00%            Válido\nVICE\n"
@@ -102,6 +109,26 @@ def test_a_report_that_does_not_add_up_is_refused():
                                  "Votos válidos                                                100,00%              401")  # fmt: skip
     with pytest.raises(FormatError, match="candidates do not add up"):
         relatorio.parse(text, "RR")
+
+
+def test_annex_iii_of_reports_issued_later():
+    destinations = {"22": "Válido", "13": "Válido", "28": "Nulo técnico"}
+    situations = {"22": "2º turno", "13": "2º turno", "28": "Não eleito"}
+    report = relatorio.parse(report_text(destinations=destinations, situations=situations), "RR")
+    assert report.destinations == destinations
+    assert report.count_as == {"28": "null"}
+
+
+def test_an_annex_iii_row_not_read_is_refused():
+    text = report_text(destinations={"22": "Válido", "28": "Nulo técnico"},
+                       situations={"22": "2º turno", "28": "Situação nova"})  # fmt: skip
+    with pytest.raises(FormatError, match=r"annex III names numbers \['28'\]"):
+        relatorio.parse(text, "RR")
+
+
+def test_nulos_tecnicos_with_every_destination_valid_are_refused():
+    with pytest.raises(FormatError, match="every number in annex III has destination"):
+        relatorio.parse(report_text(destinations={"22": "Válido", "13": "Válido"}), "RR")
 
 
 def test_an_unknown_destination_is_refused():
