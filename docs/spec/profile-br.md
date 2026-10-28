@@ -1,8 +1,9 @@
 # Brazil profile (draft `br/codigo-eleitoral/v0.1`)
 
-Status: **draft, run on one election**: the presidential election of
-4 October 2026, first round, in every state and abroad (see
-[`../findings/br-presidente-2026.md`](../findings/br-presidente-2026.md)).
+Status: **draft, run on one election**: the presidential election of 2026,
+both rounds (4 and 25 October), in every state and abroad (see
+[`../findings/br-presidente-2026.md`](../findings/br-presidente-2026.md) and
+[`../findings/br-presidente-2026-2t.md`](../findings/br-presidente-2026-2t.md)).
 Everything here was learnt from files of the Tribunal Superior Eleitoral
 (TSE), the `leiame` files inside them, the pages of the TSE's open-data portal
 and two TSE news articles. Nothing has been checked against the law, no
@@ -49,8 +50,8 @@ Both rounds fall in the same month, so the election identifier carries the
 full date, taken from `DT_PLEITO`. A section number is unique within its
 electoral zone, and a zone number within its state: the municipality is not
 needed and is left out. The reader checks it: rows of one section that give
-two municipalities are refused. In the 28 files of the first round of 2026
-none did. Abroad, the state is `ZZ` and the identifier `br/zz/<zone>/<section>`.
+two municipalities are refused. In the 28 files of each round of 2026 none
+did. Abroad, the state is `ZZ` and the identifier `br/zz/<zone>/<section>`.
 
 Only the presidential election (`CD_CARGO_PERGUNTA` 1) is supported. The same
 file carries the other offices of the same election day; their rows are
@@ -71,8 +72,11 @@ as "Creative Commons Atribuição".
 According to the `leiame`: Latin 1; every field in quotes and separated by
 semicolons; `#NULO#` (text) or `-1` (number) for a value that is blank in the
 database. There is one row per section, office and recipient of votes
-(*votável*). A recipient with no votes has no row, as far as the files show:
-a section abroad in which nobody voted has no row at all.
+(*votável*). A recipient with no votes has no row, as far as the files show.
+A section in which nobody voted had no row at all in the first round of 2026;
+in the second, two such sections abroad each have one row whose office
+(`CD_CARGO_PERGUNTA`) is `-1`, with `#NULO#` as office, party and recipient
+and 0 votes (section 6, point 4).
 
 The files are large: from 1 MB (abroad) to 1.4 GB (São Paulo) compressed,
 and about six times that as CSV. The reader goes through each file once, row
@@ -116,7 +120,14 @@ actasum br official --report Relatorio_Resultado_Totalizacao_2026_AC.zip [--repo
 It takes the PDF's own text layer with `pdftotext -layout` (Poppler), the
 only tool outside Python's standard library this profile needs, and only for
 this command. From each report it reads the summary, the votes per candidate
-and annex III, the destination of each candidate's votes. A report whose
+and annex III, the destination of each candidate's votes. In the reports
+first issued for the first round of 2026, the last column of annex III, the
+candidate's situation in the totalisation, is empty; in four reports issued
+again later it is filled ("Não eleito", "2º turno"), and it is read then. A
+report whose annex III names a number whose destination cannot be read is
+refused, and so is one that counts "nulos técnicos" while every number in
+annex III is *Válido*: a layout not foreseen must not read as declaring
+nothing. A report whose
 candidates do not add up to its valid votes, whose valid, null and blank
 votes do not add up to its total, or whose two kinds of null votes do not add
 up to its null votes, is refused. So is a destination other than *Válido*
@@ -124,9 +135,10 @@ and *Nulo técnico*, until one is seen. `count_as` is what annex III
 declares; the national report has none, and takes the declarations of the
 state reports only when their "nulos técnicos" add up to its own.
 
-The official totals of the first round of 2026 in `docs/findings/official/`
-were written by this command; its figures are the same as those first taken
-from the same text by a script outside the repository.
+The official totals of both rounds of 2026 in `docs/findings/official/`
+were written by this command. Those of the first round have the same figures
+as those first taken from the same text by a script outside the repository,
+and are written again byte for byte from the original reports.
 
 ## 4. Personal data
 
@@ -138,14 +150,14 @@ load code and its memory card are technical.
 Statements copy numbers and codes only: no name of a person or a place.
 
 The file gives the registered voters of each section; the smallest section
-in the first round of 2026 has 20. Those figures are already public.
+in each round of 2026 has 20. Those figures are already public.
 
 ## 5. What gives no statement
 
 | Sections | Why |
 | --- | --- |
-| Machine status other than *Apurada* (*Não apurada*, *Anulada e apurada em separado*, *Anulada*, *Não instalada*) | Counted and reported by status, with their votes. None in the files of the first round of 2026 |
-| A section with no row in the file | Nothing to read. The 41 sections abroad the report gives as not installed, and one section abroad counted by the system for manual counting in which, according to the report, nobody voted |
+| Machine status other than *Apurada* (*Não apurada*, *Anulada e apurada em separado*, *Anulada*, *Não instalada*) | Counted and reported by status, with their votes. None in the files of either round of 2026 |
+| A section with no row of the office read | Nothing to read. The 41 sections abroad the report gives as not installed, in both rounds; and sections abroad counted by the system for manual counting in which, according to the report, nobody voted: one in the first round, with no row, and two in the second, with one row each of no office |
 
 ## 6. What did not fit the core
 
@@ -167,15 +179,18 @@ in the first round of 2026 has 20. Those figures are already public.
 3. **Sections that vote on another section's machine.** One report covers
    them all and the file gives one row; the statement is of the main section
    and lists the others under `extra`.
-4. **A section in which nobody voted.** The file has no row for it, so it
-   gives no statement, and the verifier counts one section fewer than the
-   official totals. Left as it is: the profile does not make up a statement
-   the file does not give. It concerns one section abroad in 2026.
+4. **A section in which nobody voted.** In the first round of 2026 the file
+   has no row for it; in the second, a row whose office is `-1` and whose
+   recipient is `#NULO#`, with the section's registered voters, turnout 0
+   and 0 votes. Either way it gives no statement, and the verifier counts
+   fewer sections than the official totals: one abroad in the first round,
+   two in the second. Left as it is: the profile reads the rows of office 1
+   and does not take a row of no office as a report for president.
 
 ## 7. The second round
 
-The second round is on 25 October 2026. Nothing is run before the TSE
-publishes its files. When it does:
+The second round was on 25 October 2026; the TSE's files were generated on
+26 October and run on 28 October. The procedure written before then was:
 
 1. Download the ballot-box files of the second round,
    `bweb_2t_<UF>_<generated>.zip`, with their `.sha512`, taking the links
@@ -194,6 +209,13 @@ publishes its files. When it does:
    other offices, such as governor where a state has a second round, which
    the reader skips.
 
+What it found: two candidates; annex III gives both *Válido* and no report
+counts "nulos técnicos", so the official totals declare no `count_as`; two
+sections abroad with a row of no office and no statement (section 6,
+point 4); rows of another office in six files (AC, AM, DF, ES, RN, TO). Four
+reports of the first round had been issued again, with the same figures; the
+reader of the reports had to change for them (section 3.1).
+
 ## 8. Known gaps and unverified assumptions
 
 1. **The law has not been read.** The profile is named after the *Código
@@ -204,9 +226,9 @@ publishes its files. When it does:
 
    **Before publication:** read, in the official text in force on election
    day, the articles this profile relies on, and list them here.
-2. One election, the first round of 2026: 28 files, all generated on
-   5 October 2026 at 14:03:43 (Brasília time); the portal says the files are
-   being updated.
+2. One election, both rounds of 2026: 28 files per round, generated on
+   5 October 2026 at 14:03:43 and on 26 October 2026 at 07:42:38 (Brasília
+   time); the portal says the files are being updated.
 3. The file read is the TSE's publication of the reports, not the reports
    themselves. The signed files the machines transmitted and the QR codes of
    the printed reports have not been read.
@@ -216,7 +238,8 @@ publishes its files. When it does:
 5. The TSE's per-section results file for president is published for the
    whole country (`votacao_secao_2026_BR.zip`) and has not been read; the
    per-section file of Roraima does not include the presidential election.
-6. Of the 31 sections the reports say were counted by the system for manual
-   counting (*Sistema de Apuração*), 30 appear in the files like the others,
-   as *Apurada*; the files do not tell them apart. The other one has no row
-   (section 6, point 4).
+6. Of the sections the reports say were counted by the system for manual
+   counting (*Sistema de Apuração*), 31 in the first round and 29 in the
+   second, 30 and 27 appear in the files like the others, as *Apurada*; the
+   files do not tell them apart. The others give no statement (section 6,
+   point 4).

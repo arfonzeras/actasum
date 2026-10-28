@@ -1,0 +1,32 @@
+{
+  "spec": "actasum/official-totals/v0.1",
+  "profile": "br/codigo-eleitoral/v0.1",
+  "election": "br/presidente/2026-10-25",
+  "level": "country",
+  "grouping": "constituency",
+  "areas": {
+    "br": {
+      "candidatures": {
+        "13": 64256232,
+        "22": 59826041
+      },
+      "blank": 1430496,
+      "null": 2723305,
+      "candidature_total": 124082273,
+      "stations": 499207
+    }
+  },
+  "source": {
+    "kind": "official-publication",
+    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal, 2º Turno, Oficial, Resumo Geral do Brasil; it says its result is subject to change (\"sujeito a modificações\")",
+    "transcription": "taken from each PDF's own text layer with pdftotext -layout by `actasum br official`, not typed and not read from an image; the command refuses a report whose candidatures do not add up to its valid votes, whose valid, null and blank votes do not add up to its total, or whose null votes in the machines and \"nulos técnicos\" do not add up to its null votes; from the national summary and the national table of votes per candidate, not from the per-state summaries that follow them",
+    "file": "6258_BR_BRASIL_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_BR.zip",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_BR.zip",
+    "pdf_sha256": "24ca7329bac5a79873cb3e906b489d04e8dd2b57ecb44ea38befdaee8adb9a4f",
+    "zip_sha256": "77723df5173da8c9e817c2570cbdf94c455b0de40e5b372207b784df01d90d07",
+    "issued": "25/10/2026 23:28:44",
+    "result_as_of": "25/10/2026 - 23:26:38",
+    "null": "2723305 in the machines and 0 \"nulos técnicos\"",
+    "stations": "item 2.1, sections that functioned: 499178 counted in electronic machines and 29 by the Sistema de Apuração (SA); 41 not installed"
+  }
+}

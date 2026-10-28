@@ -1,0 +1,576 @@
+{
+  "spec": "actasum/official-totals/v0.1",
+  "profile": "br/codigo-eleitoral/v0.1",
+  "election": "br/presidente/2026-10-25",
+  "level": "state",
+  "grouping": "station-prefix/2",
+  "areas": {
+    "br/ac": {
+      "candidatures": {
+        "13": 144513,
+        "22": 287715
+      },
+      "blank": 5016,
+      "null": 16410,
+      "candidature_total": 432228,
+      "stations": 2270
+    },
+    "br/al": {
+      "candidatures": {
+        "13": 1152621,
+        "22": 744140
+      },
+      "blank": 16983,
+      "null": 37888,
+      "candidature_total": 1896761,
+      "stations": 7101
+    },
+    "br/am": {
+      "candidatures": {
+        "13": 1145783,
+        "22": 975245
+      },
+      "blank": 18324,
+      "null": 52707,
+      "candidature_total": 2121028,
+      "stations": 8157
+    },
+    "br/ap": {
+      "candidatures": {
+        "13": 222968,
+        "22": 198674
+      },
+      "blank": 3320,
+      "null": 5013,
+      "candidature_total": 421642,
+      "stations": 1914
+    },
+    "br/ba": {
+      "candidatures": {
+        "13": 6485258,
+        "22": 2608761
+      },
+      "blank": 92721,
+      "null": 235307,
+      "candidature_total": 9094019,
+      "stations": 35476
+    },
+    "br/ce": {
+      "candidatures": {
+        "13": 4036124,
+        "22": 1819478
+      },
+      "blank": 56386,
+      "null": 112855,
+      "candidature_total": 5855602,
+      "stations": 23765
+    },
+    "br/df": {
+      "candidatures": {
+        "13": 825224,
+        "22": 979542
+      },
+      "blank": 22386,
+      "null": 41128,
+      "candidature_total": 1804766,
+      "stations": 6969
+    },
+    "br/es": {
+      "candidatures": {
+        "13": 1001965,
+        "22": 1294504
+      },
+      "blank": 33080,
+      "null": 79665,
+      "candidature_total": 2296469,
+      "stations": 9844
+    },
+    "br/go": {
+      "candidatures": {
+        "13": 1585555,
+        "22": 2345334
+      },
+      "blank": 43214,
+      "null": 73177,
+      "candidature_total": 3930889,
+      "stations": 15686
+    },
+    "br/ma": {
+      "candidatures": {
+        "13": 2808231,
+        "22": 1229971
+      },
+      "blank": 30855,
+      "null": 58714,
+      "candidature_total": 4038202,
+      "stations": 18093
+    },
+    "br/mg": {
+      "candidatures": {
+        "13": 6351099,
+        "22": 6241786
+      },
+      "blank": 164141,
+      "null": 287177,
+      "candidature_total": 12592885,
+      "stations": 52062
+    },
+    "br/ms": {
+      "candidatures": {
+        "13": 628973,
+        "22": 927892
+      },
+      "blank": 14958,
+      "null": 22637,
+      "candidature_total": 1556865,
+      "stations": 7106
+    },
+    "br/mt": {
+      "candidatures": {
+        "13": 694167,
+        "22": 1351099
+      },
+      "blank": 15431,
+      "null": 24637,
+      "candidature_total": 2045266,
+      "stations": 8287
+    },
+    "br/pa": {
+      "candidatures": {
+        "13": 2690449,
+        "22": 2199940
+      },
+      "blank": 36501,
+      "null": 62683,
+      "candidature_total": 4890389,
+      "stations": 20827
+    },
+    "br/pb": {
+      "candidatures": {
+        "13": 1794059,
+        "22": 865210
+      },
+      "blank": 25943,
+      "null": 58348,
+      "candidature_total": 2659269,
+      "stations": 10712
+    },
+    "br/pe": {
+      "candidatures": {
+        "13": 4117513,
+        "22": 1832554
+      },
+      "blank": 56758,
+      "null": 119642,
+      "candidature_total": 5950067,
+      "stations": 21418
+    },
+    "br/pi": {
+      "candidatures": {
+        "13": 1653989,
+        "22": 525859
+      },
+      "blank": 16137,
+      "null": 43845,
+      "candidature_total": 2179848,
+      "stations": 10225
+    },
+    "br/pr": {
+      "candidatures": {
+        "13": 2566504,
+        "22": 4291444
+      },
+      "blank": 82572,
+      "null": 118819,
+      "candidature_total": 6857948,
+      "stations": 27142
+    },
+    "br/rj": {
+      "candidatures": {
+        "13": 4565393,
+        "22": 5169033
+      },
+      "blank": 111682,
+      "null": 231341,
+      "candidature_total": 9734426,
+      "stations": 37675
+    },
+    "br/rn": {
+      "candidatures": {
+        "13": 1413596,
+        "22": 737409
+      },
+      "blank": 19939,
+      "null": 61879,
+      "candidature_total": 2151005,
+      "stations": 8115
+    },
+    "br/ro": {
+      "candidatures": {
+        "13": 294446,
+        "22": 674382
+      },
+      "blank": 8361,
+      "null": 11300,
+      "candidature_total": 968828,
+      "stations": 4698
+    },
+    "br/rr": {
+      "candidatures": {
+        "13": 83505,
+        "22": 219675
+      },
+      "blank": 2176,
+      "null": 3241,
+      "candidature_total": 303180,
+      "stations": 1519
+    },
+    "br/rs": {
+      "candidatures": {
+        "13": 2824552,
+        "22": 3874378
+      },
+      "blank": 89463,
+      "null": 101245,
+      "candidature_total": 6698930,
+      "stations": 27547
+    },
+    "br/sc": {
+      "candidatures": {
+        "13": 1418314,
+        "22": 3220071
+      },
+      "blank": 48674,
+      "null": 75244,
+      "candidature_total": 4638385,
+      "stations": 17326
+    },
+    "br/se": {
+      "candidatures": {
+        "13": 989041,
+        "22": 433354
+      },
+      "blank": 13135,
+      "null": 31129,
+      "candidature_total": 1422395,
+      "stations": 5923
+    },
+    "br/sp": {
+      "candidatures": {
+        "13": 12119274,
+        "22": 14139178
+      },
+      "blank": 389606,
+      "null": 716331,
+      "candidature_total": 26258452,
+      "stations": 103656
+    },
+    "br/to": {
+      "candidatures": {
+        "13": 442962,
+        "22": 467916
+      },
+      "blank": 8059,
+      "null": 35826,
+      "candidature_total": 910878,
+      "stations": 4384
+    },
+    "br/zz": {
+      "candidatures": {
+        "13": 200154,
+        "22": 171497
+      },
+      "blank": 4675,
+      "null": 5117,
+      "candidature_total": 371651,
+      "stations": 1310
+    }
+  },
+  "source": {
+    "kind": "official-publication",
+    "document": "Tribunal Superior Eleitoral, SISTOT, \"Relatório Resultado da Totalização\", Eleição Geral Federal, 2º Turno, Oficial: the presidential report of each state and abroad given; each says its result is subject to change (\"sujeito a modificações\")",
+    "transcription": "taken from each PDF's own text layer with pdftotext -layout by `actasum br official`, not typed and not read from an image; the command refuses a report whose candidatures do not add up to its valid votes, whose valid, null and blank votes do not add up to its total, or whose null votes in the machines and \"nulos técnicos\" do not add up to its null votes",
+    "reports": {
+      "br/ac": {
+        "file": "6258_AC_ACRE_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_AC.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_AC.zip",
+        "pdf_sha256": "b9404321062b09dcc04db9e79d2b91b340267fa7cf3ce106e2ac9a1065181f57",
+        "zip_sha256": "dd46ad097e17f400d49355af28af609d01b2081c149b40bbd18997d83cd689a9",
+        "issued": "25/10/2026 19:34:09",
+        "result_as_of": "25/10/2026 - 19:18:03",
+        "null": "16410 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 2270 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/al": {
+        "file": "6258_AL_ALAGOAS_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_AL.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_AL.zip",
+        "pdf_sha256": "fd5eabf0764a3b1a31e082c17e038e7c89f4ec2e4caee99e70bebd0f5927f164",
+        "zip_sha256": "d2c6dd6efc0d180c3cf5088ad63cd34bd75b06f4c12ef85585875e45e7dbd2a6",
+        "issued": "25/10/2026 21:28:31",
+        "result_as_of": "25/10/2026 - 21:27:22",
+        "null": "37888 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 7101 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/am": {
+        "file": "6258_AM_AMAZONAS_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_AM.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_AM.zip",
+        "pdf_sha256": "2e0d1fba619b7f045aec56a0f1dd00d433d7179b8507d341feb68780e8bf5345",
+        "zip_sha256": "fd4bbb902a3c1657124f5295c9a169e5aa22477af2d6c85d5c0351ea7ff40971",
+        "issued": "25/10/2026 21:17:24",
+        "result_as_of": "25/10/2026 - 21:08:57",
+        "null": "52707 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 8157 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/ap": {
+        "file": "6258_AP_AMAPÁ_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_AP.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_AP.zip",
+        "pdf_sha256": "1ac467424fb2ca05aa3254dc9b9976455130d4da6d6e1a06aeee84da64ceb218",
+        "zip_sha256": "5d2630adac16a6f08b4c9603951959818bfb2c20136bfcd8cb6a7947f6065ccc",
+        "issued": "25/10/2026 21:17:24",
+        "result_as_of": "25/10/2026 - 21:10:37",
+        "null": "5013 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 1914 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/ba": {
+        "file": "6258_BA_BAHIA_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_BA.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_BA.zip",
+        "pdf_sha256": "ca10824d7e0d80bedd28c741d58f933460f569bc7f00a301d2f8bd9e1bb1d217",
+        "zip_sha256": "18a473d7374ebf11ed243a77cffffe711a62a6aaaf7ceaae41bbb88e479a6e95",
+        "issued": "25/10/2026 23:24:24",
+        "result_as_of": "25/10/2026 - 23:21:51",
+        "null": "235307 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 35476 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/ce": {
+        "file": "6258_CE_CEARÁ_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_CE.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_CE.zip",
+        "pdf_sha256": "b46f23c062110c7c5a88db27e3e331a9435bbd59db96f05938a5def47f686a5d",
+        "zip_sha256": "6143e488a37a4181f639e4ef08faf61c76d5dce6c14fe06783063e9f3289e1c8",
+        "issued": "25/10/2026 21:47:53",
+        "result_as_of": "25/10/2026 - 21:45:50",
+        "null": "112855 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 23765 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/df": {
+        "file": "6258_DF_DISTRITO-FEDERAL_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_DF.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_DF.zip",
+        "pdf_sha256": "01d8518ce5df1562b86bb89ead201486f93f5ba203506d4d9250fb82dd9a9528",
+        "zip_sha256": "20b9ab1e5735eb3962319e5c4fca7d2e9b4e120c33cea8c985cb31497c976b5f",
+        "issued": "25/10/2026 21:39:48",
+        "result_as_of": "25/10/2026 - 21:23:12",
+        "null": "41128 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 6969 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/es": {
+        "file": "6258_ES_ESPÍRITO-SANTO_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_ES.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_ES.zip",
+        "pdf_sha256": "6779d76c8425e45aa15cc1deb42584a0eb4f4e308ca879dfe3a86f30bc25b96b",
+        "zip_sha256": "d4aed622c59626bf0ef39f9e20bf80aa79cd6cfdd5bb7492e72c65ddecf52794",
+        "issued": "25/10/2026 21:35:56",
+        "result_as_of": "25/10/2026 - 21:31:20",
+        "null": "79665 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 9844 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/go": {
+        "file": "6258_GO_GOIÁS_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_GO.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_GO.zip",
+        "pdf_sha256": "caa8940bbdce1126a09e27153127c9073f419277f2c73958f697cc94ec5feb4d",
+        "zip_sha256": "802ec50fff19f1d84090eb119c15f7d003c84a68cc8611a68223f8c75b1f24d1",
+        "issued": "25/10/2026 21:39:15",
+        "result_as_of": "25/10/2026 - 21:33:20",
+        "null": "73177 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 15686 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/ma": {
+        "file": "6258_MA_MARANHÃO_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_MA.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_MA.zip",
+        "pdf_sha256": "e119676182935b6f007d76c173bd128845c55dd144f0770baa6aa3239e1b5035",
+        "zip_sha256": "00ba95ce367a4aeeec051f156d8f956779914a3599268e1a3d60aa24b4a92354",
+        "issued": "25/10/2026 22:47:22",
+        "result_as_of": "25/10/2026 - 22:45:18",
+        "null": "58714 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 18093 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/mg": {
+        "file": "6258_MG_MINAS-GERAIS_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_MG.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_MG.zip",
+        "pdf_sha256": "1fdd43f11d8767980c800a9e13ac7e42cd4d20dbf745b40dc0b6df083881a926",
+        "zip_sha256": "6789b55a9e56f716ed80086f71315a4e4e34a7ac6243524e5b96f1b3fae9bc0d",
+        "issued": "25/10/2026 23:13:11",
+        "result_as_of": "25/10/2026 - 23:08:43",
+        "null": "287177 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 52062 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/ms": {
+        "file": "6258_MS_MATO-GROSSO-DO-SUL_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_MS.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_MS.zip",
+        "pdf_sha256": "d7612beb96990e95dafca22cf76e296d18f146ffdd22b3191ed60605f9d4bdd6",
+        "zip_sha256": "ec5af8c8e2f10675dbc6c6af66e2f8771a2bcfab6f6eb4a44516e4364dba1a68",
+        "issued": "25/10/2026 20:31:55",
+        "result_as_of": "25/10/2026 - 20:29:52",
+        "null": "22637 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 7106 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/mt": {
+        "file": "6258_MT_MATO-GROSSO_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_MT.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_MT.zip",
+        "pdf_sha256": "2cc6fa97cc5391db12906830ad6d99e920f6691d7406cc7e4617497af88052c8",
+        "zip_sha256": "c36f512206f4db2a4290bdaa67c35d68c6d3b74aa3bae7a8647aaeb1545fdb46",
+        "issued": "25/10/2026 20:56:20",
+        "result_as_of": "25/10/2026 - 20:50:37",
+        "null": "24637 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 8287 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/pa": {
+        "file": "6258_PA_PARÁ_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_PA.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_PA.zip",
+        "pdf_sha256": "c315298a1a5cbc10bfa042270eb883706f11797388e1a320a1a178d6a90e41da",
+        "zip_sha256": "58cf8d933fc5837b34ae5461b15bbc4fbdca7a452645db78d2c818963e8dd31b",
+        "issued": "25/10/2026 22:27:22",
+        "result_as_of": "25/10/2026 - 22:24:37",
+        "null": "62683 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 20827 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/pb": {
+        "file": "6258_PB_PARAÍBA_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_PB.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_PB.zip",
+        "pdf_sha256": "f8c9363ea3f0c6690bef8d561e278bedf5689e71ccf2632e11d0ac200862388b",
+        "zip_sha256": "40fd2c5391b91e35e10c2de6c75b615327ebaaadf386e1b9e99cacb776be9f1e",
+        "issued": "25/10/2026 22:02:37",
+        "result_as_of": "25/10/2026 - 21:59:57",
+        "null": "58348 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 10712 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/pe": {
+        "file": "6258_PE_PERNAMBUCO_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_PE.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_PE.zip",
+        "pdf_sha256": "18b3479999d7562745a692d2a99ad420239ee9f85f7fab3bf7b9a7f28bdf8db4",
+        "zip_sha256": "3f0898bc4ec3cf58864fc2cd9198924875d44076f220d7a5c4183999a156433b",
+        "issued": "25/10/2026 22:17:02",
+        "result_as_of": "25/10/2026 - 22:02:26",
+        "null": "119642 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 21418 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/pi": {
+        "file": "6258_PI_PIAUÍ_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_PI.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_PI.zip",
+        "pdf_sha256": "1b3c87ffb0ec424644cff0d9cb56f176019ae0d8fa0c23271112c4a773fa4a2d",
+        "zip_sha256": "b14c5421d948a6660183f79b60628b0d067b85f4909e75cf123e20bb17a50ddc",
+        "issued": "25/10/2026 21:26:41",
+        "result_as_of": "25/10/2026 - 21:25:00",
+        "null": "43845 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 10225 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/pr": {
+        "file": "6258_PR_PARANÁ_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_PR.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_PR.zip",
+        "pdf_sha256": "2bc695959a5e37a296d1391a70868a5bae9e3125a4217ab1c13c5b02389d85ff",
+        "zip_sha256": "132c9be7fc2fa38ba68bdb5edb3a18c32a43147455d9163371dc6df8be4379b8",
+        "issued": "25/10/2026 21:27:47",
+        "result_as_of": "25/10/2026 - 21:21:20",
+        "null": "118819 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 27142 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/rj": {
+        "file": "6258_RJ_RIO-DE-JANEIRO_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_RJ.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_RJ.zip",
+        "pdf_sha256": "dcd6b872ed7cc275c930e4ae0e83f176fb73534869649e2806db5bd662dbfc12",
+        "zip_sha256": "5b52fce0819ecaf2adff053f293e0de67e7584d38b169074446438d3c369d37c",
+        "issued": "25/10/2026 22:27:31",
+        "result_as_of": "25/10/2026 - 22:18:59",
+        "null": "231341 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 37675 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/rn": {
+        "file": "6258_RN_RIO-GRANDE-DO-NORTE_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_RN.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_RN.zip",
+        "pdf_sha256": "bab4262c5245262da22618718e81caecaffdeaa6db6018759fcc7336742a4165",
+        "zip_sha256": "b4588f6a6a05c5015c78f3a40d97d0af32eebd1af3c45b799418e5d63aa3539a",
+        "issued": "25/10/2026 21:26:57",
+        "result_as_of": "25/10/2026 - 21:19:43",
+        "null": "61879 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 8115 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/ro": {
+        "file": "6258_RO_RONDÔNIA_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_RO.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_RO.zip",
+        "pdf_sha256": "8a65b2e1b6efbca08955e5c3b7cda4615c4586abe0e64a3d69ec7c5556dca1d2",
+        "zip_sha256": "e436e06a8701b921fcbf0f49a1b0df3ac64c3d5f3160a4a9b437d46448ebf73e",
+        "issued": "25/10/2026 20:12:51",
+        "result_as_of": "25/10/2026 - 20:09:56",
+        "null": "11300 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 4698 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/rr": {
+        "file": "6258_RR_RORAIMA_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_RR.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_RR.zip",
+        "pdf_sha256": "03178da4f8374d38f0ea73faa42b08644622289a3fa1783bbc54793856d60a89",
+        "zip_sha256": "bbca23d1edae6e19abdbde600b397f91e921077f875180a891417cf6f532d3b2",
+        "issued": "25/10/2026 20:14:38",
+        "result_as_of": "25/10/2026 - 20:12:18",
+        "null": "3241 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 1519 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/rs": {
+        "file": "6258_RS_RIO-GRANDE-DO-SUL_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_RS.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_RS.zip",
+        "pdf_sha256": "54c74079cf6f7a522775136f9b715d364940429da9df7f193896975e15b8e901",
+        "zip_sha256": "d0fce8312b21fe1726d6baff30f686ecc2547409f3c173b0df1d69d915a08a90",
+        "issued": "25/10/2026 21:34:18",
+        "result_as_of": "25/10/2026 - 21:32:27",
+        "null": "101245 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 27547 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/sc": {
+        "file": "6258_SC_SANTA-CATARINA_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_SC.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_SC.zip",
+        "pdf_sha256": "5a820254eba430e4061c5679669ac58d891e491369587dfb783955d106ff8ea6",
+        "zip_sha256": "e7c1aaf347f55d72bf385f3853feda754c8fd33a692f24a82b72c28ad3e0c411",
+        "issued": "25/10/2026 21:11:18",
+        "result_as_of": "25/10/2026 - 21:07:51",
+        "null": "75244 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 17326 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/se": {
+        "file": "6258_SE_SERGIPE_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_SE.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_SE.zip",
+        "pdf_sha256": "636dcf124e1ac423320d264d9d3e01cf0d1a039ca9f0113b2b2383ef4b4cc117",
+        "zip_sha256": "e120e362f1ceb5a054fd057f721ed859ea1067d4a5531cadda29b5d62d7c2832",
+        "issued": "25/10/2026 21:40:36",
+        "result_as_of": "25/10/2026 - 21:32:35",
+        "null": "31129 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 5923 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/sp": {
+        "file": "6258_SP_SÃO-PAULO_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_SP.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_SP.zip",
+        "pdf_sha256": "7098074d538e720e833e56c0469a30d3e2d5fbaa267bf5c3d02e3a8f0e729530",
+        "zip_sha256": "0292ba5c070c7bc35749e8ac9a7d0a229551ff8dd9390b940248cf6c6483b4be",
+        "issued": "25/10/2026 21:59:17",
+        "result_as_of": "25/10/2026 - 21:48:00",
+        "null": "716331 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 103656 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/to": {
+        "file": "6258_TO_TOCANTINS_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_TO.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_TO.zip",
+        "pdf_sha256": "3f654eb06e2b0cdf494af1e66b7be1c400b0cb9680b26de528179ddb48be75f8",
+        "zip_sha256": "5cdbd866cc2a8f9e492245fae7b97612607c1c112cedf95ee94afb30720374b3",
+        "issued": "25/10/2026 21:46:14",
+        "result_as_of": "25/10/2026 - 21:30:35",
+        "null": "35826 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 4384 counted in electronic machines and 0 by the Sistema de Apuração (SA); 0 not installed"
+      },
+      "br/zz": {
+        "file": "6258_ZZ_EXTERIOR_2026_T2_PRESIDENTE.pdf, inside Relatorio_Resultado_Totalizacao_2026_ZZ.zip",
+        "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/relatorio_resultado_totalizacao/Relatorio_Resultado_Totalizacao_2026_ZZ.zip",
+        "pdf_sha256": "e4bc610d72b32205845b6fc9c5108fc7ff8e8c6f173b78cec3885fbfeb206f28",
+        "zip_sha256": "e400b060dbb13c53f65f8bbc421b2e7fb59dcd9b5b5250ab1bb170a4f2237842",
+        "issued": "25/10/2026 22:15:34",
+        "result_as_of": "26/10/2026 - 09:05:23",
+        "null": "5117 in the machines and 0 \"nulos técnicos\"",
+        "stations": "item 2.1, sections that functioned: 1281 counted in electronic machines and 29 by the Sistema de Apuração (SA); 41 not installed"
+      }
+    }
+  }
+}

@@ -44,10 +44,12 @@ All runs are therefore marked **run, not verified**.
 | Colombia | President, 31 May 2026, Córdoba | 4,176 | All 16 vote figures of the E-26 | — (the record of changes is a scan and was not read) | run, not verified | [co-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/co-presidente-2026.md) |
 | Mexico | President, 2 June 2024 | 158,972 in the count, 170,621 in the canvass | The canvass statements equal an INE press statement in every figure it gives | Neither sum equals it: the count has unread figures and is at least 1,883 above for unregistered candidates; the standing sum includes 5,265 ballots of 16 stations whose package was not received | run, not verified | [mx-presidencia-2024](https://github.com/arfonzeras/actasum/blob/main/docs/findings/mx-presidencia-2024.md) |
 | Brazil | President, 4 October 2026, first round | 499,206 | Every vote figure of the 28 reports of the states and abroad, and of the national report | One section abroad has no row in the file (its report gives 0 voters) | run, not verified | [br-presidente-2026](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026.md) |
+| Brazil | President, 25 October 2026, second round | 499,205 | Every vote figure of the 28 reports of the states and abroad, and of the national report | Two sections abroad have no row for president in the file (their report gives 0 voters) | run, not verified | [br-presidente-2026-2t](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026-2t.md) |
 
 In Brazil, 5,246 votes for number 28 are compared as null votes because the
 official reports declare that they count them so; the verifier says it in
-its result. The Brazilian reports say their result is subject to change.
+its result. In the second round no votes are counted as another item. The
+Brazilian reports say their result is subject to change.
 
 ### How to reproduce each run
 
@@ -142,7 +144,28 @@ actasum br replay \
 The TSE publishes a SHA-512 next to each ballot-box file; the 28 are in
 [`docs/findings/br-presidente-2026-1t.sha512`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026-1t.sha512)
 (`shasum -a 512 -c` checks them). The SHA-256 of each report, and its issue
-time, are in the two official-totals files above.
+time, are in the two official-totals files above. The report ZIP files now
+also hold the reports of the second round, and four reports of the first
+(MG, RN, RO, RS) were issued again with the same figures: written from the
+files published now, the first round's official totals have the same figures
+and `count_as`, and other hashes and issue times.
+
+The second round: the 28 files `bweb_2t_<UF>_261020260742.zip` from the same
+dataset (on the portal, listed by the page in English), and the same 29
+report ZIP files.
+
+```sh
+actasum br official --round 2 \
+    $(for f in Relatorio_Resultado_Totalizacao_2026_*.zip; do printf -- '--report %s ' "$f"; done) \
+    --states-out states.official.json --country-out brasil.official.json
+actasum br replay \
+    $(for f in bweb_2t_*_261020260742.zip; do printf -- '--bu %s ' "$f"; done) \
+    --official docs/findings/official/br-presidente-2026-10-25-states.official.json \
+    --official docs/findings/official/br-presidente-2026-10-25-brasil.official.json
+```
+
+Their SHA-512 are in
+[`docs/findings/br-presidente-2026-2t.sha512`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026-2t.sha512).
 
 ## What is here
 
@@ -160,6 +183,7 @@ time, are in the two official-totals files above.
 | [`docs/findings/mx-presidencia-2024.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/mx-presidencia-2024.md) | Mexico, presidential election of June 2024: the count as captured and the canvass, station by station |
 | [`docs/spec/profile-br.md`](https://github.com/arfonzeras/actasum/blob/main/docs/spec/profile-br.md) | Brazil profile (draft): TSE ballot-box report files |
 | [`docs/findings/br-presidente-2026.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026.md) | Brazil, presidential election of October 2026, first round: every state and abroad against the TSE's totalisation reports |
+| [`docs/findings/br-presidente-2026-2t.md`](https://github.com/arfonzeras/actasum/blob/main/docs/findings/br-presidente-2026-2t.md) | The same, second round |
 | [`schemas/statement.schema.json`](https://github.com/arfonzeras/actasum/blob/main/schemas/statement.schema.json) | JSON Schema for a statement |
 | `src/actasum/` | Reference implementation, Python; standard library only except for signatures |
 | [`docs/releasing.md`](https://github.com/arfonzeras/actasum/blob/main/docs/releasing.md) | How a release is published to PyPI |

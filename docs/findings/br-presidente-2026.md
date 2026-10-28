@@ -4,8 +4,10 @@
 which each say their result is subject to change ("sujeito a
 modificações").** The reports of the states and abroad were issued between
 the night of 4 October and the morning of 5 October 2026; the national
-report on 7 October. The second round is on 25 October 2026 and is not
-covered.
+report on 7 October. The second round, of 25 October 2026, is in
+[`br-presidente-2026-2t.md`](br-presidente-2026-2t.md), which also records
+that four of these reports (MG, RN, RO, RS) were issued again between 15 and
+24 October with the same figures.
 
 Run of 13 October 2026 on files published by the Tribunal Superior
 Eleitoral (TSE), with `actasum` on branch `profile-br`:
@@ -130,7 +132,9 @@ annex I lists it with 72 registered voters, 0 voters who turned out, and
 manual counting, not by an electronic machine. The file has no row for it.
 The file has one row per recipient of votes, so a section in which nobody
 voted would have none; that is consistent with the report's figures, but the
-file does not say so.
+file does not say so. In the second round the same section, and another in
+which nobody voted, each have one row with no office (second round's
+findings).
 
 The verifier reports this as a difference of one section, abroad and in the
 national count, and nothing else differs: no vote is missing. It is also why
@@ -181,4 +185,3 @@ The stopping rule is not met.
   it gives its result "as of" 5 October 2026 at 09:19:47. The report prints
   both and does not explain it.
 - What the law says: no article has been read.
-- The second round.
