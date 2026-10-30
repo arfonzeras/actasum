@@ -7,6 +7,8 @@
     actasum es convert  --mesa MESA.zip --out statements.jsonl
     actasum es official --tota TOTA.zip --out official.json
     actasum verify      --statements statements.jsonl --official official.json
+    actasum card        --statements statements.jsonl --official official.json [--official ...]
+                        --context context.json [--out card.json]
 
     actasum co convert  --mmv MMV.csv --election 2026-05 [--age-text AGE.txt]
                         --out statements.jsonl
@@ -45,10 +47,13 @@ could not be read.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import sys
 from typing import Sequence
 
+from .card import build_card
 from .log import (
     Checkpoint,
     Log,
@@ -522,6 +527,38 @@ def _verify(args) -> int:
     return _emit(compare(statements, totals), args)
 
 
+def _sha256(path: str) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return "sha256:" + digest.hexdigest()
+
+
+def _card(args) -> int:
+    statements = _read_statements(args.statements)
+    officials = []
+    for path in args.official:
+        with open(path, encoding="utf-8") as handle:
+            officials.append(OfficialTotals.from_dict(json.load(handle)))
+    with open(args.context, encoding="utf-8") as handle:
+        context = json.load(handle)
+    inputs = {
+        "statements": {
+            "file": os.path.basename(args.statements),
+            "sha256": _sha256(args.statements),
+            "statements": len(statements),
+        },
+        "official": [
+            {"file": os.path.basename(path), "sha256": _sha256(path)} for path in args.official
+        ],
+        "context": {"file": os.path.basename(args.context), "sha256": _sha256(args.context)},
+    }
+    card = build_card(statements, officials, context, inputs)
+    _write_json(card, args.out)
+    return 0
+
+
 def _read_statements(path: str):
     with open(path, encoding="utf-8") as handle:
         return list(read_jsonl(handle))
@@ -749,6 +786,17 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--json", action="store_true", help="print the report as JSON")
     check.add_argument("--limit", type=int, default=20, help="lines to list per section")
     check.set_defaults(run=_verify)
+
+    card = commands.add_parser(
+        "card", help="verifiability card: margins, remote vote and what is published"
+    )
+    card.add_argument("--statements", required=True, help="JSON Lines file of statements")
+    card.add_argument(
+        "--official", required=True, action="append", help="official totals (JSON); repeatable"
+    )
+    card.add_argument("--context", required=True, help="card context (JSON)")
+    card.add_argument("--out", default="-", help="output file (default: stdout)")
+    card.set_defaults(run=_card)
 
     log = commands.add_parser("log", help="append-only log of statements with proofs")
     log_commands = log.add_subparsers(dest="log_command", required=True)
