@@ -1,0 +1,126 @@
+{
+  "spec": "actasum/card-context/v0.1",
+  "election": "mx/presidencia/2024-06",
+  "contest": {
+    "kind": "single_winner",
+    "outcome_rule": {
+      "value": "most_votes",
+      "status": "unverified",
+      "note": "assumed: the law (LGIPE) has not been read"
+    }
+  },
+  "channels": [
+    {
+      "name": "early (voto anticipado, type A)",
+      "match": {
+        "station_pattern": "^mx/[0-9]{2}/[0-9]{4}/A"
+      },
+      "published_at": "station",
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+        "read": "text extracted from the PDF, 30 October 2026"
+      }
+    },
+    {
+      "name": "abroad, postal (type M)",
+      "match": {
+        "station_pattern": "^mx/[0-9]{2}/[0-9]{4}/M"
+      },
+      "published_at": "station",
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+        "read": "text extracted from the PDF, 30 October 2026"
+      }
+    },
+    {
+      "name": "abroad, internet (type V)",
+      "match": {
+        "station_pattern": "^mx/[0-9]{2}/[0-9]{4}/V"
+      },
+      "published_at": "station",
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+        "read": "text extracted from the PDF, 30 October 2026"
+      }
+    },
+    {
+      "name": "pre-trial detention (prisión preventiva, type P)",
+      "match": {
+        "station_pattern": "^mx/[0-9]{2}/[0-9]{4}/P"
+      },
+      "published_at": "station",
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+        "read": "text extracted from the PDF, 30 October 2026"
+      }
+    }
+  ],
+  "coverage": {
+    "stations_without_statement": 129,
+    "registered_without_statement": 68856,
+    "source": "Cómputos file PRES_2024.csv (SHA-256 860c1a539ac98b5def4dff3e82e87a19be3ebba7cb435b680ae79799942d1628): the 129 rows with no statement of either act (101 'Paquete no recibido', 5 'Paquete no recibido (Para recuento-…)', 23 'Casilla no instalada'), column LISTA_NOMINAL"
+  },
+  "images": {
+    "value": null,
+    "status": "unverified",
+    "note": "the PREP file gives a hash of an image per tally sheet; no image has been downloaded"
+  },
+  "hashes": {
+    "value": "none_found",
+    "status": "computed",
+    "source": "thesis, appendix A: 'el INE no publica una huella de ninguno que se haya encontrado'"
+  },
+  "practices": [
+    {
+      "n": 1,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 2,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 3,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 4,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 5,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 6,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 7,
+      "value": null,
+      "status": "unverified"
+    }
+  ]
+}
