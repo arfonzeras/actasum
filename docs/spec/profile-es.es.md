@@ -160,3 +160,15 @@ la verificación.
    el **conjunto de datos publicado**, no sobre el acta en papel. Que los
    totales cuadren demuestra que las dos publicaciones del Ministerio son
    coherentes entre sí.
+
+## 6. Ficha de verificabilidad
+
+`actasum es context --mesa MESA.zip` escribe un borrador del contexto de la
+ficha (docs/spec/verifiability.md, en inglés) a partir de los ficheros del
+Ministerio: escaños por provincia en el Congreso (fichero 08, columnas
+29-33, con los nombres del fichero 07), concejales por municipio en las
+municipales (fichero 05, columnas 214-216; los municipios solo como
+distribución, nunca en un listado), las europeas pendientes porque no se han
+leído los artículos de su reparto, la fila del CERA de cada provincia como
+canal de voto exterior y el voto por correo como no publicado aparte. Los
+detalles están en la versión inglesa, sección 6.

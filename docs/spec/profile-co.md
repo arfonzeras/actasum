@@ -129,3 +129,9 @@ jurors. None of that is read or stored.
    rests on the Registraduría's own explanatory document and on the records.
 7. Whether a withdrawn candidate's votes must become unmarked votes is taken
    from what the record shows the commission did, not from the rule.
+
+## 6. What counts as proclaimed
+
+Not fixed yet: the law has not been read. The verifiability card treats the
+two departments run as `partial` coverage of a national election: it gives
+no margin, only what is published and whether the publications agree.

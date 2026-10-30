@@ -6,6 +6,7 @@
     actasum es seats    --mesa MESA.zip            (local elections only)
     actasum es convert  --mesa MESA.zip --out statements.jsonl
     actasum es official --tota TOTA.zip --out official.json
+    actasum es context  --mesa MESA.zip --out context.json  (draft for `card`)
     actasum verify      --statements statements.jsonl --official official.json
     actasum card        --statements statements.jsonl --official official.json [--official ...]
                         --context context.json [--out card.json]
@@ -112,6 +113,12 @@ def _es_official(args) -> int:
     finally:
         if out is not sys.stdout:
             out.close()
+    return 0
+
+
+def _es_context(args) -> int:
+    context = infoelectoral.card_context(infoelectoral.load_dataset(args.mesa))
+    _write_json(context, args.out)
     return 0
 
 
@@ -984,6 +991,13 @@ def build_parser() -> argparse.ArgumentParser:
     official.add_argument("--tota", required=True, help="the _TOTA ZIP file or a directory")
     official.add_argument("--out", default="-", help="output file (default: stdout)")
     official.set_defaults(run=_es_official)
+
+    context = es_commands.add_parser(
+        "context", help="draft card context: seats, overseas and postal vote"
+    )
+    context.add_argument("--mesa", required=True, help="the _MESA ZIP file or a directory")
+    context.add_argument("--out", default="-", help="output file (default: stdout)")
+    context.set_defaults(run=_es_context)
 
     replay = es_commands.add_parser("replay", help="convert, aggregate and compare in one step")
     replay.add_argument("--mesa", required=True, help="the _MESA ZIP file or a directory")
