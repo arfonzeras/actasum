@@ -25,7 +25,9 @@ tally sheet is still wrong.
 
 Not yet specified (planned for later versions): signatures and submitter
 credentials, and image evidence. The append-only log and its witnesses are
-specified in [`log.md`](log.md) and [`witness.md`](witness.md).
+specified in [`log.md`](log.md) and [`witness.md`](witness.md), and the
+verifiability card, which is computed from statements and official totals and
+changes neither, in [`verifiability.md`](verifiability.md).
 
 ## 2. Canonical JSON
 
