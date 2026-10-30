@@ -232,3 +232,32 @@ end reaches this profile as an official total for an area.
 6. A statement built from these files is evidence about the **published
    dataset**, not about the paper tally sheet. Matching totals show that the
    Ministry's two publications are consistent with each other.
+
+## 6. Verifiability card
+
+`actasum es context --mesa MESA.zip` drafts the context of the card
+(docs/spec/verifiability.md) from the Ministry's files:
+
+- **Congreso:** a `seats` contest per province. The seats to fill are the
+  candidates each candidature obtained, added up per province, from file 08,
+  columns 29-33 ("número de candidatos obtenidos por la candidatura" in the
+  record-layout document; the positions were taken from the rows, in the
+  order of fields the document lists, and add up to 350 in November 2019).
+  The province names come from file 07, columns 15-64. Threshold 3 per cent,
+  article 163.1. Provinces are listed by name.
+- **Local elections:** a `seats` contest per municipality, with the seats to
+  fill from file 05, columns 214-216, and a threshold of 5 per cent
+  (article 180). Municipalities are given only as a distribution, never
+  listed.
+- **European Parliament:** pending. The allocation articles have not been
+  read.
+- **Remote vote:** the overseas (CERA) row of each province is a channel,
+  with its ballots, its census (the CERA census, file 09) and their ratio per
+  province. The postal vote is marked as not published separately: the
+  fields the record-layout document lists for files 09 and 10 have none. That
+  list was read in the text extracted from the `.doc`, which may miss a field.
+
+Facts the files do not give (images, published hashes, the practices of the
+thesis) are added by hand, each with its source.
+
+What counts as proclaimed is not fixed in this document yet.
