@@ -559,6 +559,34 @@ def read_province_seats(dataset: Dataset) -> tuple[dict[str, int], dict[str, str
     return seats, names
 
 
+def read_national_seats(dataset: Dataset) -> int:
+    """Seats won in the country, added up over the candidature rows of the
+    national row of file 08 (region 99, province 99), for the European
+    Parliament. Columns 29-33, as for the Congreso; they add up to 54 in May
+    2019 and 61 in June 2024, the number in article 2 of each convocation
+    decree (Real Decreto 206/2019 and 363/2024)."""
+    if _scope(dataset, "08") != "country":
+        raise FormatError(
+            f"{dataset.path}: national seats are only read for the European Parliament"
+        )
+    name = dataset.name("08")
+    total = 0
+    found = False
+    for index, line in enumerate(dataset.lines("08"), start=1):
+        if not line.strip():
+            continue
+        where = f"{name}:{index}"
+        if len(line) < 33:
+            raise FormatError(f"{where}: line has {len(line)} characters, expected at least 33")
+        if _field(line, 10, 13) != "9999":
+            continue
+        found = True
+        total += _number(line, 29, 33, where)
+    if not found:
+        raise FormatError(f"{name}: no national row found")
+    return total
+
+
 def card_context(dataset: Dataset) -> dict:
     """What a verifiability card needs to know about a Spanish election, as
     far as the Ministry's files say it. Facts the files do not give are left
@@ -630,8 +658,17 @@ def card_context(dataset: Dataset) -> dict:
     else:
         contest = {
             "kind": "seats",
-            "status": "pending",
-            "reason": "the allocation articles for the European Parliament have not been read",
+            "seats": {COUNTRY: read_national_seats(dataset)},
+            "threshold_percent": 0,
+            "ties": "more_votes_then_lot",
+            "detail": "by_constituency",
+            "source": dict(
+                layout,
+                file=dataset.name("08"),
+                note="seats to fill: the candidates each candidature obtained in the national "
+                "row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without "
+                "its threshold)",
+            ),
         }
     return {
         "spec": "actasum/card-context/v0.1",
