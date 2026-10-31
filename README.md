@@ -75,7 +75,14 @@ actasum es seats  --mesa 04202305_MESA.zip                       # would a diffe
 | `07201905_MESA.zip` | `8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474` |
 | `04202305_MESA.zip` | `20dac696cd2efaa63c9346384ddb682f3da4fda92c6af67447159a60f1ab0de3` |
 | `04201905_MESA.zip` | `b8b1c649e3841ba735383152fd3a38259a336698d1eb79f7a653cae54c02e204` |
-| `02200803_MESA.zip`, `02201606_MESA.zip`, `02201904_MESA.zip`, `02202307_MESA.zip` | not recorded |
+| `02200803_MESA.zip` | `9dd65b74aae646cc6f5e9dfbaaa6520f029b6f3cbac76f2c369d7b96e7d8081d` |
+| `02201606_MESA.zip` | `d41c21244a5810fe596bac18352fd9820ab197662ee744de87b7db08e507a5ce` |
+| `02201904_MESA.zip` | `92f2ff6c1c9a6504d6d3647fa365c64a3502d36e15440364aa94f478e7d40764` |
+| `02202307_MESA.zip` | `e78fc231326a03cf67bbec87b7100ea0c8c46859daa1b2a631c06daaaf1717f8` |
+
+The last four hashes were recorded on 31 October 2026, from copies whose
+replay gives the same figures as the findings; the files of the first runs
+were not hashed.
 
 **Colombia.** The per-station file (`MMV_…csv`) and the *Acta General de
 Escrutinio* (AGE) of each department's general scrutiny commission, from the

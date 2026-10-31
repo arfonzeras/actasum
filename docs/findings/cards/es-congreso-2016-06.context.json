@@ -1,0 +1,206 @@
+{
+  "spec": "actasum/card-context/v0.1",
+  "election": "es/congreso/2016-06",
+  "contest": {
+    "kind": "seats",
+    "seats": {
+      "es/11": 9,
+      "es/14": 6,
+      "es/18": 7,
+      "es/39": 5,
+      "es/02": 4,
+      "es/19": 3,
+      "es/09": 4,
+      "es/24": 4,
+      "es/34": 3,
+      "es/37": 4,
+      "es/47": 5,
+      "es/25": 4,
+      "es/10": 4,
+      "es/15": 8,
+      "es/32": 4,
+      "es/36": 7,
+      "es/30": 10,
+      "es/26": 4,
+      "es/46": 16,
+      "es/52": 1,
+      "es/21": 5,
+      "es/29": 11,
+      "es/44": 3,
+      "es/50": 7,
+      "es/07": 8,
+      "es/35": 8,
+      "es/38": 7,
+      "es/13": 5,
+      "es/05": 3,
+      "es/40": 3,
+      "es/08": 31,
+      "es/06": 6,
+      "es/31": 5,
+      "es/04": 6,
+      "es/41": 12,
+      "es/33": 8,
+      "es/45": 6,
+      "es/17": 6,
+      "es/48": 8,
+      "es/03": 12,
+      "es/23": 5,
+      "es/16": 3,
+      "es/42": 2,
+      "es/43": 6,
+      "es/51": 1,
+      "es/49": 3,
+      "es/27": 4,
+      "es/01": 4,
+      "es/20": 6,
+      "es/28": 36,
+      "es/12": 5,
+      "es/22": 3
+    },
+    "names": {
+      "es/22": "Huesca",
+      "es/31": "Navarra",
+      "es/42": "Soria",
+      "es/11": "Cádiz",
+      "es/06": "Badajoz",
+      "es/50": "Zaragoza",
+      "es/15": "A Coruña",
+      "es/04": "Almería",
+      "es/21": "Huelva",
+      "es/29": "Málaga",
+      "es/23": "Jaén",
+      "es/19": "Guadalajara",
+      "es/10": "Cáceres",
+      "es/51": "Ceuta",
+      "es/16": "Cuenca",
+      "es/37": "Salamanca",
+      "es/03": "Alicante / Alacant",
+      "es/46": "Valencia / València",
+      "es/25": "Lleida",
+      "es/30": "Murcia",
+      "es/14": "Córdoba",
+      "es/38": "Santa Cruz de Tenerife",
+      "es/49": "Zamora",
+      "es/13": "Ciudad Real",
+      "es/24": "León",
+      "es/17": "Girona",
+      "es/28": "Madrid",
+      "es/01": "Araba / Álava",
+      "es/48": "Bizkaia",
+      "es/33": "Asturias",
+      "es/39": "Cantabria",
+      "es/43": "Tarragona",
+      "es/32": "Ourense",
+      "es/07": "Illes Balears",
+      "es/47": "Valladolid",
+      "es/20": "Gipuzkoa",
+      "es/18": "Granada",
+      "es/44": "Teruel",
+      "es/26": "La Rioja",
+      "es/35": "Las Palmas",
+      "es/45": "Toledo",
+      "es/09": "Burgos",
+      "es/40": "Segovia",
+      "es/52": "Melilla",
+      "es/41": "Sevilla",
+      "es/05": "Ávila",
+      "es/08": "Barcelona",
+      "es/12": "Castellón / Castelló",
+      "es/34": "Palencia",
+      "es/36": "Pontevedra",
+      "es/02": "Albacete",
+      "es/27": "Lugo"
+    },
+    "threshold_percent": 3,
+    "ties": "more_votes_then_lot",
+    "detail": "by_constituency",
+    "source": {
+      "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+      "sha256": "sha256:d41c21244a5810fe596bac18352fd9820ab197662ee744de87b7db08e507a5ce",
+      "file": "08021606.DAT",
+      "note": "seats to fill: the candidates each candidature obtained, added up; rule: LOREG, article 163.1"
+    }
+  },
+  "channels": [
+    {
+      "name": "abroad (CERA)",
+      "match": {
+        "unit": "aggregate"
+      },
+      "published_at": "province",
+      "by_area": true,
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+        "sha256": "sha256:d41c21244a5810fe596bac18352fd9820ab197662ee744de87b7db08e507a5ce",
+        "note": "one row per province, municipality code 999"
+      }
+    },
+    {
+      "name": "postal",
+      "published_at": "not_published_separately",
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+        "sha256": "sha256:d41c21244a5810fe596bac18352fd9820ab197662ee744de87b7db08e507a5ce",
+        "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+      }
+    }
+  ],
+  "images": {
+    "value": null,
+    "status": "unverified",
+    "note": "whether the Ministry publishes images of the tally sheets has not been checked"
+  },
+  "hashes": {
+    "value": null,
+    "status": "unverified",
+    "note": "no published hash of the Ministry's files has been looked for; the SHA-256 of each file read is in the findings"
+  },
+  "practices": [
+    {
+      "n": 1,
+      "value": "yes",
+      "status": "reported",
+      "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 98.1, read in the BOE consolidated text"
+    },
+    {
+      "n": 2,
+      "value": "yes",
+      "status": "reported",
+      "source": "thesis, section 7.1 (Transparencia del escrutinio): 'hasta donde llega este trabajo'"
+    },
+    {
+      "n": 3,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 4,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 5,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 6,
+      "value": "no",
+      "status": "reported",
+      "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 97.3, read in the BOE consolidated text"
+    },
+    {
+      "n": 7,
+      "value": null,
+      "status": "unverified"
+    }
+  ]
+}

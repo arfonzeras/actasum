@@ -16,7 +16,7 @@
     ],
     "context": {
       "file": "es-europeas-2019-05.context.json",
-      "sha256": "sha256:4073ce3d6c32a1a4635d5f963574f5c60c2c577c87f5432b2ee9d9691d9356ec"
+      "sha256": "sha256:2ff24b058de7dc991582d53da7c92b6e17e0b057dbd263cf7a47e76222c1e6b8"
     }
   },
   "sum": "standing",
@@ -26,8 +26,93 @@
   },
   "contest": {
     "kind": "seats",
-    "status": "not_computed",
-    "reason": "the allocation articles for the European Parliament have not been read"
+    "rule": "highest averages 1, 2, 3...; threshold on candidatures plus blank; equal quotients to more votes",
+    "threshold_percent": 0,
+    "distribution": {
+      "constituencies": 1,
+      "computed": 1,
+      "votes_moved": {
+        "1-9": 0,
+        "10-99": 0,
+        "100-999": 0,
+        "1000+": 1,
+        "not_reachable": 0
+      },
+      "units_rewrite": {
+        "1": 1,
+        "2-5": 0,
+        "6+": 0,
+        "not_reachable": 0
+      },
+      "units_rewrite_without_aggregates": {
+        "1": 0,
+        "2-5": 0,
+        "6+": 1,
+        "not_reachable": 0
+      }
+    },
+    "constituencies": [
+      {
+        "constituency": "es",
+        "units": 60128,
+        "seats": 54,
+        "ballots": 22670316,
+        "by_lot": false,
+        "votes_moved": 68144,
+        "votes_added": 72429,
+        "diluted": {
+          "numerator": 68144,
+          "denominator": 22670316,
+          "percent": "0.3006"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 60128,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 60128,
+              "percent": "0.0017"
+            },
+            "without_aggregates": 61,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 60128,
+            "value": 157,
+            "share": {
+              "numerator": 157,
+              "denominator": 60128,
+              "percent": "0.2611"
+            },
+            "without_aggregates": 174,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 60128,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 60128,
+              "percent": "0.0017"
+            },
+            "without_aggregates": 108,
+            "status": "computed"
+          }
+        ]
+      }
+    ],
+    "seats_source": {
+      "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+      "sha256": "sha256:8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474",
+      "file": "08071905.DAT",
+      "note": "seats to fill: the candidates each candidature obtained in the national row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without its threshold); Real Decreto 206/2019 (BOE-A-2019-4820), article 2: 54 seats. The five more of its additional provision, allocated by the Junta Electoral Central once the United Kingdom's withdrawal took effect, are outside this card: how they were allocated has not been read"
+    }
   },
   "remote_vote": [
     {
@@ -54,9 +139,9 @@
       "status": "computed",
       "source": "statements",
       "against_margin": {
-        "value": null,
-        "status": "not_computed",
-        "reason": "no seat margin was computed"
+        "constituencies_with_channel": 1,
+        "constituencies_where_ballots_reach_votes_moved": 0,
+        "status": "computed"
       },
       "by_area": [
         {
