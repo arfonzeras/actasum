@@ -53,6 +53,9 @@ class Unit:
     ballots: int
     registered: int | None
     unread: int  # figures that could not be read
+    # The items those figures belong to, after merge and count_as:
+    # "candidature:<code>", "blank", "null" or "other:<category>".
+    unread_items: tuple[str, ...] = ()
 
     @property
     def valid(self) -> int:
@@ -76,6 +79,12 @@ def to_unit(statement: Statement, merge: dict[str, str], count_as: dict[str, str
             continue
         target = merge.get(code, code)
         votes[target] = votes.get(target, 0) + count
+    unread_items = []
+    for item in sorted(statement.unread):
+        if item.startswith("candidature:"):
+            code = item.removeprefix("candidature:")
+            item = count_as[code] if code in count_as else "candidature:" + merge.get(code, code)
+        unread_items.append(item)
     return Unit(
         station=statement.station,
         constituency=statement.constituency,
@@ -85,6 +94,7 @@ def to_unit(statement: Statement, merge: dict[str, str], count_as: dict[str, str
         ballots=statement.ballots,
         registered=statement.registered,
         unread=len(statement.unread),
+        unread_items=tuple(unread_items),
     )
 
 
@@ -149,12 +159,93 @@ def _capacity_single(unit: Unit, winner: str, loser: str, assumption: str) -> in
     return census - unit.ballots  # add_to_census
 
 
-def single_winner(units: list[Unit]) -> dict[str, Any]:
-    blocked = _unread_status(units)
+def bounded_single_winner(units: list[Unit]) -> dict[str, Any]:
+    """The margin as an interval when some figures could not be read: each
+    unread figure may be anything from 0 to the census of its station."""
+    with_unread = [u for u in units if u.unread]
+    no_census = sum(1 for u in with_unread if u.registered is None)
+    if no_census:
+        blocked = {
+            "value": None,
+            "status": "not_computed",
+            "reason": f"{len(with_unread)} statements have figures that could not be read, "
+            f"and {no_census} of them have no census to bound them",
+        }
+        return {"margin_votes": blocked, "margin_diluted": blocked, "margin_units": [blocked]}
     votes, _, ballots = _totals(units)
     ranking = _ranking(votes)
-    if blocked:
-        return {"margin_votes": blocked, "margin_diluted": blocked, "margin_units": [blocked]}
+    if len(ranking) < 2:
+        na = {"value": None, "status": "not_applicable", "reason": "fewer than two candidatures with votes"}
+        return {"margin_votes": na, "margin_diluted": na, "margin_units": [na]}
+    up_to: dict[str, int] = {}  # candidature -> most its unread figures can add
+    ballots_up_to = 0
+    cells = 0
+    for unit in with_unread:
+        for item in unit.unread_items:
+            cells += 1
+            ballots_up_to += unit.registered
+            if item.startswith("candidature:"):
+                code = item.removeprefix("candidature:")
+                up_to[code] = up_to.get(code, 0) + unit.registered
+    winner, second = ranking[0], ranking[1]
+    low = votes[winner] - votes[second] - up_to.get(second, 0)
+    high = votes[winner] + up_to.get(winner, 0) - votes[second]
+    change = any(
+        votes.get(code, 0) + up_to.get(code, 0) >= votes[winner] + 1
+        for code in set(votes) | set(up_to)
+        if code != winner
+    )
+    bounded = {
+        "statements": len(with_unread),
+        "figures": cells,
+        "rule": "each figure that could not be read is taken from 0 to the census of its station",
+    }
+    out: dict[str, Any] = {
+        "margin_votes": {
+            "value": None,
+            "interval": [low, high],
+            "between": [winner, second],
+            "bounded_by_unread_figures": bounded,
+            "includes_change_of_winner": change,
+            "status": "computed",
+            "source": "statements",
+        },
+    }
+    if change:
+        out["margin_votes"]["note"] = "the interval includes a change of winner"
+    if low >= 0:
+        out["margin_diluted"] = {
+            "value": None,
+            "interval": [ratio(low, ballots + ballots_up_to), ratio(high, ballots)],
+            "ballots_interval": [ballots, ballots + ballots_up_to],
+            "status": "computed",
+            "source": "statements",
+        }
+    else:
+        out["margin_diluted"] = {"value": None, "status": "not_computed",
+                                 "reason": "the margin interval reaches below zero"}  # fmt: skip
+    out["margin_units"] = [
+        {"assumption": a, "value": None, "status": "not_computed",
+         "reason": "the margin is an interval, bounded by figures that could not be read"}
+        for a in ASSUMPTIONS
+    ]  # fmt: skip
+    return out
+
+
+def _margin_bounds(contest_out: dict[str, Any]) -> tuple[int, int] | None:
+    margin = contest_out.get("margin_votes", {})
+    if isinstance(margin.get("value"), int):
+        return margin["value"], margin["value"]
+    if isinstance(margin.get("interval"), list):
+        return margin["interval"][0], margin["interval"][1]
+    return None
+
+
+def single_winner(units: list[Unit]) -> dict[str, Any]:
+    votes, _, ballots = _totals(units)
+    ranking = _ranking(votes)
+    if any(u.unread for u in units):
+        return bounded_single_winner(units)
     if len(ranking) < 2:
         reason = "fewer than two candidatures with votes"
         na = {"value": None, "status": "not_applicable", "reason": reason}
@@ -477,6 +568,11 @@ def seat_contest(units: list[Unit], contest: dict[str, Any]) -> tuple[dict[str, 
             continue
         votes, blank, ballots = _totals(members)
         allocation = allocate(votes, blank, to_fill, tau)
+        if allocation.by_lot:
+            row.update(status="not_computed",
+                       reason="the last seat falls on a tie the rule settles by lot")  # fmt: skip
+            rows.append(row)
+            continue
         missing = _no_census(members)
         headroom = None if missing else sum(max(0, u.registered - u.ballots) for u in members)
         moved, added = votes_to_change(votes, blank, to_fill, tau, headroom)
@@ -601,12 +697,25 @@ def remote_vote(
             source="statements",
         )
         if kind == "single_winner":
-            margin = contest_out.get("margin_votes", {}).get("value")
-            entry["against_margin"] = (
-                {"value": ballots >= margin + 1, "margin_votes": margin, "status": "computed"}
-                if isinstance(margin, int)
-                else {"value": None, "status": "not_computed", "reason": "no margin"}
-            )
+            bounds = _margin_bounds(contest_out)
+            if bounds is None:
+                entry["against_margin"] = {"value": None, "status": "not_computed", "reason": "no margin"}
+            elif bounds[0] == bounds[1]:
+                entry["against_margin"] = {"value": ballots >= bounds[0] + 1,
+                                           "margin_votes": bounds[0], "status": "computed"}  # fmt: skip
+            else:
+                low, high = bounds
+                value = True if ballots >= high + 1 else False if ballots < low + 1 else None
+                entry["against_margin"] = {
+                    "value": value,
+                    "margin_votes_interval": [low, high],
+                    "status": "computed",
+                    **({} if value is not None else
+                       {"note": "depends on the figures that could not be read"}),
+                }  # fmt: skip
+        elif kind == "seats" and "constituencies_all" not in contest_out:
+            entry["against_margin"] = {"value": None, "status": "not_computed",
+                                       "reason": "no seat margin was computed"}  # fmt: skip
         elif kind == "seats":
             needed = {
                 r["constituency"]: r.get("votes_moved")
@@ -736,22 +845,28 @@ def coverage_bound(
     if kind == "seats":
         return {"status": "not_computed", "reason": "not defined for seats with stations missing"}
     registered = coverage.get("registered_without_statement")
-    margin = contest_out.get("margin_votes", {}).get("value")
-    if not isinstance(registered, int) or not isinstance(margin, int):
+    bounds = _margin_bounds(contest_out)
+    if not isinstance(registered, int) or bounds is None:
         return {"status": "not_computed",
                 "reason": "the context gives no census of the stations without a statement"
                 if not isinstance(registered, int) else "no margin"}  # fmt: skip
-    reaches = registered >= margin + 1
+    low, high = bounds
+    if registered >= high + 1:
+        reaches: bool | None = True
+        text = "the registered voters of the stations without a statement reach the margin"
+    elif registered < low + 1:
+        reaches = False
+        text = "the registered voters of the stations without a statement do not reach the margin"
+    else:
+        reaches = None
+        text = "whether the registered voters of the stations without a statement reach the "
+        text += "margin depends on the figures that could not be read"
     return {
         "stations_without_statement": missing,
         "registered_without_statement": registered,
-        "margin_votes": margin,
+        **({"margin_votes": low} if low == high else {"margin_votes_interval": [low, high]}),
         "reaches_margin": reaches,
-        "value": (
-            "the registered voters of the stations without a statement reach the margin"
-            if reaches
-            else "the registered voters of the stations without a statement do not reach the margin"
-        ),
+        "value": text,
         "status": "computed",
         "source": source,
     }

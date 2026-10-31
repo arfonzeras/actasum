@@ -46,6 +46,7 @@ actasum card --statements statements.jsonl --official official.json [--official 
 | `not_applicable` | The indicator does not apply to this kind of contest; `reason` says why |
 | `not_computed` | It applies, but an input is missing or not exact; `reason` says which |
 | `not_published` | The authority does not publish the figure separately, according to `source` |
+| `reported` | A fact the context takes from the source it names, not computed here |
 | `unverified` | A fact this work has not checked |
 
 `source` is `statements`, `official`, `context` or `verifier` (the result of
@@ -62,6 +63,9 @@ kind there are.
 
 When a figure depends on a value some statement could not read (core,
 section 3.4), it is `not_computed`, with the number of statements concerned.
+The one exception is the margin of a `single_winner` contest (section 3.1):
+there each unread figure is taken from 0 to the census of its station, and
+the margin is given as an interval.
 
 The **census** of a unit, `R`, is `counts.registered`. Where a unit has more
 ballots counted than registered voters (in Spain, polling-station officials
@@ -118,6 +122,18 @@ marked as assumed.
   If all units together do not reach the threshold, the figure is `null` with
   `"reachable": false`.
 
+- **With figures that could not be read.** Each unread figure is taken from 0
+  to the census of its station (`counts.registered`), independently of the
+  others. *W* and the second are those of the figures that were read. The
+  margin becomes an `interval`: from `V(W) − V(L) − (most L's unread figures
+  can add)` to `V(W) + (most W's unread figures can add) − V(L)`, with the
+  number of statements and figures behind it. If another candidature, with
+  all its unread figures at their census and *W*'s at 0, would have more
+  votes than *W*, the card says "the interval includes a change of winner",
+  and nothing more. The diluted margin is an interval too, while the margin
+  stays at or above zero; the margin in units is `not_computed`. A statement
+  with unread figures and no census leaves the margin `not_computed`.
+
   When some units are aggregates, each figure also comes `without_aggregates`:
   the same count with only the polling stations allowed to differ. An
   aggregate can have a census far above its ballots (the overseas row of a
@@ -163,8 +179,9 @@ Per constituency, with the seats to fill and the allocation rule the context
 gives. The only rule implemented is the highest-averages method with
 divisors 1, 2, 3… (D'Hondt), a threshold as a percentage of the valid votes
 (candidatures plus blank) and equal quotients going to the candidature with
-more votes; where the totals are equal too, the context's rule decides by lot
-and the card says so. This is the rule of article 163.1 of Spain's LOREG
+more votes; where the totals are equal too, the context's rule decides by lot.
+A constituency whose last seat falls on such a tie is `not_computed`, since
+its allocation is not given by the votes. This is the rule of article 163.1 of Spain's LOREG
 (and article 180 for local elections, with 5 per cent).
 
 - **Votes to change the allocation, moved:** the least number *t* of votes
@@ -203,7 +220,9 @@ and the card says so. This is the rule of article 163.1 of Spain's LOREG
   lower bound, not the exact number: reaching a condition is necessary for
   the allocation to change, not always enough.
 
-Each figure in units also comes `without_aggregates` when there are
+A constituency where no move of votes changes the allocation (one
+candidature only, for example) counts as `not_reachable` in the distribution
+of votes. Each figure in units also comes `without_aggregates` when there are
 aggregates. When the context does not allow constituencies to be listed, the
 card gives only the distribution: how many constituencies would change with fewer than
 10, 100 or 1,000 votes moved, or more, and with 1, 2 to 5, or more units
@@ -255,7 +274,11 @@ stations, `R_without`, with its source.
 - `single_winner`: they reach the margin if `R_without ≥ M + 1`, *M* being the
   margin of the statements there are. The card then says "the registered
   voters of the stations without a statement reach the margin", and
-  otherwise that they do not. Nothing more.
+  otherwise that they do not. Nothing more. When the margin is an interval
+  (section 3.1), they reach it if they reach its top, do not if they stay
+  below its bottom, and otherwise the card says that it depends on the
+  figures that could not be read. The same holds for a remote-vote channel
+  against the margin.
 - `seats`: with no station missing, "complete coverage". Otherwise
   `not_computed` in this version.
 - `first_round` and `partial`: `not_applicable`.

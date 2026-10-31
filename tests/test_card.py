@@ -90,11 +90,38 @@ def test_a_tie_does_not_count():
     assert add["value"] is None and add["reachable"] is False
 
 
-def test_unread_figures_block_the_margin():
-    statements = [st("xx/1", {"W": 5}, registered=10, unread=["L"]), st("xx/2", {"W": 1, "L": 3})]
+def test_unread_figures_give_an_interval():
+    statements = [
+        st("xx/1", {"W": 50, "L": 3}, registered=60),
+        st("xx/2", {"W": 40}, registered=10, unread=["L"]),
+        st("xx/3", {"L": 30}, registered=8, unread=["W"]),
+    ]
+    contest = card.single_winner([card.to_unit(s, {}, {}) for s in statements])
+    margin = contest["margin_votes"]
+    # read: W 90, L 33; L may gain up to 10, W up to 8
+    assert margin["value"] is None and margin["interval"] == [47, 65]
+    assert margin["bounded_by_unread_figures"]["figures"] == 2
+    assert margin["includes_change_of_winner"] is False
+    assert contest["margin_diluted"]["ballots_interval"] == [123, 141]
+    assert all(row["status"] == "not_computed" for row in contest["margin_units"])
+
+
+def test_an_interval_can_include_a_change_of_winner():
+    statements = [
+        st("xx/1", {"W": 10, "L": 8}, registered=30),
+        st("xx/2", {"W": 1}, registered=20, unread=["L"]),
+    ]
+    margin = card.single_winner([card.to_unit(s, {}, {}) for s in statements])["margin_votes"]
+    assert margin["interval"] == [-17, 3]
+    assert margin["includes_change_of_winner"] is True
+    assert margin["note"] == "the interval includes a change of winner"
+
+
+def test_unread_figures_without_census_are_not_bounded():
+    statements = [st("xx/1", {"W": 5}, unread=["L"]), st("xx/2", {"W": 1, "L": 3})]
     contest = card.single_winner([card.to_unit(s, {}, {}) for s in statements])
     assert contest["margin_votes"]["status"] == "not_computed"
-    assert "could not be read" in contest["margin_votes"]["reason"]
+    assert "no census" in contest["margin_votes"]["reason"]
 
 
 def test_without_census_only_move_is_computed():
@@ -299,3 +326,12 @@ def test_a_seats_card():
     assert "constituencies" not in hidden["contest"]
     assert hidden["contest"]["distribution"] == result["contest"]["distribution"]
 
+
+
+def test_a_seat_decided_by_lot_is_not_computed():
+    statements = [st("xx/a/1", {"A": 10, "B": 10}, registered=30, constituency="xx/a")]
+    ctx = context("seats")
+    ctx["contest"] = {"kind": "seats", "seats": {"xx/a": 1}, "threshold_percent": 0,
+                      "detail": "by_constituency"}  # fmt: skip
+    row = card.build_card(statements, [official(statements)], ctx)["contest"]["constituencies"][0]
+    assert row["status"] == "not_computed" and "lot" in row["reason"]
