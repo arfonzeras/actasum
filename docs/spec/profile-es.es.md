@@ -141,8 +141,11 @@ la verificación.
    elecciones más antiguas ni otros tipos de elección.
 2. Los artículos 79 y 95 a 108 de la LOREG se comprobaron el 11 de octubre
    de 2026 en el texto consolidado del BOE (referencia BOE-A-1985-11672,
-   última modificación de 2 de julio de 2026). El resto de la ley no se ha
-   leído para este perfil. La modificación de julio de 2026 (Ley Orgánica
+   última modificación de 2 de julio de 2026). Los artículos 108, 163, 173,
+   180, 191, 214, 216 y 224 se leyeron el 31 de octubre de 2026 en el mismo
+   texto. El resto de la ley no se ha leído para este perfil. Estos artículos
+   se aplican a elecciones de 2008 a 2024 en su redacción de 2026; no se ha
+   comparado con la redacción vigente el día de cada elección. La modificación de julio de 2026 (Ley Orgánica
    2/2026) cambia los artículos 161.2 y 165.2, sobre las circunscripciones
    del Senado, y no afecta al escrutinio.
 3. Los códigos de candidatura del fichero 10 y del fichero 08 son el mismo
@@ -160,3 +163,47 @@ la verificación.
    el **conjunto de datos publicado**, no sobre el acta en papel. Que los
    totales cuadren demuestra que las dos publicaciones del Ministerio son
    coherentes entre sí.
+
+## 6. Ficha de verificabilidad
+
+`actasum es context --mesa MESA.zip` escribe un borrador del contexto de la
+ficha (docs/spec/verifiability.md, en inglés) a partir de los ficheros del
+Ministerio: escaños por provincia en el Congreso (fichero 08, columnas
+29-33, con los nombres del fichero 07), concejales por municipio en las
+municipales (fichero 05, columnas 214-216; los municipios solo como
+distribución, nunca en un listado), los escaños de las europeas en la fila
+nacional del fichero 08 (54 en mayo de 2019 y 61 en junio de 2024, los del
+artículo 2 de cada real decreto de convocatoria) sin barrera, porque el
+artículo 216 aplica el 163 salvo su apartado 1.a, la fila del CERA de cada
+provincia como canal de voto exterior y el voto por correo como no publicado
+aparte. En 2019 la ficha calcula solo los 54 escaños del artículo 2; los
+cinco que la Junta Electoral Central asignó tras la salida del Reino Unido
+quedan fuera, porque no se ha leído cómo se asignaron. Los detalles están en
+la versión inglesa, sección 6.
+
+### 6.1 Qué cuenta como proclamado
+
+Leído en el texto consolidado de la LOREG (BOE-A-1985-11672, última
+modificación de 2 de julio de 2026):
+
+- **Congreso y municipales.** Las juntas competentes proclaman a los electos
+  al día siguiente de terminar el plazo de reclamaciones sin que las haya, o
+  de resolverlas la Junta Electoral Central (artículo 108.4). Son las juntas
+  provinciales en el Congreso (artículo 173) y las de zona en las municipales
+  (artículo 191.1). La proclamación consta en un acta de proclamación con
+  electores, votantes, votos de cada candidatura, en blanco, válidos y nulos,
+  escaños de cada candidatura y relación de electos (artículo 108.5). La
+  Junta Electoral Central publica en el BOE los resultados generales y por
+  circunscripciones en cuarenta días, «sin perjuicio de los recursos
+  contencioso-electorales contra la proclamación de electos» (artículo 108.6).
+- **Parlamento Europeo.** La Junta Electoral Central hace el recuento
+  nacional, atribuye los escaños y proclama a los electos no más tarde del
+  vigésimo día posterior a las elecciones (artículo 224.1).
+- **Para publicar una ficha**, una elección cuenta como proclamada cuando lo
+  está cada circunscripción de su ficha: las 52 provincias en el Congreso, el
+  país en las europeas y cada municipio de la ficha en las municipales. La
+  prueba pública que un lector puede comprobar es la publicación en el BOE
+  del artículo 108.6; no consta que se publiquen las actas de proclamación de
+  las juntas. Queda sin decidir si un recurso contencioso-electoral contra
+  la proclamación (artículos 109 y 112.1, en tres días) debe retrasar la
+  publicación.

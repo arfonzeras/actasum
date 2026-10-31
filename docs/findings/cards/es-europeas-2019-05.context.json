@@ -1,0 +1,101 @@
+{
+  "spec": "actasum/card-context/v0.1",
+  "election": "es/europeas/2019-05",
+  "contest": {
+    "kind": "seats",
+    "seats": {
+      "es": 54
+    },
+    "threshold_percent": 0,
+    "ties": "more_votes_then_lot",
+    "detail": "by_constituency",
+    "source": {
+      "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+      "sha256": "sha256:8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474",
+      "file": "08071905.DAT",
+      "note": "seats to fill: the candidates each candidature obtained in the national row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without its threshold); Real Decreto 206/2019 (BOE-A-2019-4820), article 2: 54 seats. The five more of its additional provision, allocated by the Junta Electoral Central once the United Kingdom's withdrawal took effect, are outside this card: how they were allocated has not been read"
+    }
+  },
+  "channels": [
+    {
+      "name": "abroad (CERA)",
+      "match": {
+        "unit": "aggregate"
+      },
+      "published_at": "province",
+      "by_area": true,
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+        "sha256": "sha256:8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474",
+        "note": "one row per province, municipality code 999"
+      }
+    },
+    {
+      "name": "postal",
+      "published_at": "not_published_separately",
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+        "sha256": "sha256:8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474",
+        "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+      }
+    }
+  ],
+  "images": {
+    "value": null,
+    "status": "unverified",
+    "note": "whether the Ministry publishes images of the tally sheets has not been checked"
+  },
+  "hashes": {
+    "value": null,
+    "status": "unverified",
+    "note": "no published hash of the Ministry's files has been looked for; the SHA-256 of each file read is in the findings"
+  },
+  "practices": [
+    {
+      "n": 1,
+      "value": "yes",
+      "status": "reported",
+      "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 98.1, read in the BOE consolidated text"
+    },
+    {
+      "n": 2,
+      "value": "yes",
+      "status": "reported",
+      "source": "thesis, section 7.1 (Transparencia del escrutinio): 'hasta donde llega este trabajo'"
+    },
+    {
+      "n": 3,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 4,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 5,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 6,
+      "value": "no",
+      "status": "reported",
+      "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 97.3, read in the BOE consolidated text"
+    },
+    {
+      "n": 7,
+      "value": null,
+      "status": "unverified"
+    }
+  ]
+}

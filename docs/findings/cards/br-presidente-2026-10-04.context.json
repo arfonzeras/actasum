@@ -1,0 +1,76 @@
+{
+  "spec": "actasum/card-context/v0.1",
+  "election": "br/presidente/2026-10-04",
+  "contest": {
+    "kind": "first_round"
+  },
+  "channels": [
+    {
+      "name": "abroad (ZZ)",
+      "match": {
+        "station_pattern": "^br/zz/"
+      },
+      "published_at": "station",
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "source": "TSE ballot-box report files, state code ZZ"
+    }
+  ],
+  "images": {
+    "value": null,
+    "status": "unverified",
+    "note": "whether images of the printed ballot-box reports are published has not been checked"
+  },
+  "hashes": {
+    "value": "SHA-512 of each ballot-box ZIP file, published by the TSE next to it; all 28 equal those of the files read",
+    "status": "computed",
+    "source": "docs/findings/br-presidente-2026.md and br-presidente-2026-1t.sha512"
+  },
+  "practices": [
+    {
+      "n": 1,
+      "value": null,
+      "status": "unverified",
+      "note": "a TSE news article read through an automatic extract says the report is printed in five copies"
+    },
+    {
+      "n": 2,
+      "value": "yes",
+      "status": "reported",
+      "source": "thesis, section 7.1"
+    },
+    {
+      "n": 3,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 4,
+      "value": null,
+      "status": "unverified",
+      "note": "according to a TSE news article read through an automatic extract the printed report carries a QR code; not checked on any report"
+    },
+    {
+      "n": 5,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 6,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 7,
+      "value": null,
+      "status": "unverified"
+    }
+  ],
+  "proclamation": {
+    "status": "not_found",
+    "what_counts": "the proclamation of the elected president and vice-president by the TSE (docs/spec/profile-br.md, section 9)",
+    "note": "not found for 2026 as of 30 October 2026"
+  }
+}

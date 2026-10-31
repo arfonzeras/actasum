@@ -192,7 +192,20 @@ this profile, in the order of how much they matter.
    from abroad, early voting and voting in pre-trial detention, because the
    files count each of them as a tally sheet.
 6. Stations of type `V`, present only in the Cómputos file, are read like any
-   other; what they are has not been looked up.
+   other. According to the INE's manual of the Cómputos database (field
+   `TIPO_CASILLA`, read in the text extracted from the PDF on 30 October
+   2026), `B`, `C`, `E` and `S` are polling stations (basic, adjoining,
+   extraordinary, special) and the other letters are counting tables (*Mesa
+   de Escrutinio y Cómputo*): `A` early vote, `M` Mexicans abroad by post,
+   `P` pre-trial detention and `V` Mexicans abroad "modalidad por internet
+   (electrónico y presencial)". The verifiability card uses them as remote
+   vote channels; the statements are unchanged.
 7. The INE's catalogue of stations dated 3 May 2024 lists 161,965 stations;
    the PREP expects 170,648 tally sheets and the Cómputos file 170,766. The
    difference has not been looked into.
+
+## 8. What counts as proclaimed
+
+Not fixed yet: the law has not been read (section 7, point 1). Until it is,
+this profile does not say which act of the INE or of the electoral court
+counts as the proclamation of the presidential result.

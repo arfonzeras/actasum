@@ -1,0 +1,305 @@
+{
+  "spec": "actasum/verifiability/v0.1",
+  "election": "mx/presidencia/2024-06",
+  "profile": "mx/lgipe/v0.1",
+  "inputs": {
+    "statements": {
+      "file": "mx.jsonl",
+      "sha256": "sha256:476d599d9cd44672226840d76d88531cf487e5a824524a635112a1937046a837",
+      "statements": 329593
+    },
+    "official": [
+      {
+        "file": "mx-presidencia-2024-06.official.json",
+        "sha256": "sha256:3eb67eec23b5d0f76fc8a850b0f331c21dd5e40256c12abdf698388d7f00186c"
+      }
+    ],
+    "context": {
+      "file": "mx-presidencia-2024-06.context.json",
+      "sha256": "sha256:d93c142e0619fc4d5ba2bbecbc0ae1ead63c0b40f1023d250704747d80f4404c"
+    }
+  },
+  "sum": "standing",
+  "units": {
+    "stations": 170637,
+    "aggregates": 0
+  },
+  "contest": {
+    "kind": "single_winner",
+    "outcome_rule": {
+      "value": "most_votes",
+      "status": "unverified",
+      "note": "assumed: the law (LGIPE) has not been read"
+    },
+    "margin_votes": {
+      "value": null,
+      "interval": [
+        19419032,
+        19427046
+      ],
+      "between": [
+        "PVEM-PT-MORENA",
+        "PAN-PRI-PRD"
+      ],
+      "bounded_by_unread_figures": {
+        "statements": 3,
+        "figures": 16,
+        "rule": "each figure that could not be read is taken from 0 to the census of its station"
+      },
+      "includes_change_of_winner": false,
+      "status": "computed",
+      "source": "statements"
+    },
+    "margin_diluted": {
+      "value": null,
+      "interval": [
+        {
+          "numerator": 19419032,
+          "denominator": 60129635,
+          "percent": "32.2953"
+        },
+        {
+          "numerator": 19427046,
+          "denominator": 60120449,
+          "percent": "32.3135"
+        }
+      ],
+      "ballots_interval": [
+        60120449,
+        60129635
+      ],
+      "status": "computed",
+      "source": "statements"
+    },
+    "margin_units": [
+      {
+        "assumption": "rewrite",
+        "value": null,
+        "status": "not_computed",
+        "reason": "the margin is an interval, bounded by figures that could not be read"
+      },
+      {
+        "assumption": "move",
+        "value": null,
+        "status": "not_computed",
+        "reason": "the margin is an interval, bounded by figures that could not be read"
+      },
+      {
+        "assumption": "add_to_census",
+        "value": null,
+        "status": "not_computed",
+        "reason": "the margin is an interval, bounded by figures that could not be read"
+      }
+    ]
+  },
+  "remote_vote": [
+    {
+      "channel": "early (voto anticipado, type A)",
+      "published_at": {
+        "value": "station",
+        "source": {
+          "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+          "read": "text extracted from the PDF, 30 October 2026"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "units": 284,
+      "ballots": 3463,
+      "weight": {
+        "numerator": 3463,
+        "denominator": 60120449,
+        "percent": "0.0058"
+      },
+      "status": "computed",
+      "source": "statements",
+      "against_margin": {
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
+      }
+    },
+    {
+      "channel": "abroad, postal (type M)",
+      "published_at": {
+        "value": "station",
+        "source": {
+          "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+          "read": "text extracted from the PDF, 30 October 2026"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "units": 87,
+      "ballots": 39586,
+      "weight": {
+        "numerator": 39586,
+        "denominator": 60120449,
+        "percent": "0.0658"
+      },
+      "status": "computed",
+      "source": "statements",
+      "against_margin": {
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
+      }
+    },
+    {
+      "channel": "abroad, internet (type V)",
+      "published_at": {
+        "value": "station",
+        "source": {
+          "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+          "read": "text extracted from the PDF, 30 October 2026"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "units": 64,
+      "ballots": 144740,
+      "weight": {
+        "numerator": 144740,
+        "denominator": 60120449,
+        "percent": "0.2408"
+      },
+      "status": "computed",
+      "source": "statements",
+      "against_margin": {
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
+      }
+    },
+    {
+      "channel": "pre-trial detention (prisión preventiva, type P)",
+      "published_at": {
+        "value": "station",
+        "source": {
+          "document": "Instituto Nacional Electoral, Manual. Base de datos Cómputos Distritales 2024, TIPO_CASILLA",
+          "read": "text extracted from the PDF, 30 October 2026"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "units": 150,
+      "ballots": 26667,
+      "weight": {
+        "numerator": 26667,
+        "denominator": 60120449,
+        "percent": "0.0444"
+      },
+      "status": "computed",
+      "source": "statements",
+      "against_margin": {
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
+      }
+    }
+  ],
+  "verifiability": {
+    "stations": 170637,
+    "units_with_result": [
+      {
+        "level": "constituency",
+        "stations_in_statements": 170637,
+        "stations_in_official_totals": null,
+        "share": null,
+        "status": "not_computed",
+        "reason": "the official totals give no stations",
+        "source": "statements, official"
+      }
+    ],
+    "sheet_images": {
+      "value": null,
+      "status": "unverified",
+      "note": "the PREP file gives a hash of an image per tally sheet; no image has been downloaded"
+    },
+    "file_hashes": {
+      "value": "none_found",
+      "status": "reported",
+      "source": "thesis, appendix A: 'el INE no publica una huella de ninguno que se haya encontrado'"
+    },
+    "publications_agree": [
+      {
+        "level": "constituency",
+        "areas_compared": 1,
+        "areas_matching": 0,
+        "figures_differing": 6,
+        "official_matches": "neither",
+        "status": "computed",
+        "source": "verifier"
+      }
+    ],
+    "practices": [
+      {
+        "n": 1,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 2,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 3,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 4,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 5,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 6,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 7,
+        "value": null,
+        "status": "unverified"
+      }
+    ]
+  },
+  "coverage_bound": {
+    "stations_without_statement": 129,
+    "registered_without_statement": 68856,
+    "margin_votes_interval": [
+      19419032,
+      19427046
+    ],
+    "reaches_margin": false,
+    "value": "the registered voters of the stations without a statement do not reach the margin",
+    "status": "computed",
+    "source": "Cómputos file PRES_2024.csv (SHA-256 860c1a539ac98b5def4dff3e82e87a19be3ebba7cb435b680ae79799942d1628): the 129 rows with no statement of either act (101 'Paquete no recibido', 5 'Paquete no recibido (Para recuento-…)', 23 'Casilla no instalada'), column LISTA_NOMINAL"
+  }
+}

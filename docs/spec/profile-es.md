@@ -206,8 +206,12 @@ end reaches this profile as an official total for an area.
    have not been tried.
 2. Articles 79 and 95 to 108 of the LOREG were checked on 11 October 2026
    against the consolidated text published by the official gazette (BOE,
-   reference BOE-A-1985-11672, last amended 2 July 2026). The rest of the
-   law has not been read for this profile. The July 2026 amendment (Organic
+   reference BOE-A-1985-11672, last amended 2 July 2026). Articles 108, 163,
+   173, 180, 191, 214, 216 and 224 were read on 31 October 2026 in the same
+   consolidated text. The rest of the law has not been read for this
+   profile. These articles are applied to elections from 2008 to 2024 in
+   their 2026 wording; the wording in force on each election day has not
+   been compared. The July 2026 amendment (Organic
    Law 2/2026) changes articles 161.2 and 165.2, on Senate constituencies,
    and does not touch the count.
    Two European Parliament elections and two local elections have been run.
@@ -232,3 +236,76 @@ end reaches this profile as an official total for an area.
 6. A statement built from these files is evidence about the **published
    dataset**, not about the paper tally sheet. Matching totals show that the
    Ministry's two publications are consistent with each other.
+
+## 6. Verifiability card
+
+`actasum es context --mesa MESA.zip` drafts the context of the card
+(docs/spec/verifiability.md) from the Ministry's files:
+
+- **Congreso:** a `seats` contest per province. The seats to fill are the
+  candidates each candidature obtained, added up per province, from file 08,
+  columns 29-33 ("número de candidatos obtenidos por la candidatura" in the
+  record-layout document; the positions were taken from the rows, in the
+  order of fields the document lists, and add up to 350 in November 2019).
+  The province names come from file 07, columns 15-64. Threshold 3 per cent,
+  article 163.1. Provinces are listed by name.
+- **Local elections:** a `seats` contest per municipality, with the seats to
+  fill from file 05, columns 214-216, and a threshold of 5 per cent
+  (article 180). Municipalities are given only as a distribution, never
+  listed.
+- **European Parliament:** one `seats` contest for the country, the single
+  constituency (article 214). The seats to fill are the candidates each
+  candidature obtained in the national row of file 08 (region 99,
+  province 99), columns 29-33, added up: 54 in May 2019 and 61 in June 2024,
+  the number in article 2 of each convocation decree (Real Decreto 206/2019,
+  BOE-A-2019-4820, and Real Decreto 363/2024, BOE-A-2024-7479). Article 216
+  applies article 163 without its section 1.a, so there is **no threshold**
+  (`threshold_percent: 0`), nor the Ceuta and Melilla rule of section 2. In
+  2019 the decree's additional provision gives Spain five more seats once the
+  United Kingdom's withdrawal took effect, allocated by the Junta Electoral
+  Central; the card computes the 54 of article 2 only, since how those five
+  were allocated has not been read.
+- **Remote vote:** the overseas (CERA) row of each province is a channel,
+  with its ballots, its census (the CERA census, file 09) and their ratio per
+  province. The postal vote is marked as not published separately: the
+  fields the record-layout document lists for files 09 and 10 have none. That
+  list was read in the text extracted from the `.doc`, which may miss a field.
+
+Facts the files do not give (images, published hashes, the practices of the
+thesis) are added by hand, each with its source.
+
+Ties: article 163.1.d gives an equal quotient to the candidature with more
+votes in total; between candidatures with equal totals, the first tie is
+settled by lot and the following ones alternately. A constituency whose last
+seat falls on such a tie is `not_computed` in the card.
+
+### 6.1 What counts as proclaimed
+
+Read in the consolidated text of the LOREG (BOE-A-1985-11672, last amended
+2 July 2026; the PDF read had SHA-256
+`861ea98cd5bf21c4b6d2349cebfe244f0a525cf3c812e546bff05ec15f57d1c7`):
+
+- **Congreso and local elections.** The competent boards proclaim the
+  elected (*proclamación de electos*) the day after the period for claims
+  ends without any, or after the Junta Electoral Central has resolved them
+  (article 108.4). The competent boards are the provincial boards for the
+  Congreso (article 173) and the zone boards for local elections
+  (article 191.1). The proclamation is recorded in an *acta de
+  proclamación* that states the electors, voters, votes per candidature,
+  blank, valid and null votes, the seats of each candidature and the names
+  of the elected (article 108.5). The Junta Electoral Central publishes the
+  general results and those per constituency in the BOE within forty days,
+  "sin perjuicio de los recursos contencioso-electorales contra la
+  proclamación de electos" (article 108.6).
+- **European Parliament.** The Junta Electoral Central counts the national
+  votes, allocates the seats and proclaims the elected no later than the
+  twentieth day after the election (article 224.1).
+- **For publishing a card** (the rule of publishing only after
+  proclamation): an election counts as proclaimed when every constituency in
+  its card has been proclaimed: the 52 provinces for the Congreso, the
+  country for the European Parliament, every municipality in the card for
+  local elections. The public evidence a reader can check is the BOE
+  publication of article 108.6; the boards' *actas de proclamación* are not
+  known to be published. Whether an appeal against a proclamation
+  (*recurso contencioso-electoral*, articles 109 and 112.1, within three days
+  of it) should hold publication back is not settled here.

@@ -1,0 +1,115 @@
+{
+  "spec": "actasum/verifiability/v0.1",
+  "election": "co/presidente/2026-05",
+  "profile": "co/codigo-electoral/v0.1",
+  "inputs": {
+    "statements": {
+      "file": "cordoba.jsonl",
+      "sha256": "sha256:dc3082e2c95be2a328adfb2c2e3913c7d3dca3a8c84ca65c4db63d8363a767e3",
+      "statements": 4176
+    },
+    "official": [
+      {
+        "file": "co-presidente-2026-05-cordoba.official.json",
+        "sha256": "sha256:76b882de31b419d692ec9cf541d45511f351ee2705c9ee3408db7692e6595809"
+      }
+    ],
+    "context": {
+      "file": "co-presidente-2026-05-cordoba.context.json",
+      "sha256": "sha256:973a7c12bebe787851a3e5750a571098537af3121f25c0be5f9840d1e9446a70"
+    }
+  },
+  "sum": "standing",
+  "units": {
+    "stations": 4176,
+    "aggregates": 0
+  },
+  "contest": {
+    "kind": "partial",
+    "status": "not_applicable",
+    "reason": "Córdoba is one of the departments of a national election"
+  },
+  "remote_vote": [],
+  "verifiability": {
+    "stations": 4176,
+    "units_with_result": [
+      {
+        "level": "department",
+        "stations_in_statements": 4176,
+        "stations_in_official_totals": null,
+        "share": null,
+        "status": "not_computed",
+        "reason": "the official totals give no stations",
+        "source": "statements, official"
+      }
+    ],
+    "sheet_images": {
+      "value": "published, not counted",
+      "status": "reported",
+      "source": "Registraduría Nacional del Estado Civil (2026b), as the thesis cites it in section 6.2: the three copies of the E-14 are scanned and published"
+    },
+    "file_hashes": {
+      "value": "the AGE records the SHA-256 of the per-station file, and the published file has it",
+      "status": "computed",
+      "source": "docs/findings/co-presidente-2026.md"
+    },
+    "publications_agree": [
+      {
+        "level": "department",
+        "areas_compared": 1,
+        "areas_matching": 1,
+        "figures_differing": 0,
+        "official_matches": "as standing",
+        "status": "computed",
+        "source": "verifier"
+      }
+    ],
+    "practices": [
+      {
+        "n": 1,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1"
+      },
+      {
+        "n": 2,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 3,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1"
+      },
+      {
+        "n": 4,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 5,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 6,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 7,
+        "value": null,
+        "status": "unverified"
+      }
+    ]
+  },
+  "coverage_bound": {
+    "status": "not_applicable",
+    "reason": "not given for a partial contest"
+  },
+  "proclamation": {
+    "status": "unverified",
+    "note": "not fixed: the law has not been read (profile-co.md, section 6)"
+  }
+}
