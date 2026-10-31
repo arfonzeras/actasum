@@ -167,13 +167,13 @@
     {
       "n": 1,
       "value": "yes",
-      "status": "computed",
+      "status": "reported",
       "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 98.1, read in the BOE consolidated text"
     },
     {
       "n": 2,
       "value": "yes",
-      "status": "computed",
+      "status": "reported",
       "source": "thesis, section 7.1 (Transparencia del escrutinio): 'hasta donde llega este trabajo'"
     },
     {
@@ -194,7 +194,7 @@
     {
       "n": 6,
       "value": "no",
-      "status": "computed",
+      "status": "reported",
       "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 97.3, read in the BOE consolidated text"
     },
     {

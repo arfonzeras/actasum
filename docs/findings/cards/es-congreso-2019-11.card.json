@@ -16,7 +16,7 @@
     ],
     "context": {
       "file": "es-congreso-2019-11.context.json",
-      "sha256": "sha256:61811f17673c18087d77914ad409e09160720c483176f4302e6674d6da04be5d"
+      "sha256": "sha256:27cd13509345068555c745dc7c01c52a131b18bb2892da3b04be8a360d7ab55a"
     }
   },
   "sum": "standing",
@@ -3535,13 +3535,13 @@
       {
         "n": 1,
         "value": "yes",
-        "status": "computed",
+        "status": "reported",
         "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 98.1, read in the BOE consolidated text"
       },
       {
         "n": 2,
         "value": "yes",
-        "status": "computed",
+        "status": "reported",
         "source": "thesis, section 7.1 (Transparencia del escrutinio): 'hasta donde llega este trabajo'"
       },
       {
@@ -3562,7 +3562,7 @@
       {
         "n": 6,
         "value": "no",
-        "status": "computed",
+        "status": "reported",
         "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 97.3, read in the BOE consolidated text"
       },
       {

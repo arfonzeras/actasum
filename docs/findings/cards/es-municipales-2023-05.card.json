@@ -1,0 +1,162 @@
+{
+  "spec": "actasum/verifiability/v0.1",
+  "election": "es/municipales/2023-05",
+  "profile": "es/loreg/v0.1",
+  "inputs": {
+    "statements": {
+      "file": "04202305.jsonl",
+      "sha256": "sha256:cc6be3442cae86fc1d7285bc54fd413821fabf86e158bef6a7a4eac33b6b6db3",
+      "statements": 57681
+    },
+    "official": [
+      {
+        "file": "04202305.official.json",
+        "sha256": "sha256:ccf3f02bad183a9463d62832d0fb27ed310e385cad3d01bab30d805eda3b7e7d"
+      }
+    ],
+    "context": {
+      "file": "es-municipales-2023-05.context.json",
+      "sha256": "sha256:1dbfdaeac914e251f7d96a9139707643c02847879b59a883a9b5747265ba129f"
+    }
+  },
+  "sum": "standing",
+  "units": {
+    "stations": 57681,
+    "aggregates": 0
+  },
+  "contest": {
+    "kind": "seats",
+    "rule": "highest averages 1, 2, 3...; threshold on candidatures plus blank; equal quotients to more votes",
+    "threshold_percent": 5,
+    "distribution": {
+      "constituencies": 5272,
+      "computed": 5263,
+      "votes_moved": {
+        "1-9": 1917,
+        "10-99": 3014,
+        "100-999": 144,
+        "1000+": 4,
+        "not_reachable": 184
+      },
+      "units_rewrite": {
+        "1": 5234,
+        "2-5": 29,
+        "6+": 0,
+        "not_reachable": 0
+      }
+    },
+    "seats_source": {
+      "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+      "sha256": "sha256:20dac696cd2efaa63c9346384ddb682f3da4fda92c6af67447159a60f1ab0de3",
+      "file": "05042305.DAT",
+      "note": "seats to fill, columns 214-216; rule: LOREG, articles 163.1 and 180"
+    }
+  },
+  "remote_vote": [
+    {
+      "channel": "postal",
+      "published_at": {
+        "value": "not_published_separately",
+        "source": {
+          "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+          "sha256": "sha256:20dac696cd2efaa63c9346384ddb682f3da4fda92c6af67447159a60f1ab0de3",
+          "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "status": "not_published",
+      "source": {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+        "sha256": "sha256:20dac696cd2efaa63c9346384ddb682f3da4fda92c6af67447159a60f1ab0de3",
+        "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+      }
+    }
+  ],
+  "verifiability": {
+    "stations": 57681,
+    "units_with_result": [
+      {
+        "level": "constituency",
+        "stations_in_statements": 57681,
+        "stations_in_official_totals": 57681,
+        "share": {
+          "numerator": 57681,
+          "denominator": 57681,
+          "percent": "100.0000"
+        },
+        "status": "computed",
+        "source": "statements, official"
+      }
+    ],
+    "sheet_images": {
+      "value": null,
+      "status": "unverified",
+      "note": "whether the Ministry publishes images of the tally sheets has not been checked"
+    },
+    "file_hashes": {
+      "value": null,
+      "status": "unverified",
+      "note": "no published hash of the Ministry's files has been looked for; the SHA-256 of each file read is in the findings"
+    },
+    "publications_agree": [
+      {
+        "level": "constituency",
+        "areas_compared": 5272,
+        "areas_matching": 5248,
+        "figures_differing": 105,
+        "official_matches": "neither",
+        "status": "computed",
+        "source": "verifier"
+      }
+    ],
+    "practices": [
+      {
+        "n": 1,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 98.1, read in the BOE consolidated text"
+      },
+      {
+        "n": 2,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): 'hasta donde llega este trabajo'"
+      },
+      {
+        "n": 3,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 4,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 5,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 6,
+        "value": "no",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 97.3, read in the BOE consolidated text"
+      },
+      {
+        "n": 7,
+        "value": null,
+        "status": "unverified"
+      }
+    ]
+  },
+  "coverage_bound": {
+    "value": "complete coverage",
+    "stations_without_statement": 0,
+    "status": "computed",
+    "source": "statements, official"
+  }
+}
