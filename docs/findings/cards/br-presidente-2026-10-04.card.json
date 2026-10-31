@@ -20,7 +20,7 @@
     ],
     "context": {
       "file": "br-presidente-2026-10-04.context.json",
-      "sha256": "sha256:a091066f2037dc117dcfd48a242375106bea9e48be0a705aacea4dc86311212c"
+      "sha256": "sha256:38fc8836cf4fb1e2c49ae4776b76d9dcc0f0f002d5cdc72600c558097bdea4be"
     }
   },
   "sum": "standing",
@@ -167,7 +167,7 @@
       {
         "n": 2,
         "value": "yes",
-        "status": "computed",
+        "status": "reported",
         "source": "thesis, section 7.1"
       },
       {

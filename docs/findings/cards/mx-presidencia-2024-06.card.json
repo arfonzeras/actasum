@@ -16,7 +16,7 @@
     ],
     "context": {
       "file": "mx-presidencia-2024-06.context.json",
-      "sha256": "sha256:62dd339c56ef502e06ae697e66aed2c89cbd9ce9fb3c7e74c328a022e6d77c3f"
+      "sha256": "sha256:d93c142e0619fc4d5ba2bbecbc0ae1ead63c0b40f1023d250704747d80f4404c"
     }
   },
   "sum": "standing",
@@ -33,19 +33,62 @@
     },
     "margin_votes": {
       "value": null,
-      "status": "not_computed",
-      "reason": "3 statements have figures that could not be read"
+      "interval": [
+        19419032,
+        19427046
+      ],
+      "between": [
+        "PVEM-PT-MORENA",
+        "PAN-PRI-PRD"
+      ],
+      "bounded_by_unread_figures": {
+        "statements": 3,
+        "figures": 16,
+        "rule": "each figure that could not be read is taken from 0 to the census of its station"
+      },
+      "includes_change_of_winner": false,
+      "status": "computed",
+      "source": "statements"
     },
     "margin_diluted": {
       "value": null,
-      "status": "not_computed",
-      "reason": "3 statements have figures that could not be read"
+      "interval": [
+        {
+          "numerator": 19419032,
+          "denominator": 60129635,
+          "percent": "32.2953"
+        },
+        {
+          "numerator": 19427046,
+          "denominator": 60120449,
+          "percent": "32.3135"
+        }
+      ],
+      "ballots_interval": [
+        60120449,
+        60129635
+      ],
+      "status": "computed",
+      "source": "statements"
     },
     "margin_units": [
       {
+        "assumption": "rewrite",
         "value": null,
         "status": "not_computed",
-        "reason": "3 statements have figures that could not be read"
+        "reason": "the margin is an interval, bounded by figures that could not be read"
+      },
+      {
+        "assumption": "move",
+        "value": null,
+        "status": "not_computed",
+        "reason": "the margin is an interval, bounded by figures that could not be read"
+      },
+      {
+        "assumption": "add_to_census",
+        "value": null,
+        "status": "not_computed",
+        "reason": "the margin is an interval, bounded by figures that could not be read"
       }
     ]
   },
@@ -73,9 +116,12 @@
       "status": "computed",
       "source": "statements",
       "against_margin": {
-        "value": null,
-        "status": "not_computed",
-        "reason": "no margin"
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
       }
     },
     {
@@ -101,9 +147,12 @@
       "status": "computed",
       "source": "statements",
       "against_margin": {
-        "value": null,
-        "status": "not_computed",
-        "reason": "no margin"
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
       }
     },
     {
@@ -129,9 +178,12 @@
       "status": "computed",
       "source": "statements",
       "against_margin": {
-        "value": null,
-        "status": "not_computed",
-        "reason": "no margin"
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
       }
     },
     {
@@ -157,9 +209,12 @@
       "status": "computed",
       "source": "statements",
       "against_margin": {
-        "value": null,
-        "status": "not_computed",
-        "reason": "no margin"
+        "value": false,
+        "margin_votes_interval": [
+          19419032,
+          19427046
+        ],
+        "status": "computed"
       }
     }
   ],
@@ -183,7 +238,7 @@
     },
     "file_hashes": {
       "value": "none_found",
-      "status": "computed",
+      "status": "reported",
       "source": "thesis, appendix A: 'el INE no publica una huella de ninguno que se haya encontrado'"
     },
     "publications_agree": [
@@ -236,7 +291,15 @@
     ]
   },
   "coverage_bound": {
-    "status": "not_computed",
-    "reason": "no margin"
+    "stations_without_statement": 129,
+    "registered_without_statement": 68856,
+    "margin_votes_interval": [
+      19419032,
+      19427046
+    ],
+    "reaches_margin": false,
+    "value": "the registered voters of the stations without a statement do not reach the margin",
+    "status": "computed",
+    "source": "Cómputos file PRES_2024.csv (SHA-256 860c1a539ac98b5def4dff3e82e87a19be3ebba7cb435b680ae79799942d1628): the 129 rows with no statement of either act (101 'Paquete no recibido', 5 'Paquete no recibido (Para recuento-…)', 23 'Casilla no instalada'), column LISTA_NOMINAL"
   }
 }
