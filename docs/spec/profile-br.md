@@ -268,4 +268,20 @@ repository):
   e Geraldo Alckmin". Only its title and address were seen; its text could
   not be read.
 
+The web waits for that proclamation with both rounds of 2026.
+
+**What was searched, on 30 October 2026.** A web search limited to
+tse.jus.br for the proclamation of the 2026 presidential result; a wider
+search for the proclamation of the elected president and vice-president and
+their *diplomação*; the TSE's election calendar page, through an automatic
+extract, which has no entry for the proclamation or the *diplomação* of the
+president in 2026; and the news articles above.
+
+**What was not found:** any act or news item of the TSE proclaiming the
+elected of 2026, and the date of their *diplomação*.
+
+**What was not searched:** the TSE's resolutions for 2026 ("Normas e
+documentações"), its electronic official journal, and the records of its
+plenary sessions.
+
 The law has not been read on this point either (section 8, point 1).
