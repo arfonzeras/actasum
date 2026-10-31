@@ -1,0 +1,265 @@
+{
+  "spec": "actasum/verifiability/v0.1",
+  "election": "es/europeas/2024-06",
+  "profile": "es/loreg/v0.1",
+  "inputs": {
+    "statements": {
+      "file": "07202406.jsonl",
+      "sha256": "sha256:7d0c91fabaee041c9c907c52894bd17a921be96b9d6018d549863066a3277409",
+      "statements": 58608
+    },
+    "official": [
+      {
+        "file": "07202406.official.json",
+        "sha256": "sha256:2c5a7db5c613ad6ac48cacf6bf29186a0b214e82a3fc9fc4fa0b174d18f2389e"
+      }
+    ],
+    "context": {
+      "file": "es-europeas-2024-06.context.json",
+      "sha256": "sha256:46a08634662149b42a2930937d6d4d0b85368551ac9b43876974a4c19b019075"
+    }
+  },
+  "sum": "standing",
+  "units": {
+    "stations": 58556,
+    "aggregates": 52
+  },
+  "contest": {
+    "kind": "seats",
+    "rule": "highest averages 1, 2, 3...; threshold on candidatures plus blank; equal quotients to more votes",
+    "threshold_percent": 0,
+    "distribution": {
+      "constituencies": 1,
+      "computed": 1,
+      "votes_moved": {
+        "1-9": 0,
+        "10-99": 0,
+        "100-999": 0,
+        "1000+": 1,
+        "not_reachable": 0
+      },
+      "units_rewrite": {
+        "1": 1,
+        "2-5": 0,
+        "6+": 0,
+        "not_reachable": 0
+      },
+      "units_rewrite_without_aggregates": {
+        "1": 0,
+        "2-5": 0,
+        "6+": 1,
+        "not_reachable": 0
+      }
+    },
+    "constituencies": [
+      {
+        "constituency": "es",
+        "units": 58608,
+        "seats": 61,
+        "ballots": 17652007,
+        "by_lot": false,
+        "votes_moved": 18910,
+        "votes_added": 86971,
+        "diluted": {
+          "numerator": 18910,
+          "denominator": 17652007,
+          "percent": "0.1071"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 58608,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 58608,
+              "percent": "0.0017"
+            },
+            "without_aggregates": 68,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 58608,
+            "value": 99,
+            "share": {
+              "numerator": 99,
+              "denominator": 58608,
+              "percent": "0.1689"
+            },
+            "without_aggregates": 133,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 58608,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 58608,
+              "percent": "0.0017"
+            },
+            "without_aggregates": 113,
+            "status": "computed"
+          }
+        ]
+      }
+    ],
+    "seats_source": {
+      "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+      "sha256": "sha256:ed30e4cf11772afb0785f2992f44fa191b8671f933865335b7093ac9ccb6659b",
+      "file": "08072406.DAT",
+      "note": "seats to fill: the candidates each candidature obtained in the national row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without its threshold)"
+    }
+  },
+  "remote_vote": [
+    {
+      "channel": "abroad (CERA)",
+      "published_at": {
+        "value": "province",
+        "source": {
+          "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+          "sha256": "sha256:ed30e4cf11772afb0785f2992f44fa191b8671f933865335b7093ac9ccb6659b",
+          "note": "one row per province, municipality code 999"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "units": 52,
+      "ballots": 94792,
+      "weight": {
+        "numerator": 94792,
+        "denominator": 17652007,
+        "percent": "0.5370"
+      },
+      "status": "computed",
+      "source": "statements",
+      "against_margin": {
+        "constituencies_with_channel": 1,
+        "constituencies_where_ballots_reach_votes_moved": 1,
+        "status": "computed"
+      },
+      "by_area": [
+        {
+          "area": "es",
+          "ballots": 94792,
+          "census": 2386250,
+          "turnout": {
+            "numerator": 94792,
+            "denominator": 2386250,
+            "percent": "3.9724"
+          }
+        }
+      ]
+    },
+    {
+      "channel": "postal",
+      "published_at": {
+        "value": "not_published_separately",
+        "source": {
+          "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+          "sha256": "sha256:ed30e4cf11772afb0785f2992f44fa191b8671f933865335b7093ac9ccb6659b",
+          "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "status": "not_published",
+      "source": {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+        "sha256": "sha256:ed30e4cf11772afb0785f2992f44fa191b8671f933865335b7093ac9ccb6659b",
+        "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+      }
+    }
+  ],
+  "verifiability": {
+    "stations": 58556,
+    "units_with_result": [
+      {
+        "level": "constituency",
+        "stations_in_statements": 58556,
+        "stations_in_official_totals": 58556,
+        "share": {
+          "numerator": 58556,
+          "denominator": 58556,
+          "percent": "100.0000"
+        },
+        "status": "computed",
+        "source": "statements, official"
+      }
+    ],
+    "sheet_images": {
+      "value": null,
+      "status": "unverified",
+      "note": "whether the Ministry publishes images of the tally sheets has not been checked"
+    },
+    "file_hashes": {
+      "value": null,
+      "status": "unverified",
+      "note": "no published hash of the Ministry's files has been looked for; the SHA-256 of each file read is in the findings"
+    },
+    "publications_agree": [
+      {
+        "level": "constituency",
+        "areas_compared": 1,
+        "areas_matching": 1,
+        "figures_differing": 0,
+        "official_matches": "both",
+        "status": "computed",
+        "source": "verifier"
+      }
+    ],
+    "practices": [
+      {
+        "n": 1,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 98.1, read in the BOE consolidated text"
+      },
+      {
+        "n": 2,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): 'hasta donde llega este trabajo'"
+      },
+      {
+        "n": 3,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 4,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 5,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 6,
+        "value": "no",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 97.3, read in the BOE consolidated text"
+      },
+      {
+        "n": 7,
+        "value": null,
+        "status": "unverified"
+      }
+    ]
+  },
+  "coverage_bound": {
+    "value": "complete coverage",
+    "stations_without_statement": 0,
+    "status": "computed",
+    "source": "statements, official"
+  }
+}

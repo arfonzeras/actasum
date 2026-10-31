@@ -1,0 +1,3581 @@
+{
+  "spec": "actasum/verifiability/v0.1",
+  "election": "es/congreso/2023-07",
+  "profile": "es/loreg/v0.1",
+  "inputs": {
+    "statements": {
+      "file": "02202307.jsonl",
+      "sha256": "sha256:03e843f858b04f1161f40761cb298d8780b1d0edec0c06200b4787764f59167e",
+      "statements": 60366
+    },
+    "official": [
+      {
+        "file": "02202307.official.json",
+        "sha256": "sha256:2a97ac56b175f3a56e094c9bca1f03ea97c5907fa057bd2609c586293be8b088"
+      }
+    ],
+    "context": {
+      "file": "es-congreso-2023-07.context.json",
+      "sha256": "sha256:2870d7a0650d3f9974c4235e9fdae911a99208fec79b36c568d60fc35c53e917"
+    }
+  },
+  "sum": "standing",
+  "units": {
+    "stations": 60314,
+    "aggregates": 52
+  },
+  "contest": {
+    "kind": "seats",
+    "rule": "highest averages 1, 2, 3...; threshold on candidatures plus blank; equal quotients to more votes",
+    "threshold_percent": 3,
+    "distribution": {
+      "constituencies": 52,
+      "computed": 52,
+      "votes_moved": {
+        "1-9": 0,
+        "10-99": 0,
+        "100-999": 7,
+        "1000+": 45,
+        "not_reachable": 0
+      },
+      "units_rewrite": {
+        "1": 45,
+        "2-5": 3,
+        "6+": 4,
+        "not_reachable": 0
+      },
+      "units_rewrite_without_aggregates": {
+        "1": 2,
+        "2-5": 15,
+        "6+": 35,
+        "not_reachable": 0
+      }
+    },
+    "constituencies": [
+      {
+        "constituency": "es/01",
+        "units": 428,
+        "name": "Araba/Álava",
+        "seats": 4,
+        "ballots": 170538,
+        "by_lot": false,
+        "votes_moved": 3125,
+        "votes_added": 6514,
+        "diluted": {
+          "numerator": 3125,
+          "denominator": 170538,
+          "percent": "1.8324"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 428,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 428,
+              "percent": "0.2336"
+            },
+            "without_aggregates": 7,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 428,
+            "value": 23,
+            "share": {
+              "numerator": 23,
+              "denominator": 428,
+              "percent": "5.3738"
+            },
+            "without_aggregates": 23,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 428,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 428,
+              "percent": "0.2336"
+            },
+            "without_aggregates": 19,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/02",
+        "units": 522,
+        "name": "Albacete",
+        "seats": 4,
+        "ballots": 223917,
+        "by_lot": false,
+        "votes_moved": 941,
+        "votes_added": 1412,
+        "diluted": {
+          "numerator": 941,
+          "denominator": 223917,
+          "percent": "0.4202"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 522,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 522,
+              "percent": "0.1916"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 522,
+            "value": 4,
+            "share": {
+              "numerator": 4,
+              "denominator": 522,
+              "percent": "0.7663"
+            },
+            "without_aggregates": 4,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 522,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 522,
+              "percent": "0.1916"
+            },
+            "without_aggregates": 4,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/03",
+        "units": 2228,
+        "name": "Alacant/Alicante",
+        "seats": 12,
+        "ballots": 908842,
+        "by_lot": false,
+        "votes_moved": 11665,
+        "votes_added": 16331,
+        "diluted": {
+          "numerator": 11665,
+          "denominator": 908842,
+          "percent": "1.2835"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 2228,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 2228,
+              "percent": "0.0449"
+            },
+            "without_aggregates": 17,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 2228,
+            "value": 34,
+            "share": {
+              "numerator": 34,
+              "denominator": 2228,
+              "percent": "1.5260"
+            },
+            "without_aggregates": 36,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 2228,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 2228,
+              "percent": "0.0449"
+            },
+            "without_aggregates": 50,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/04",
+        "units": 838,
+        "name": "Almería",
+        "seats": 6,
+        "ballots": 324405,
+        "by_lot": false,
+        "votes_moved": 11592,
+        "votes_added": 19319,
+        "diluted": {
+          "numerator": 11592,
+          "denominator": 324405,
+          "percent": "3.5733"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 838,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 838,
+              "percent": "0.1193"
+            },
+            "without_aggregates": 21,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 838,
+            "value": 41,
+            "share": {
+              "numerator": 41,
+              "denominator": 838,
+              "percent": "4.8926"
+            },
+            "without_aggregates": 43,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 838,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 838,
+              "percent": "0.1193"
+            },
+            "without_aggregates": 48,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/05",
+        "units": 359,
+        "name": "Ávila",
+        "seats": 3,
+        "ballots": 99120,
+        "by_lot": false,
+        "votes_moved": 4078,
+        "votes_added": 6117,
+        "diluted": {
+          "numerator": 4078,
+          "denominator": 99120,
+          "percent": "4.1142"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 359,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 359,
+              "percent": "0.2786"
+            },
+            "without_aggregates": 6,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 359,
+            "value": 12,
+            "share": {
+              "numerator": 12,
+              "denominator": 359,
+              "percent": "3.3426"
+            },
+            "without_aggregates": 12,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 359,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 359,
+              "percent": "0.2786"
+            },
+            "without_aggregates": 23,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/06",
+        "units": 903,
+        "name": "Badajoz",
+        "seats": 5,
+        "ballots": 398233,
+        "by_lot": false,
+        "votes_moved": 1751,
+        "votes_added": 7003,
+        "diluted": {
+          "numerator": 1751,
+          "denominator": 398233,
+          "percent": "0.4397"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 903,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 903,
+              "percent": "0.1107"
+            },
+            "without_aggregates": 6,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 903,
+            "value": 12,
+            "share": {
+              "numerator": 12,
+              "denominator": 903,
+              "percent": "1.3289"
+            },
+            "without_aggregates": 13,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 903,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 903,
+              "percent": "0.1107"
+            },
+            "without_aggregates": 21,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/07",
+        "units": 1250,
+        "name": "Illes Balears",
+        "seats": 8,
+        "ballots": 508233,
+        "by_lot": false,
+        "votes_moved": 9891,
+        "votes_added": 17704,
+        "diluted": {
+          "numerator": 9891,
+          "denominator": 508233,
+          "percent": "1.9462"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1250,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1250,
+              "percent": "0.0800"
+            },
+            "without_aggregates": 18,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1250,
+            "value": 46,
+            "share": {
+              "numerator": 46,
+              "denominator": 1250,
+              "percent": "3.6800"
+            },
+            "without_aggregates": 49,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1250,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1250,
+              "percent": "0.0800"
+            },
+            "without_aggregates": 41,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/08",
+        "units": 6473,
+        "name": "Barcelona",
+        "seats": 32,
+        "ballots": 2688720,
+        "by_lot": false,
+        "votes_moved": 11711,
+        "votes_added": 13153,
+        "diluted": {
+          "numerator": 11711,
+          "denominator": 2688720,
+          "percent": "0.4356"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 6473,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 6473,
+              "percent": "0.0154"
+            },
+            "without_aggregates": 12,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 6473,
+            "value": 23,
+            "share": {
+              "numerator": 23,
+              "denominator": 6473,
+              "percent": "0.3553"
+            },
+            "without_aggregates": 45,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 6473,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 6473,
+              "percent": "0.0154"
+            },
+            "without_aggregates": 27,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/09",
+        "units": 747,
+        "name": "Burgos",
+        "seats": 4,
+        "ballots": 204886,
+        "by_lot": false,
+        "votes_moved": 6020,
+        "votes_added": 9030,
+        "diluted": {
+          "numerator": 6020,
+          "denominator": 204886,
+          "percent": "2.9382"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 747,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 747,
+              "percent": "0.1339"
+            },
+            "without_aggregates": 11,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 747,
+            "value": 24,
+            "share": {
+              "numerator": 24,
+              "denominator": 747,
+              "percent": "3.2129"
+            },
+            "without_aggregates": 27,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 747,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 747,
+              "percent": "0.1339"
+            },
+            "without_aggregates": 37,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/10",
+        "units": 525,
+        "name": "Cáceres",
+        "seats": 4,
+        "ballots": 239747,
+        "by_lot": false,
+        "votes_moved": 8494,
+        "votes_added": 12741,
+        "diluted": {
+          "numerator": 8494,
+          "denominator": 239747,
+          "percent": "3.5429"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 525,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 525,
+              "percent": "0.1905"
+            },
+            "without_aggregates": 12,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 525,
+            "value": 24,
+            "share": {
+              "numerator": 24,
+              "denominator": 525,
+              "percent": "4.5714"
+            },
+            "without_aggregates": 25,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 525,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 525,
+              "percent": "0.1905"
+            },
+            "without_aggregates": 42,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/11",
+        "units": 1529,
+        "name": "Cádiz",
+        "seats": 9,
+        "ballots": 644801,
+        "by_lot": false,
+        "votes_moved": 5252,
+        "votes_added": 10503,
+        "diluted": {
+          "numerator": 5252,
+          "denominator": 644801,
+          "percent": "0.8145"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1529,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1529,
+              "percent": "0.0654"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1529,
+            "value": 12,
+            "share": {
+              "numerator": 12,
+              "denominator": 1529,
+              "percent": "0.7848"
+            },
+            "without_aggregates": 14,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1529,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1529,
+              "percent": "0.0654"
+            },
+            "without_aggregates": 22,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/12",
+        "units": 741,
+        "name": "Castelló/Castellón",
+        "seats": 5,
+        "ballots": 311581,
+        "by_lot": false,
+        "votes_moved": 2364,
+        "votes_added": 4727,
+        "diluted": {
+          "numerator": 2364,
+          "denominator": 311581,
+          "percent": "0.7587"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 741,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 741,
+              "percent": "0.1350"
+            },
+            "without_aggregates": 5,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 741,
+            "value": 15,
+            "share": {
+              "numerator": 15,
+              "denominator": 741,
+              "percent": "2.0243"
+            },
+            "without_aggregates": 17,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 741,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 741,
+              "percent": "0.1350"
+            },
+            "without_aggregates": 14,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/13",
+        "units": 708,
+        "name": "Ciudad Real",
+        "seats": 5,
+        "ballots": 286895,
+        "by_lot": false,
+        "votes_moved": 5858,
+        "votes_added": 23429,
+        "diluted": {
+          "numerator": 5858,
+          "denominator": 286895,
+          "percent": "2.0419"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 708,
+            "value": 19,
+            "share": {
+              "numerator": 19,
+              "denominator": 708,
+              "percent": "2.6836"
+            },
+            "without_aggregates": 25,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 708,
+            "value": 51,
+            "share": {
+              "numerator": 51,
+              "denominator": 708,
+              "percent": "7.2034"
+            },
+            "without_aggregates": 51,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 708,
+            "value": 76,
+            "share": {
+              "numerator": 76,
+              "denominator": 708,
+              "percent": "10.7345"
+            },
+            "without_aggregates": 106,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/14",
+        "units": 949,
+        "name": "Córdoba",
+        "seats": 6,
+        "ballots": 455564,
+        "by_lot": false,
+        "votes_moved": 3702,
+        "votes_added": 14806,
+        "diluted": {
+          "numerator": 3702,
+          "denominator": 455564,
+          "percent": "0.8126"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 949,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 949,
+              "percent": "0.1054"
+            },
+            "without_aggregates": 10,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 949,
+            "value": 15,
+            "share": {
+              "numerator": 15,
+              "denominator": 949,
+              "percent": "1.5806"
+            },
+            "without_aggregates": 17,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 949,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 949,
+              "percent": "0.1054"
+            },
+            "without_aggregates": 41,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/15",
+        "units": 1545,
+        "name": "A Coruña",
+        "seats": 8,
+        "ballots": 683187,
+        "by_lot": false,
+        "votes_moved": 3016,
+        "votes_added": 12062,
+        "diluted": {
+          "numerator": 3016,
+          "denominator": 683187,
+          "percent": "0.4415"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1545,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1545,
+              "percent": "0.0647"
+            },
+            "without_aggregates": 11,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1545,
+            "value": 22,
+            "share": {
+              "numerator": 22,
+              "denominator": 1545,
+              "percent": "1.4239"
+            },
+            "without_aggregates": 27,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1545,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1545,
+              "percent": "0.0647"
+            },
+            "without_aggregates": 39,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/16",
+        "units": 384,
+        "name": "Cuenca",
+        "seats": 3,
+        "ballots": 115280,
+        "by_lot": false,
+        "votes_moved": 1364,
+        "votes_added": 2727,
+        "diluted": {
+          "numerator": 1364,
+          "denominator": 115280,
+          "percent": "1.1832"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 384,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 384,
+              "percent": "0.2604"
+            },
+            "without_aggregates": 3,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 384,
+            "value": 5,
+            "share": {
+              "numerator": 5,
+              "denominator": 384,
+              "percent": "1.3021"
+            },
+            "without_aggregates": 5,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 384,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 384,
+              "percent": "0.2604"
+            },
+            "without_aggregates": 11,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/17",
+        "units": 864,
+        "name": "Girona",
+        "seats": 6,
+        "ballots": 327159,
+        "by_lot": false,
+        "votes_moved": 190,
+        "votes_added": 285,
+        "diluted": {
+          "numerator": 190,
+          "denominator": 327159,
+          "percent": "0.0581"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 864,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 864,
+              "percent": "0.1157"
+            },
+            "without_aggregates": 1,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 864,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 864,
+              "percent": "0.1157"
+            },
+            "without_aggregates": 1,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 864,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 864,
+              "percent": "0.1157"
+            },
+            "without_aggregates": 1,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/18",
+        "units": 1122,
+        "name": "Granada",
+        "seats": 7,
+        "ballots": 509486,
+        "by_lot": false,
+        "votes_moved": 2460,
+        "votes_added": 9839,
+        "diluted": {
+          "numerator": 2460,
+          "denominator": 509486,
+          "percent": "0.4828"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1122,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1122,
+              "percent": "0.0891"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1122,
+            "value": 13,
+            "share": {
+              "numerator": 13,
+              "denominator": 1122,
+              "percent": "1.1586"
+            },
+            "without_aggregates": 18,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1122,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1122,
+              "percent": "0.0891"
+            },
+            "without_aggregates": 27,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/19",
+        "units": 588,
+        "name": "Guadalajara",
+        "seats": 3,
+        "ballots": 142744,
+        "by_lot": false,
+        "votes_moved": 1019,
+        "votes_added": 3057,
+        "diluted": {
+          "numerator": 1019,
+          "denominator": 142744,
+          "percent": "0.7139"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 588,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 588,
+              "percent": "0.1701"
+            },
+            "without_aggregates": 4,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 588,
+            "value": 8,
+            "share": {
+              "numerator": 8,
+              "denominator": 588,
+              "percent": "1.3605"
+            },
+            "without_aggregates": 8,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 588,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 588,
+              "percent": "0.1701"
+            },
+            "without_aggregates": 14,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/20",
+        "units": 859,
+        "name": "Gipuzkoa",
+        "seats": 6,
+        "ballots": 378965,
+        "by_lot": false,
+        "votes_moved": 1622,
+        "votes_added": 2433,
+        "diluted": {
+          "numerator": 1622,
+          "denominator": 378965,
+          "percent": "0.4280"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 859,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 859,
+              "percent": "0.1164"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 859,
+            "value": 5,
+            "share": {
+              "numerator": 5,
+              "denominator": 859,
+              "percent": "0.5821"
+            },
+            "without_aggregates": 6,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 859,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 859,
+              "percent": "0.1164"
+            },
+            "without_aggregates": 6,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/21",
+        "units": 652,
+        "name": "Huelva",
+        "seats": 5,
+        "ballots": 260861,
+        "by_lot": false,
+        "votes_moved": 4788,
+        "votes_added": 10821,
+        "diluted": {
+          "numerator": 4788,
+          "denominator": 260861,
+          "percent": "1.8355"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 652,
+            "value": 4,
+            "share": {
+              "numerator": 4,
+              "denominator": 652,
+              "percent": "0.6135"
+            },
+            "without_aggregates": 12,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 652,
+            "value": 42,
+            "share": {
+              "numerator": 42,
+              "denominator": 652,
+              "percent": "6.4417"
+            },
+            "without_aggregates": 42,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 652,
+            "value": 9,
+            "share": {
+              "numerator": 9,
+              "denominator": 652,
+              "percent": "1.3804"
+            },
+            "without_aggregates": 27,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/22",
+        "units": 404,
+        "name": "Huesca",
+        "seats": 3,
+        "ballots": 121148,
+        "by_lot": false,
+        "votes_moved": 2738,
+        "votes_added": 5476,
+        "diluted": {
+          "numerator": 2738,
+          "denominator": 121148,
+          "percent": "2.2600"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 404,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 404,
+              "percent": "0.2475"
+            },
+            "without_aggregates": 7,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 404,
+            "value": 12,
+            "share": {
+              "numerator": 12,
+              "denominator": 404,
+              "percent": "2.9703"
+            },
+            "without_aggregates": 12,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 404,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 404,
+              "percent": "0.2475"
+            },
+            "without_aggregates": 22,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/23",
+        "units": 874,
+        "name": "Jaén",
+        "seats": 5,
+        "ballots": 373657,
+        "by_lot": false,
+        "votes_moved": 6396,
+        "votes_added": 24940,
+        "diluted": {
+          "numerator": 6396,
+          "denominator": 373657,
+          "percent": "1.7117"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 874,
+            "value": 13,
+            "share": {
+              "numerator": 13,
+              "denominator": 874,
+              "percent": "1.4874"
+            },
+            "without_aggregates": 27,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 874,
+            "value": 56,
+            "share": {
+              "numerator": 56,
+              "denominator": 874,
+              "percent": "6.4073"
+            },
+            "without_aggregates": 57,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 874,
+            "value": 49,
+            "share": {
+              "numerator": 49,
+              "denominator": 874,
+              "percent": "5.6064"
+            },
+            "without_aggregates": 99,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/24",
+        "units": 723,
+        "name": "León",
+        "seats": 4,
+        "ballots": 277726,
+        "by_lot": false,
+        "votes_moved": 7226,
+        "votes_added": 10839,
+        "diluted": {
+          "numerator": 7226,
+          "denominator": 277726,
+          "percent": "2.6018"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 723,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 723,
+              "percent": "0.1383"
+            },
+            "without_aggregates": 11,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 723,
+            "value": 22,
+            "share": {
+              "numerator": 22,
+              "denominator": 723,
+              "percent": "3.0429"
+            },
+            "without_aggregates": 26,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 723,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 723,
+              "percent": "0.1383"
+            },
+            "without_aggregates": 37,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/25",
+        "units": 550,
+        "name": "Lleida",
+        "seats": 4,
+        "ballots": 186929,
+        "by_lot": false,
+        "votes_moved": 2339,
+        "votes_added": 3509,
+        "diluted": {
+          "numerator": 2339,
+          "denominator": 186929,
+          "percent": "1.2513"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 550,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 550,
+              "percent": "0.1818"
+            },
+            "without_aggregates": 4,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 550,
+            "value": 10,
+            "share": {
+              "numerator": 10,
+              "denominator": 550,
+              "percent": "1.8182"
+            },
+            "without_aggregates": 11,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 550,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 550,
+              "percent": "0.1818"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/26",
+        "units": 517,
+        "name": "La Rioja",
+        "seats": 4,
+        "ballots": 176945,
+        "by_lot": false,
+        "votes_moved": 5508,
+        "votes_added": 13768,
+        "diluted": {
+          "numerator": 5508,
+          "denominator": 176945,
+          "percent": "3.1128"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 517,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 517,
+              "percent": "0.1934"
+            },
+            "without_aggregates": 16,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 517,
+            "value": 23,
+            "share": {
+              "numerator": 23,
+              "denominator": 517,
+              "percent": "4.4487"
+            },
+            "without_aggregates": 24,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 517,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 517,
+              "percent": "0.1934"
+            },
+            "without_aggregates": 63,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/27",
+        "units": 534,
+        "name": "Lugo",
+        "seats": 4,
+        "ballots": 200709,
+        "by_lot": false,
+        "votes_moved": 3810,
+        "votes_added": 6350,
+        "diluted": {
+          "numerator": 3810,
+          "denominator": 200709,
+          "percent": "1.8983"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 534,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 534,
+              "percent": "0.1873"
+            },
+            "without_aggregates": 7,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 534,
+            "value": 7,
+            "share": {
+              "numerator": 7,
+              "denominator": 534,
+              "percent": "1.3109"
+            },
+            "without_aggregates": 11,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 534,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 534,
+              "percent": "0.1873"
+            },
+            "without_aggregates": 23,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/28",
+        "units": 7119,
+        "name": "Madrid",
+        "seats": 37,
+        "ballots": 3639500,
+        "by_lot": false,
+        "votes_moved": 794,
+        "votes_added": 1340,
+        "diluted": {
+          "numerator": 794,
+          "denominator": 3639500,
+          "percent": "0.0218"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 7119,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 7119,
+              "percent": "0.0140"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 7119,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 7119,
+              "percent": "0.0140"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 7119,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 7119,
+              "percent": "0.0140"
+            },
+            "without_aggregates": 3,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/29",
+        "units": 1735,
+        "name": "Málaga",
+        "seats": 11,
+        "ballots": 798557,
+        "by_lot": false,
+        "votes_moved": 1349,
+        "votes_added": 2429,
+        "diluted": {
+          "numerator": 1349,
+          "denominator": 798557,
+          "percent": "0.1689"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1735,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1735,
+              "percent": "0.0576"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1735,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1735,
+              "percent": "0.0576"
+            },
+            "without_aggregates": 3,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1735,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1735,
+              "percent": "0.0576"
+            },
+            "without_aggregates": 5,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/30",
+        "units": 1727,
+        "name": "Murcia",
+        "seats": 10,
+        "ballots": 755255,
+        "by_lot": false,
+        "votes_moved": 2767,
+        "votes_added": 7378,
+        "diluted": {
+          "numerator": 2767,
+          "denominator": 755255,
+          "percent": "0.3664"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1727,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1727,
+              "percent": "0.0579"
+            },
+            "without_aggregates": 7,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1727,
+            "value": 8,
+            "share": {
+              "numerator": 8,
+              "denominator": 1727,
+              "percent": "0.4632"
+            },
+            "without_aggregates": 13,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1727,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1727,
+              "percent": "0.0579"
+            },
+            "without_aggregates": 20,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/31",
+        "units": 998,
+        "name": "Navarra",
+        "seats": 5,
+        "ballots": 345095,
+        "by_lot": false,
+        "votes_moved": 1904,
+        "votes_added": 2855,
+        "diluted": {
+          "numerator": 1904,
+          "denominator": 345095,
+          "percent": "0.5517"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 998,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 998,
+              "percent": "0.1002"
+            },
+            "without_aggregates": 3,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 998,
+            "value": 7,
+            "share": {
+              "numerator": 7,
+              "denominator": 998,
+              "percent": "0.7014"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 998,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 998,
+              "percent": "0.1002"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/32",
+        "units": 540,
+        "name": "Ourense",
+        "seats": 4,
+        "ballots": 188065,
+        "by_lot": false,
+        "votes_moved": 3652,
+        "votes_added": 6087,
+        "diluted": {
+          "numerator": 3652,
+          "denominator": 188065,
+          "percent": "1.9419"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 540,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 540,
+              "percent": "0.1852"
+            },
+            "without_aggregates": 7,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 540,
+            "value": 3,
+            "share": {
+              "numerator": 3,
+              "denominator": 540,
+              "percent": "0.5556"
+            },
+            "without_aggregates": 11,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 540,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 540,
+              "percent": "0.1852"
+            },
+            "without_aggregates": 22,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/33",
+        "units": 1529,
+        "name": "Asturias",
+        "seats": 7,
+        "ballots": 603183,
+        "by_lot": false,
+        "votes_moved": 3884,
+        "votes_added": 7767,
+        "diluted": {
+          "numerator": 3884,
+          "denominator": 603183,
+          "percent": "0.6439"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1529,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1529,
+              "percent": "0.0654"
+            },
+            "without_aggregates": 7,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1529,
+            "value": 3,
+            "share": {
+              "numerator": 3,
+              "denominator": 1529,
+              "percent": "0.1962"
+            },
+            "without_aggregates": 10,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1529,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1529,
+              "percent": "0.0654"
+            },
+            "without_aggregates": 25,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/34",
+        "units": 336,
+        "name": "Palencia",
+        "seats": 3,
+        "ballots": 98079,
+        "by_lot": false,
+        "votes_moved": 3548,
+        "votes_added": 7096,
+        "diluted": {
+          "numerator": 3548,
+          "denominator": 98079,
+          "percent": "3.6175"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 336,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 336,
+              "percent": "0.2976"
+            },
+            "without_aggregates": 8,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 336,
+            "value": 12,
+            "share": {
+              "numerator": 12,
+              "denominator": 336,
+              "percent": "3.5714"
+            },
+            "without_aggregates": 12,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 336,
+            "value": 3,
+            "share": {
+              "numerator": 3,
+              "denominator": 336,
+              "percent": "0.8929"
+            },
+            "without_aggregates": 28,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/35",
+        "units": 1565,
+        "name": "Las Palmas",
+        "seats": 8,
+        "ballots": 534912,
+        "by_lot": false,
+        "votes_moved": 2392,
+        "votes_added": 3190,
+        "diluted": {
+          "numerator": 2392,
+          "denominator": 534912,
+          "percent": "0.4472"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1565,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1565,
+              "percent": "0.0639"
+            },
+            "without_aggregates": 4,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1565,
+            "value": 8,
+            "share": {
+              "numerator": 8,
+              "denominator": 1565,
+              "percent": "0.5112"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1565,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1565,
+              "percent": "0.0639"
+            },
+            "without_aggregates": 8,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/36",
+        "units": 1345,
+        "name": "Pontevedra",
+        "seats": 7,
+        "ballots": 579125,
+        "by_lot": false,
+        "votes_moved": 4564,
+        "votes_added": 6085,
+        "diluted": {
+          "numerator": 4564,
+          "denominator": 579125,
+          "percent": "0.7881"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1345,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1345,
+              "percent": "0.0743"
+            },
+            "without_aggregates": 6,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1345,
+            "value": 9,
+            "share": {
+              "numerator": 9,
+              "denominator": 1345,
+              "percent": "0.6691"
+            },
+            "without_aggregates": 16,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1345,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1345,
+              "percent": "0.0743"
+            },
+            "without_aggregates": 21,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/37",
+        "units": 649,
+        "name": "Salamanca",
+        "seats": 4,
+        "ballots": 201419,
+        "by_lot": false,
+        "votes_moved": 897,
+        "votes_added": 1495,
+        "diluted": {
+          "numerator": 897,
+          "denominator": 201419,
+          "percent": "0.4453"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 649,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 649,
+              "percent": "0.1541"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 649,
+            "value": 2,
+            "share": {
+              "numerator": 2,
+              "denominator": 649,
+              "percent": "0.3082"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 649,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 649,
+              "percent": "0.1541"
+            },
+            "without_aggregates": 5,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/38",
+        "units": 1380,
+        "name": "Santa Cruz de Tenerife",
+        "seats": 7,
+        "ballots": 500777,
+        "by_lot": false,
+        "votes_moved": 1174,
+        "votes_added": 1565,
+        "diluted": {
+          "numerator": 1174,
+          "denominator": 500777,
+          "percent": "0.2344"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1380,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1380,
+              "percent": "0.0725"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1380,
+            "value": 2,
+            "share": {
+              "numerator": 2,
+              "denominator": 1380,
+              "percent": "0.1449"
+            },
+            "without_aggregates": 5,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1380,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1380,
+              "percent": "0.0725"
+            },
+            "without_aggregates": 4,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/39",
+        "units": 778,
+        "name": "Cantabria",
+        "seats": 5,
+        "ballots": 355161,
+        "by_lot": false,
+        "votes_moved": 101,
+        "votes_added": 403,
+        "diluted": {
+          "numerator": 101,
+          "denominator": 355161,
+          "percent": "0.0284"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 778,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 778,
+              "percent": "0.1285"
+            },
+            "without_aggregates": 1,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 778,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 778,
+              "percent": "0.1285"
+            },
+            "without_aggregates": 1,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 778,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 778,
+              "percent": "0.1285"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/40",
+        "units": 331,
+        "name": "Segovia",
+        "seats": 3,
+        "ballots": 89945,
+        "by_lot": false,
+        "votes_moved": 4959,
+        "votes_added": 7438,
+        "diluted": {
+          "numerator": 4959,
+          "denominator": 89945,
+          "percent": "5.5134"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 331,
+            "value": 6,
+            "share": {
+              "numerator": 6,
+              "denominator": 331,
+              "percent": "1.8127"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 331,
+            "value": 17,
+            "share": {
+              "numerator": 17,
+              "denominator": 331,
+              "percent": "5.1360"
+            },
+            "without_aggregates": 17,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 331,
+            "value": 22,
+            "share": {
+              "numerator": 22,
+              "denominator": 331,
+              "percent": "6.6465"
+            },
+            "without_aggregates": 38,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/41",
+        "units": 2589,
+        "name": "Sevilla",
+        "seats": 12,
+        "ballots": 1075133,
+        "by_lot": false,
+        "votes_moved": 3829,
+        "votes_added": 7658,
+        "diluted": {
+          "numerator": 3829,
+          "denominator": 1075133,
+          "percent": "0.3561"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 2589,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 2589,
+              "percent": "0.0386"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 2589,
+            "value": 14,
+            "share": {
+              "numerator": 14,
+              "denominator": 2589,
+              "percent": "0.5407"
+            },
+            "without_aggregates": 18,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 2589,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 2589,
+              "percent": "0.0386"
+            },
+            "without_aggregates": 18,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/42",
+        "units": 257,
+        "name": "Soria",
+        "seats": 2,
+        "ballots": 51157,
+        "by_lot": false,
+        "votes_moved": 2635,
+        "votes_added": 5270,
+        "diluted": {
+          "numerator": 2635,
+          "denominator": 51157,
+          "percent": "5.1508"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 257,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 257,
+              "percent": "0.3891"
+            },
+            "without_aggregates": 6,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 257,
+            "value": 14,
+            "share": {
+              "numerator": 14,
+              "denominator": 257,
+              "percent": "5.4475"
+            },
+            "without_aggregates": 14,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 257,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 257,
+              "percent": "0.3891"
+            },
+            "without_aggregates": 24,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/43",
+        "units": 1040,
+        "name": "Tarragona",
+        "seats": 6,
+        "ballots": 372426,
+        "by_lot": false,
+        "votes_moved": 312,
+        "votes_added": 1247,
+        "diluted": {
+          "numerator": 312,
+          "denominator": 372426,
+          "percent": "0.0838"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1040,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1040,
+              "percent": "0.0962"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1040,
+            "value": 2,
+            "share": {
+              "numerator": 2,
+              "denominator": 1040,
+              "percent": "0.1923"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1040,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1040,
+              "percent": "0.0962"
+            },
+            "without_aggregates": 3,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/44",
+        "units": 329,
+        "name": "Teruel",
+        "seats": 3,
+        "ballots": 76561,
+        "by_lot": false,
+        "votes_moved": 1297,
+        "votes_added": 1946,
+        "diluted": {
+          "numerator": 1297,
+          "denominator": 76561,
+          "percent": "1.6941"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 329,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 329,
+              "percent": "0.3040"
+            },
+            "without_aggregates": 3,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 329,
+            "value": 5,
+            "share": {
+              "numerator": 5,
+              "denominator": 329,
+              "percent": "1.5198"
+            },
+            "without_aggregates": 5,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 329,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 329,
+              "percent": "0.3040"
+            },
+            "without_aggregates": 9,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/45",
+        "units": 904,
+        "name": "Toledo",
+        "seats": 6,
+        "ballots": 393178,
+        "by_lot": false,
+        "votes_moved": 10341,
+        "votes_added": 17075,
+        "diluted": {
+          "numerator": 10341,
+          "denominator": 393178,
+          "percent": "2.6301"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 904,
+            "value": 6,
+            "share": {
+              "numerator": 6,
+              "denominator": 904,
+              "percent": "0.6637"
+            },
+            "without_aggregates": 19,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 904,
+            "value": 34,
+            "share": {
+              "numerator": 34,
+              "denominator": 904,
+              "percent": "3.7611"
+            },
+            "without_aggregates": 35,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 904,
+            "value": 20,
+            "share": {
+              "numerator": 20,
+              "denominator": 904,
+              "percent": "2.2124"
+            },
+            "without_aggregates": 62,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/46",
+        "units": 3201,
+        "name": "València/Valencia",
+        "seats": 16,
+        "ballots": 1451187,
+        "by_lot": false,
+        "votes_moved": 8109,
+        "votes_added": 22116,
+        "diluted": {
+          "numerator": 8109,
+          "denominator": 1451187,
+          "percent": "0.5588"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 3201,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 3201,
+              "percent": "0.0312"
+            },
+            "without_aggregates": 20,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 3201,
+            "value": 26,
+            "share": {
+              "numerator": 26,
+              "denominator": 3201,
+              "percent": "0.8122"
+            },
+            "without_aggregates": 30,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 3201,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 3201,
+              "percent": "0.0312"
+            },
+            "without_aggregates": 71,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/47",
+        "units": 764,
+        "name": "Valladolid",
+        "seats": 5,
+        "ballots": 319312,
+        "by_lot": false,
+        "votes_moved": 3669,
+        "votes_added": 14674,
+        "diluted": {
+          "numerator": 3669,
+          "denominator": 319312,
+          "percent": "1.1490"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 764,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 764,
+              "percent": "0.1309"
+            },
+            "without_aggregates": 13,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 764,
+            "value": 24,
+            "share": {
+              "numerator": 24,
+              "denominator": 764,
+              "percent": "3.1414"
+            },
+            "without_aggregates": 25,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 764,
+            "value": 8,
+            "share": {
+              "numerator": 8,
+              "denominator": 764,
+              "percent": "1.0471"
+            },
+            "without_aggregates": 56,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/48",
+        "units": 1411,
+        "name": "Bizkaia",
+        "seats": 8,
+        "ballots": 614944,
+        "by_lot": false,
+        "votes_moved": 8897,
+        "votes_added": 24613,
+        "diluted": {
+          "numerator": 8897,
+          "denominator": 614944,
+          "percent": "1.4468"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1411,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1411,
+              "percent": "0.0709"
+            },
+            "without_aggregates": 21,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1411,
+            "value": 36,
+            "share": {
+              "numerator": 36,
+              "denominator": 1411,
+              "percent": "2.5514"
+            },
+            "without_aggregates": 37,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1411,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 1411,
+              "percent": "0.0709"
+            },
+            "without_aggregates": 65,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/49",
+        "units": 370,
+        "name": "Zamora",
+        "seats": 3,
+        "ballots": 104671,
+        "by_lot": false,
+        "votes_moved": 6298,
+        "votes_added": 9447,
+        "diluted": {
+          "numerator": 6298,
+          "denominator": 104671,
+          "percent": "6.0169"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 370,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 370,
+              "percent": "0.2703"
+            },
+            "without_aggregates": 10,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 370,
+            "value": 20,
+            "share": {
+              "numerator": 20,
+              "denominator": 370,
+              "percent": "5.4054"
+            },
+            "without_aggregates": 22,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 370,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 370,
+              "percent": "0.2703"
+            },
+            "without_aggregates": 37,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/50",
+        "units": 1468,
+        "name": "Zaragoza",
+        "seats": 7,
+        "ballots": 523410,
+        "by_lot": false,
+        "votes_moved": 12480,
+        "votes_added": 26918,
+        "diluted": {
+          "numerator": 12480,
+          "denominator": 523410,
+          "percent": "2.3844"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 1468,
+            "value": 2,
+            "share": {
+              "numerator": 2,
+              "denominator": 1468,
+              "percent": "0.1362"
+            },
+            "without_aggregates": 29,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 1468,
+            "value": 39,
+            "share": {
+              "numerator": 39,
+              "denominator": 1468,
+              "percent": "2.6567"
+            },
+            "without_aggregates": 42,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 1468,
+            "value": 16,
+            "share": {
+              "numerator": 16,
+              "denominator": 1468,
+              "percent": "1.0899"
+            },
+            "without_aggregates": 107,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/51",
+        "units": 97,
+        "name": "Ceuta",
+        "seats": 1,
+        "ballots": 33674,
+        "by_lot": false,
+        "votes_moved": 793,
+        "votes_added": 1586,
+        "diluted": {
+          "numerator": 793,
+          "denominator": 33674,
+          "percent": "2.3549"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 97,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 97,
+              "percent": "1.0309"
+            },
+            "without_aggregates": 2,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 97,
+            "value": 3,
+            "share": {
+              "numerator": 3,
+              "denominator": 97,
+              "percent": "3.0928"
+            },
+            "without_aggregates": 3,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 97,
+            "value": 1,
+            "share": {
+              "numerator": 1,
+              "denominator": 97,
+              "percent": "1.0309"
+            },
+            "without_aggregates": 4,
+            "status": "computed"
+          }
+        ]
+      },
+      {
+        "constituency": "es/52",
+        "units": 88,
+        "name": "Melilla",
+        "seats": 1,
+        "ballots": 27649,
+        "by_lot": false,
+        "votes_moved": 3252,
+        "votes_added": 6503,
+        "diluted": {
+          "numerator": 3252,
+          "denominator": 27649,
+          "percent": "11.7617"
+        },
+        "status": "computed",
+        "source": "statements",
+        "margin_units": [
+          {
+            "assumption": "rewrite",
+            "of": 88,
+            "value": 2,
+            "share": {
+              "numerator": 2,
+              "denominator": 88,
+              "percent": "2.2727"
+            },
+            "without_aggregates": 7,
+            "status": "computed"
+          },
+          {
+            "assumption": "move",
+            "of": 88,
+            "value": 12,
+            "share": {
+              "numerator": 12,
+              "denominator": 88,
+              "percent": "13.6364"
+            },
+            "without_aggregates": 12,
+            "status": "computed"
+          },
+          {
+            "assumption": "add_to_census",
+            "of": 88,
+            "value": 3,
+            "share": {
+              "numerator": 3,
+              "denominator": 88,
+              "percent": "3.4091"
+            },
+            "without_aggregates": 14,
+            "status": "computed"
+          }
+        ]
+      }
+    ],
+    "seats_source": {
+      "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+      "sha256": "sha256:e78fc231326a03cf67bbec87b7100ea0c8c46859daa1b2a631c06daaaf1717f8",
+      "file": "08022307.DAT",
+      "note": "seats to fill: the candidates each candidature obtained, added up; rule: LOREG, article 163.1"
+    }
+  },
+  "remote_vote": [
+    {
+      "channel": "abroad (CERA)",
+      "published_at": {
+        "value": "province",
+        "source": {
+          "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+          "sha256": "sha256:e78fc231326a03cf67bbec87b7100ea0c8c46859daa1b2a631c06daaaf1717f8",
+          "note": "one row per province, municipality code 999"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "units": 52,
+      "ballots": 208431,
+      "weight": {
+        "numerator": 208431,
+        "denominator": 24952653,
+        "percent": "0.8353"
+      },
+      "status": "computed",
+      "source": "statements",
+      "against_margin": {
+        "constituencies_with_channel": 52,
+        "constituencies_where_ballots_reach_votes_moved": 18,
+        "status": "computed"
+      },
+      "by_area": [
+        {
+          "area": "es/01",
+          "ballots": 1097,
+          "census": 8156,
+          "turnout": {
+            "numerator": 1097,
+            "denominator": 8156,
+            "percent": "13.4502"
+          }
+        },
+        {
+          "area": "es/02",
+          "ballots": 860,
+          "census": 8064,
+          "turnout": {
+            "numerator": 860,
+            "denominator": 8064,
+            "percent": "10.6647"
+          }
+        },
+        {
+          "area": "es/03",
+          "ballots": 4461,
+          "census": 45301,
+          "turnout": {
+            "numerator": 4461,
+            "denominator": 45301,
+            "percent": "9.8475"
+          }
+        },
+        {
+          "area": "es/04",
+          "ballots": 2981,
+          "census": 44687,
+          "turnout": {
+            "numerator": 2981,
+            "denominator": 44687,
+            "percent": "6.6708"
+          }
+        },
+        {
+          "area": "es/05",
+          "ballots": 883,
+          "census": 8369,
+          "turnout": {
+            "numerator": 883,
+            "denominator": 8369,
+            "percent": "10.5508"
+          }
+        },
+        {
+          "area": "es/06",
+          "ballots": 1512,
+          "census": 12128,
+          "turnout": {
+            "numerator": 1512,
+            "denominator": 12128,
+            "percent": "12.4670"
+          }
+        },
+        {
+          "area": "es/07",
+          "ballots": 2382,
+          "census": 32840,
+          "turnout": {
+            "numerator": 2382,
+            "denominator": 32840,
+            "percent": "7.2533"
+          }
+        },
+        {
+          "area": "es/08",
+          "ballots": 21434,
+          "census": 217682,
+          "turnout": {
+            "numerator": 21434,
+            "denominator": 217682,
+            "percent": "9.8465"
+          }
+        },
+        {
+          "area": "es/09",
+          "ballots": 2146,
+          "census": 18864,
+          "turnout": {
+            "numerator": 2146,
+            "denominator": 18864,
+            "percent": "11.3762"
+          }
+        },
+        {
+          "area": "es/10",
+          "ballots": 1536,
+          "census": 16726,
+          "turnout": {
+            "numerator": 1536,
+            "denominator": 16726,
+            "percent": "9.1833"
+          }
+        },
+        {
+          "area": "es/11",
+          "ballots": 2868,
+          "census": 31101,
+          "turnout": {
+            "numerator": 2868,
+            "denominator": 31101,
+            "percent": "9.2216"
+          }
+        },
+        {
+          "area": "es/12",
+          "ballots": 1447,
+          "census": 10927,
+          "turnout": {
+            "numerator": 1447,
+            "denominator": 10927,
+            "percent": "13.2424"
+          }
+        },
+        {
+          "area": "es/13",
+          "ballots": 952,
+          "census": 7016,
+          "turnout": {
+            "numerator": 952,
+            "denominator": 7016,
+            "percent": "13.5690"
+          }
+        },
+        {
+          "area": "es/14",
+          "ballots": 2132,
+          "census": 19165,
+          "turnout": {
+            "numerator": 2132,
+            "denominator": 19165,
+            "percent": "11.1244"
+          }
+        },
+        {
+          "area": "es/15",
+          "ballots": 10402,
+          "census": 163367,
+          "turnout": {
+            "numerator": 10402,
+            "denominator": 163367,
+            "percent": "6.3673"
+          }
+        },
+        {
+          "area": "es/16",
+          "ballots": 370,
+          "census": 3256,
+          "turnout": {
+            "numerator": 370,
+            "denominator": 3256,
+            "percent": "11.3636"
+          }
+        },
+        {
+          "area": "es/17",
+          "ballots": 2335,
+          "census": 24016,
+          "turnout": {
+            "numerator": 2335,
+            "denominator": 24016,
+            "percent": "9.7227"
+          }
+        },
+        {
+          "area": "es/18",
+          "ballots": 4656,
+          "census": 53300,
+          "turnout": {
+            "numerator": 4656,
+            "denominator": 53300,
+            "percent": "8.7355"
+          }
+        },
+        {
+          "area": "es/19",
+          "ballots": 757,
+          "census": 5187,
+          "turnout": {
+            "numerator": 757,
+            "denominator": 5187,
+            "percent": "14.5942"
+          }
+        },
+        {
+          "area": "es/20",
+          "ballots": 4337,
+          "census": 29798,
+          "turnout": {
+            "numerator": 4337,
+            "denominator": 29798,
+            "percent": "14.5547"
+          }
+        },
+        {
+          "area": "es/21",
+          "ballots": 689,
+          "census": 8194,
+          "turnout": {
+            "numerator": 689,
+            "denominator": 8194,
+            "percent": "8.4086"
+          }
+        },
+        {
+          "area": "es/22",
+          "ballots": 958,
+          "census": 8142,
+          "turnout": {
+            "numerator": 958,
+            "denominator": 8142,
+            "percent": "11.7662"
+          }
+        },
+        {
+          "area": "es/23",
+          "ballots": 1560,
+          "census": 13546,
+          "turnout": {
+            "numerator": 1560,
+            "denominator": 13546,
+            "percent": "11.5163"
+          }
+        },
+        {
+          "area": "es/24",
+          "ballots": 3984,
+          "census": 48645,
+          "turnout": {
+            "numerator": 3984,
+            "denominator": 48645,
+            "percent": "8.1899"
+          }
+        },
+        {
+          "area": "es/25",
+          "ballots": 1758,
+          "census": 18277,
+          "turnout": {
+            "numerator": 1758,
+            "denominator": 18277,
+            "percent": "9.6186"
+          }
+        },
+        {
+          "area": "es/26",
+          "ballots": 1487,
+          "census": 17708,
+          "turnout": {
+            "numerator": 1487,
+            "denominator": 17708,
+            "percent": "8.3973"
+          }
+        },
+        {
+          "area": "es/27",
+          "ballots": 3737,
+          "census": 69098,
+          "turnout": {
+            "numerator": 3737,
+            "denominator": 69098,
+            "percent": "5.4083"
+          }
+        },
+        {
+          "area": "es/28",
+          "ballots": 44807,
+          "census": 376504,
+          "turnout": {
+            "numerator": 44807,
+            "denominator": 376504,
+            "percent": "11.9008"
+          }
+        },
+        {
+          "area": "es/29",
+          "ballots": 5615,
+          "census": 60853,
+          "turnout": {
+            "numerator": 5615,
+            "denominator": 60853,
+            "percent": "9.2272"
+          }
+        },
+        {
+          "area": "es/30",
+          "ballots": 3544,
+          "census": 37760,
+          "turnout": {
+            "numerator": 3544,
+            "denominator": 37760,
+            "percent": "9.3856"
+          }
+        },
+        {
+          "area": "es/31",
+          "ballots": 2811,
+          "census": 29940,
+          "turnout": {
+            "numerator": 2811,
+            "denominator": 29940,
+            "percent": "9.3888"
+          }
+        },
+        {
+          "area": "es/32",
+          "ballots": 5849,
+          "census": 102938,
+          "turnout": {
+            "numerator": 5849,
+            "denominator": 102938,
+            "percent": "5.6821"
+          }
+        },
+        {
+          "area": "es/33",
+          "ballots": 8766,
+          "census": 123430,
+          "turnout": {
+            "numerator": 8766,
+            "denominator": 123430,
+            "percent": "7.1020"
+          }
+        },
+        {
+          "area": "es/34",
+          "ballots": 770,
+          "census": 7513,
+          "turnout": {
+            "numerator": 770,
+            "denominator": 7513,
+            "percent": "10.2489"
+          }
+        },
+        {
+          "area": "es/35",
+          "ballots": 2627,
+          "census": 55641,
+          "turnout": {
+            "numerator": 2627,
+            "denominator": 55641,
+            "percent": "4.7213"
+          }
+        },
+        {
+          "area": "es/36",
+          "ballots": 9830,
+          "census": 136739,
+          "turnout": {
+            "numerator": 9830,
+            "denominator": 136739,
+            "percent": "7.1889"
+          }
+        },
+        {
+          "area": "es/37",
+          "ballots": 2522,
+          "census": 31638,
+          "turnout": {
+            "numerator": 2522,
+            "denominator": 31638,
+            "percent": "7.9714"
+          }
+        },
+        {
+          "area": "es/38",
+          "ballots": 4658,
+          "census": 107213,
+          "turnout": {
+            "numerator": 4658,
+            "denominator": 107213,
+            "percent": "4.3446"
+          }
+        },
+        {
+          "area": "es/39",
+          "ballots": 3463,
+          "census": 41229,
+          "turnout": {
+            "numerator": 3463,
+            "denominator": 41229,
+            "percent": "8.3994"
+          }
+        },
+        {
+          "area": "es/40",
+          "ballots": 564,
+          "census": 3645,
+          "turnout": {
+            "numerator": 564,
+            "denominator": 3645,
+            "percent": "15.4733"
+          }
+        },
+        {
+          "area": "es/41",
+          "ballots": 4697,
+          "census": 38534,
+          "turnout": {
+            "numerator": 4697,
+            "denominator": 38534,
+            "percent": "12.1892"
+          }
+        },
+        {
+          "area": "es/42",
+          "ballots": 678,
+          "census": 7305,
+          "turnout": {
+            "numerator": 678,
+            "denominator": 7305,
+            "percent": "9.2813"
+          }
+        },
+        {
+          "area": "es/43",
+          "ballots": 1992,
+          "census": 21576,
+          "turnout": {
+            "numerator": 1992,
+            "denominator": 21576,
+            "percent": "9.2325"
+          }
+        },
+        {
+          "area": "es/44",
+          "ballots": 443,
+          "census": 5103,
+          "turnout": {
+            "numerator": 443,
+            "denominator": 5103,
+            "percent": "8.6812"
+          }
+        },
+        {
+          "area": "es/45",
+          "ballots": 1711,
+          "census": 13256,
+          "turnout": {
+            "numerator": 1711,
+            "denominator": 13256,
+            "percent": "12.9074"
+          }
+        },
+        {
+          "area": "es/46",
+          "ballots": 7519,
+          "census": 70391,
+          "turnout": {
+            "numerator": 7519,
+            "denominator": 70391,
+            "percent": "10.6818"
+          }
+        },
+        {
+          "area": "es/47",
+          "ballots": 2165,
+          "census": 14735,
+          "turnout": {
+            "numerator": 2165,
+            "denominator": 14735,
+            "percent": "14.6929"
+          }
+        },
+        {
+          "area": "es/48",
+          "ballots": 3596,
+          "census": 42420,
+          "turnout": {
+            "numerator": 3596,
+            "denominator": 42420,
+            "percent": "8.4771"
+          }
+        },
+        {
+          "area": "es/49",
+          "ballots": 1746,
+          "census": 20839,
+          "turnout": {
+            "numerator": 1746,
+            "denominator": 20839,
+            "percent": "8.3785"
+          }
+        },
+        {
+          "area": "es/50",
+          "ballots": 4071,
+          "census": 26555,
+          "turnout": {
+            "numerator": 4071,
+            "denominator": 26555,
+            "percent": "15.3304"
+          }
+        },
+        {
+          "area": "es/51",
+          "ballots": 89,
+          "census": 2975,
+          "turnout": {
+            "numerator": 89,
+            "denominator": 2975,
+            "percent": "2.9916"
+          }
+        },
+        {
+          "area": "es/52",
+          "ballots": 177,
+          "census": 5968,
+          "turnout": {
+            "numerator": 177,
+            "denominator": 5968,
+            "percent": "2.9658"
+          }
+        }
+      ]
+    },
+    {
+      "channel": "postal",
+      "published_at": {
+        "value": "not_published_separately",
+        "source": {
+          "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+          "sha256": "sha256:e78fc231326a03cf67bbec87b7100ea0c8c46859daa1b2a631c06daaaf1717f8",
+          "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+        }
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "status": "not_published",
+      "source": {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+        "sha256": "sha256:e78fc231326a03cf67bbec87b7100ea0c8c46859daa1b2a631c06daaaf1717f8",
+        "note": "the fields of files 09 and 10 have no postal vote; read in the text extracted from the document, which may miss a field"
+      }
+    }
+  ],
+  "verifiability": {
+    "stations": 60314,
+    "units_with_result": [
+      {
+        "level": "constituency",
+        "stations_in_statements": 60314,
+        "stations_in_official_totals": 60314,
+        "share": {
+          "numerator": 60314,
+          "denominator": 60314,
+          "percent": "100.0000"
+        },
+        "status": "computed",
+        "source": "statements, official"
+      }
+    ],
+    "sheet_images": {
+      "value": null,
+      "status": "unverified",
+      "note": "whether the Ministry publishes images of the tally sheets has not been checked"
+    },
+    "file_hashes": {
+      "value": null,
+      "status": "unverified",
+      "note": "no published hash of the Ministry's files has been looked for; the SHA-256 of each file read is in the findings"
+    },
+    "publications_agree": [
+      {
+        "level": "constituency",
+        "areas_compared": 52,
+        "areas_matching": 50,
+        "figures_differing": 12,
+        "official_matches": "neither",
+        "status": "computed",
+        "source": "verifier"
+      }
+    ],
+    "practices": [
+      {
+        "n": 1,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 98.1, read in the BOE consolidated text"
+      },
+      {
+        "n": 2,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): 'hasta donde llega este trabajo'"
+      },
+      {
+        "n": 3,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 4,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 5,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 6,
+        "value": "no",
+        "status": "reported",
+        "source": "thesis, section 7.1 (Transparencia del escrutinio): LOREG, article 97.3, read in the BOE consolidated text"
+      },
+      {
+        "n": 7,
+        "value": null,
+        "status": "unverified"
+      }
+    ]
+  },
+  "coverage_bound": {
+    "value": "complete coverage",
+    "stations_without_statement": 0,
+    "status": "computed",
+    "source": "statements, official"
+  }
+}

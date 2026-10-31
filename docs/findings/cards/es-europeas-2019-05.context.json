@@ -3,8 +3,18 @@
   "election": "es/europeas/2019-05",
   "contest": {
     "kind": "seats",
-    "status": "pending",
-    "reason": "the allocation articles for the European Parliament have not been read"
+    "seats": {
+      "es": 54
+    },
+    "threshold_percent": 0,
+    "ties": "more_votes_then_lot",
+    "detail": "by_constituency",
+    "source": {
+      "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
+      "sha256": "sha256:8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474",
+      "file": "08071905.DAT",
+      "note": "seats to fill: the candidates each candidature obtained in the national row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without its threshold); Real Decreto 206/2019 (BOE-A-2019-4820), article 2: 54 seats. The five more of its additional provision, allocated by the Junta Electoral Central once the United Kingdom's withdrawal took effect, are outside this card: how they were allocated has not been read"
+    }
   },
   "channels": [
     {
