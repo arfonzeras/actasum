@@ -211,7 +211,8 @@ end reaches this profile as an official total for an area.
    consolidated text. The rest of the law has not been read for this
    profile. These articles are applied to elections from 2008 to 2024 in
    their 2026 wording; the wording in force on each election day has not
-   been compared. The July 2026 amendment (Organic
+   been compared. **Pending before publication:** the wording of articles
+   163, 180, 214 and 216 on the date of each election with a card. The July 2026 amendment (Organic
    Law 2/2026) changes articles 161.2 and 165.2, on Senate constituencies,
    and does not touch the count.
    Two European Parliament elections and two local elections have been run.
@@ -262,9 +263,15 @@ end reaches this profile as an official total for an area.
   applies article 163 without its section 1.a, so there is **no threshold**
   (`threshold_percent: 0`), nor the Ceuta and Melilla rule of section 2. In
   2019 the decree's additional provision gives Spain five more seats once the
-  United Kingdom's withdrawal took effect, allocated by the Junta Electoral
-  Central; the card computes the 54 of article 2 only, since how those five
-  were allocated has not been read.
+  United Kingdom's withdrawal is legally effective, to be allocated by the
+  Junta Electoral Central "a las candidaturas a las que puedan corresponder
+  como consecuencia de la aplicación de las reglas establecidas en el
+  artículo 216 [...] a los resultados del proceso electoral celebrado el 26 de
+  mayo de 2019". The Junta proclaimed them by its Acuerdo of 23 January 2020
+  (BOE-A-2020-1104), with effect from 1 February 2020, one seat each to PSOE,
+  Vox, PP, Ciudadanos and Lliures per Europa. The card computes the 54 of
+  article 2 and says so in its `seats_source`; a variant card computes the 59,
+  whose allocation gives the five extra seats to those same candidatures.
 - **Remote vote:** the overseas (CERA) row of each province is a channel,
   with its ballots, its census (the CERA census, file 09) and their ratio per
   province. The postal vote is marked as not published separately: the
@@ -306,6 +313,16 @@ Read in the consolidated text of the LOREG (BOE-A-1985-11672, last amended
   country for the European Parliament, every municipality in the card for
   local elections. The public evidence a reader can check is the BOE
   publication of article 108.6; the boards' *actas de proclamación* are not
-  known to be published. Whether an appeal against a proclamation
-  (*recurso contencioso-electoral*, articles 109 and 112.1, within three days
-  of it) should hold publication back is not settled here.
+  known to be published.
+- **Appeals.** An appeal against a proclamation (*recurso
+  contencioso-electoral*, articles 109 and 112.1, within three days of it)
+  does not hold publication back. The card is published after the
+  proclamation. A constituency with an appeal pending carries the mark
+  «recurso pendiente», and only when the appeal is stated in a source that
+  can be cited. The mark goes in the context's `proclamation` object, which
+  the card copies as it is: `appeals_pending`, a list of
+  `{"constituency", "source"}`, for the Congreso and the European
+  Parliament; for local elections only `appeals_pending_count` with its
+  sources, since municipalities are never listed. When an appeal is
+  resolved, the card is computed again and published as a new version; the
+  earlier version is not deleted.
