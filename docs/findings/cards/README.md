@@ -13,6 +13,7 @@ nothing to them.
 | Spain, Congreso, November 2019 | [card](es-congreso-2019-11.card.json) | [context](es-congreso-2019-11.context.json) | Seats per province, listed by name; overseas (CERA) row per province |
 | Spain, Congreso, July 2023 | [card](es-congreso-2023-07.card.json) | [context](es-congreso-2023-07.context.json) | As November 2019 |
 | Spain, European Parliament, May 2019 | [card](es-europeas-2019-05.card.json) | [context](es-europeas-2019-05.context.json) | One national constituency, 54 seats, no threshold (below) |
+| Same, variant with 59 seats | [card](es-europeas-2019-05-59.card.json) | [context](es-europeas-2019-05-59.context.json) | The five seats proclaimed in January 2020 (below) |
 | Spain, European Parliament, June 2024 | [card](es-europeas-2024-06.card.json) | [context](es-europeas-2024-06.context.json) | Same, 61 seats |
 | Spain, local, May 2019 | [card](es-municipales-2019-05.card.json) | [context](es-municipales-2019-05.context.json) | Municipalities only as a distribution; 9 decided by lot left out |
 | Spain, local, May 2023 | [card](es-municipales-2023-05.card.json) | [context](es-municipales-2023-05.context.json) | Same; 9 decided by lot left out |
@@ -36,11 +37,19 @@ winner.
 **Spain, European Parliament.** Article 216 of the LOREG applies
 article 163 without its threshold, so `threshold_percent` is 0. The seats are
 those of article 2 of each convocation decree, which file 08 also gives: 54 in
-2019 and 61 in 2024. In 2019 the decree gave Spain five more seats once the
-United Kingdom's withdrawal took effect, allocated by the Junta Electoral
-Central; they are outside the card, since how they were allocated has not
-been read. Moving 68,144 votes (0.3006 per cent of the ballots) changes the
-2019 allocation, and 18,910 (0.1071 per cent) the 2024 one.
+2019 and 61 in 2024. Moving 68,144 votes (0.3006 per cent of the ballots)
+changes the 2019 allocation, and 18,910 (0.1071 per cent) the 2024 one.
+
+The 2019 decree gave Spain five more seats once the United Kingdom's
+withdrawal was legally effective, to be allocated by the Junta Electoral
+Central under article 216 to the results of 26 May 2019. The Junta proclaimed
+them on 23 January 2020 (BOE-A-2020-1104), one each to PSOE, Vox, PP,
+Ciudadanos and Lliures per Europa. The 2019 card says in its `seats_source`
+that it computes 54 seats; the variant computes 59. Allocating 59 seats, on
+the station sums and on the national totals alike, gives the five extra
+seats to those same candidatures (checked outside the card, on 3 November
+2026). In the variant, moving 18,391 votes (0.0811 per cent) changes the
+allocation.
 
 **Spain.** The overseas row of a province is one unit with a census much
 larger than its ballots. Under `rewrite` and `add_to_census` it alone often

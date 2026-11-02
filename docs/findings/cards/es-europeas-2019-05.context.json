@@ -13,7 +13,7 @@
       "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones (FICHEROS.doc, inside the ZIP)",
       "sha256": "sha256:8199711babd4b61ee4940469351ab4a263b0cf84a84ccfbe04ab1970a4c1a474",
       "file": "08071905.DAT",
-      "note": "seats to fill: the candidates each candidature obtained in the national row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without its threshold); Real Decreto 206/2019 (BOE-A-2019-4820), article 2: 54 seats. The five more of its additional provision, allocated by the Junta Electoral Central once the United Kingdom's withdrawal took effect, are outside this card: how they were allocated has not been read"
+      "note": "seats to fill: the candidates each candidature obtained in the national row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without its threshold); THIS CARD COMPUTES 54 SEATS, those of Real Decreto 206/2019 (BOE-A-2019-4820), article 2. The five more of its additional provision were proclaimed by the Junta Electoral Central on 23 January 2020 (BOE-A-2020-1104), with effect from 1 February 2020; the variant card es-europeas-2019-05-59 computes the 59"
     }
   },
   "channels": [
