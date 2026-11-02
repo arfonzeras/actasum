@@ -21,6 +21,7 @@ nothing to them.
 | Colombia, same election, Córdoba | [card](co-presidente-2026-05-cordoba.card.json) | [context](co-presidente-2026-05-cordoba.context.json) | Partial: no margin |
 | Mexico, president, 2 June 2024 | [card](mx-presidencia-2024-06.card.json) | [context](mx-presidencia-2024-06.context.json) | Margin bounded by figures that could not be read (below) |
 | Brazil, president, 4 October 2026, first round | [card](br-presidente-2026-10-04.card.json) | [context](br-presidente-2026-10-04.context.json) | Descriptive margins only |
+| Brazil, president, 25 October 2026, second round | [card](br-presidente-2026-10-25.card.json) | [context](br-presidente-2026-10-25.context.json) | Margin of 4,430,191 votes; the outcome rule is assumed, not read |
 
 In every Spanish card the allocation computed from the station sums gives
 each candidature the seats file 08 publishes for it: per province in the five
@@ -82,6 +83,12 @@ actasum card --statements br.jsonl \
     --official docs/findings/official/br-presidente-2026-10-04-states.official.json \
     --official docs/findings/official/br-presidente-2026-10-04-brasil.official.json \
     --context docs/findings/cards/br-presidente-2026-10-04.context.json
+
+# Brazil, second round: the statements of `actasum br replay` (docs/findings/br-presidente-2026-2t.md)
+actasum card --statements br2t.jsonl \
+    --official docs/findings/official/br-presidente-2026-10-25-states.official.json \
+    --official docs/findings/official/br-presidente-2026-10-25-brasil.official.json \
+    --context docs/findings/cards/br-presidente-2026-10-25.context.json
 ```
 
 The draft context of a Spanish election comes from `actasum es context
