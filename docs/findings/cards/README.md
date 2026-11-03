@@ -55,9 +55,22 @@ allocation.
 **Spain.** The overseas row of a province is one unit with a census much
 larger than its ballots. Under `rewrite` and `add_to_census` it alone often
 reaches the margin of the last seat, so each figure in units also comes
-without aggregates. In local elections, a municipality where no move of votes
-changes the allocation (a single candidature, for example) counts as
-`not_reachable` in the distribution of votes.
+without aggregates. A text for readers gives the figure without aggregates
+first, and then the one that includes the overseas row. In local elections,
+a municipality where no move of votes changes the allocation (a single
+candidature, for example) counts as `not_reachable` in the distribution of
+votes.
+
+**Spain, local elections.** That one unit under `rewrite` reaches the margin
+of the last seat in 5,234 of the 5,263 municipalities computed in 2023 reads
+differently once the size of each municipality is known: 2,039 of them have
+a single polling station, 1,728 have 2 to 5 and 1,496 have 6 or more. As a
+share of each municipality's stations, the units needed are 10 per cent or
+less in 967 municipalities, more than 10 and up to 25 in 1,079, more than 25
+and up to 50 in 1,160, and every station in 2,057. In 2019: 5,244 of 5,282
+with one unit; 2,048 with a single station, 1,750 with 2 to 5 and 1,484 with
+6 or more; shares of 946, 1,098, 1,164, 1 (more than 50 and less than 100)
+and 2,073.
 
 ## How to reproduce
 

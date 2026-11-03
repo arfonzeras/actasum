@@ -44,10 +44,31 @@
         "6+": 0,
         "not_reachable": 0
       },
+      "units_in_constituency": {
+        "1": 0,
+        "2-5": 0,
+        "6+": 1
+      },
+      "units_rewrite_share": {
+        "(0,10]": 1,
+        "(10,25]": 0,
+        "(25,50]": 0,
+        "(50,100)": 0,
+        "100": 0,
+        "not_reachable": 0
+      },
       "units_rewrite_without_aggregates": {
         "1": 0,
         "2-5": 0,
         "6+": 1,
+        "not_reachable": 0
+      },
+      "units_rewrite_share_without_aggregates": {
+        "(0,10]": 1,
+        "(10,25]": 0,
+        "(25,50]": 0,
+        "(50,100)": 0,
+        "100": 0,
         "not_reachable": 0
       }
     },
