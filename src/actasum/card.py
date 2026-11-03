@@ -531,6 +531,35 @@ def seat_units_needed(
 
 _VOTE_BUCKETS = ((1, 9, "1-9"), (10, 99, "10-99"), (100, 999, "100-999"), (1000, None, "1000+"))
 _UNIT_BUCKETS = ((1, 1, "1"), (2, 5, "2-5"), (6, None, "6+"))
+# Share of a constituency's units that reaches the margin, as intervals of
+# per cent: (low, high] with exact fractions; "100" is every unit.
+_SHARE_BUCKETS = (
+    (Fraction(0), Fraction(10), "(0,10]"),
+    (Fraction(10), Fraction(25), "(10,25]"),
+    (Fraction(25), Fraction(50), "(25,50]"),
+    (Fraction(50), Fraction(100), "(50,100)"),
+)
+
+
+def _share_bucket(needed: int | None, of: int) -> str:
+    if needed is None or of == 0:
+        return "not_reachable"
+    percent = Fraction(100 * needed, of)
+    if percent >= 100:
+        return "100"
+    for low, high, name in _SHARE_BUCKETS:
+        if low < percent <= high:
+            return name
+    return "not_reachable"
+
+
+def _count_shares(pairs: Iterable[tuple[int | None, int]]) -> dict[str, int]:
+    counts = {name: 0 for _, _, name in _SHARE_BUCKETS}
+    counts["100"] = 0
+    counts["not_reachable"] = 0
+    for needed, of in pairs:
+        counts[_share_bucket(needed, of)] += 1
+    return counts
 
 
 def _bucket(value: int | None, buckets) -> str:
@@ -551,8 +580,10 @@ def seat_contest(units: list[Unit], contest: dict[str, Any]) -> tuple[dict[str, 
     for unit in units:
         by_area.setdefault(unit.constituency, []).append(unit)
     rows = []
+    stations_in: dict[str, int] = {}
     for area in sorted(by_area):
         members = by_area[area]
+        stations_in[area] = sum(1 for u in members if not u.aggregate)
         row: dict[str, Any] = {"constituency": area, "units": len(members)}
         if (contest.get("names") or {}).get(area):
             row["name"] = contest["names"][area]
@@ -623,9 +654,21 @@ def seat_contest(units: list[Unit], contest: dict[str, Any]) -> tuple[dict[str, 
             (_rewrite_value(r) for r in computed), _UNIT_BUCKETS
         ),
     }
+    distribution["units_in_constituency"] = {
+        name: n
+        for name, n in _count_buckets((r["units"] for r in computed), _UNIT_BUCKETS).items()
+        if name != "not_reachable"
+    }
+    distribution["units_rewrite_share"] = _count_shares(
+        (_rewrite_value(r), r["units"]) for r in computed
+    )
     if any(u.aggregate for u in units):
         distribution["units_rewrite_without_aggregates"] = _count_buckets(
             (_rewrite_value(r, "without_aggregates") for r in computed), _UNIT_BUCKETS
+        )
+        distribution["units_rewrite_share_without_aggregates"] = _count_shares(
+            (_rewrite_value(r, "without_aggregates"), stations_in[r["constituency"]])
+            for r in computed
         )
     out: dict[str, Any] = {
         "rule": "highest averages 1, 2, 3...; threshold on candidatures plus blank; "

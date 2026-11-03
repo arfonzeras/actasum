@@ -325,6 +325,22 @@ def test_a_seats_card():
     hidden = card.build_card(statements, [official(statements)], ctx)
     assert "constituencies" not in hidden["contest"]
     assert hidden["contest"]["distribution"] == result["contest"]["distribution"]
+    distribution = result["contest"]["distribution"]
+    assert distribution["units_in_constituency"] == {"1": 1, "2-5": 1, "6+": 0}
+    shares = distribution["units_rewrite_share"]
+    assert sum(shares.values()) == 2
+    one = rows["xx/b"]["margin_units"][0]["value"]
+    assert shares["100" if one == 1 else "not_reachable"] >= 1
+
+
+def test_share_buckets_are_exact():
+    assert card._share_bucket(1, 10) == "(0,10]"
+    assert card._share_bucket(1, 9) == "(10,25]"
+    assert card._share_bucket(1, 4) == "(10,25]"
+    assert card._share_bucket(1, 2) == "(25,50]"
+    assert card._share_bucket(2, 3) == "(50,100)"
+    assert card._share_bucket(3, 3) == "100"
+    assert card._share_bucket(None, 3) == "not_reachable"
 
 
 

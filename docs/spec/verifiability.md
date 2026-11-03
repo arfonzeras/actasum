@@ -53,6 +53,12 @@ actasum card --statements statements.jsonl --official official.json [--official 
 the core verification procedure), and for `context` the source the context
 gives.
 
+**Order for readers.** A page or text that shows a card to readers gives,
+where both exist, the figure `without_aggregates` first and then the one
+that includes the aggregates (the overseas row of each province in the
+Spanish Congreso, for example), each with its name. The card itself keeps
+both in the same entry.
+
 ## 2. Which sum, which units
 
 Every figure is computed on the **standing sum** (core, section 5.2), after
@@ -227,6 +233,18 @@ aggregates. When the context does not allow constituencies to be listed, the
 card gives only the distribution: how many constituencies would change with fewer than
 10, 100 or 1,000 votes moved, or more, and with 1, 2 to 5, or more units
 under `rewrite`.
+
+A count of units reads differently in a constituency with one station and in
+one with a hundred, so the distribution also gives:
+
+- `units_in_constituency`: how many computed constituencies have 1, 2 to 5,
+  or 6 or more units;
+- `units_rewrite_share`: the units needed under `rewrite` as a share of the
+  constituency's units, in the intervals (0,10], (10,25], (25,50] and
+  (50,100) per cent, `100` when every unit is needed, and `not_reachable`.
+  The share is an exact fraction; the intervals are open on the left;
+- with aggregates, `units_rewrite_share_without_aggregates`, the figure
+  without aggregates over the constituency's polling stations.
 
 ### 3.4 Partial coverage (`partial`)
 
