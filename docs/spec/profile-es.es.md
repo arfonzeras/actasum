@@ -141,8 +141,13 @@ la verificación.
    elecciones más antiguas ni otros tipos de elección.
 2. Los artículos 79 y 95 a 108 de la LOREG se comprobaron el 11 de octubre
    de 2026 en el texto consolidado del BOE (referencia BOE-A-1985-11672,
-   última modificación de 2 de julio de 2026). El resto de la ley no se ha
-   leído para este perfil. La modificación de julio de 2026 (Ley Orgánica
+   última modificación de 2 de julio de 2026). Los artículos 108, 163, 173,
+   180, 191, 214, 216 y 224 se leyeron el 31 de octubre de 2026 en el mismo
+   texto. El resto de la ley no se ha leído para este perfil. Estos artículos
+   se aplican a elecciones de 2008 a 2024 en su redacción de 2026; no se ha
+   comparado con la redacción vigente el día de cada elección. **Pendiente
+   antes de publicar:** la redacción de los artículos 163, 180, 214 y 216 en
+   la fecha de cada elección con ficha. La modificación de julio de 2026 (Ley Orgánica
    2/2026) cambia los artículos 161.2 y 165.2, sobre las circunscripciones
    del Senado, y no afecta al escrutinio.
 3. Los códigos de candidatura del fichero 10 y del fichero 08 son el mismo
@@ -160,3 +165,58 @@ la verificación.
    el **conjunto de datos publicado**, no sobre el acta en papel. Que los
    totales cuadren demuestra que las dos publicaciones del Ministerio son
    coherentes entre sí.
+
+## 6. Ficha de verificabilidad
+
+`actasum es context --mesa MESA.zip` escribe un borrador del contexto de la
+ficha (docs/spec/verifiability.md, en inglés) a partir de los ficheros del
+Ministerio: escaños por provincia en el Congreso (fichero 08, columnas
+29-33, con los nombres del fichero 07), concejales por municipio en las
+municipales (fichero 05, columnas 214-216; los municipios solo como
+distribución, nunca en un listado), los escaños de las europeas en la fila
+nacional del fichero 08 (54 en mayo de 2019 y 61 en junio de 2024, los del
+artículo 2 de cada real decreto de convocatoria) sin barrera, porque el
+artículo 216 aplica el 163 salvo su apartado 1.a, la fila del CERA de cada
+provincia como canal de voto exterior y el voto por correo como no publicado
+aparte. En 2019 la ficha calcula los 54 escaños del artículo 2 y lo dice en
+su `seats_source`. Los cinco escaños de la disposición adicional única del
+real decreto los proclamó la Junta Electoral Central por Acuerdo de 23 de
+enero de 2020 (BOE-A-2020-1104), con efectos de 1 de febrero de 2020, uno a
+cada una de PSOE, Vox, PP, Ciudadanos y Lliures per Europa; una ficha
+variante calcula los 59, y su reparto da los cinco escaños de más a esas
+mismas candidaturas. Los detalles están en la versión inglesa, sección 6.
+
+### 6.1 Qué cuenta como proclamado
+
+Leído en el texto consolidado de la LOREG (BOE-A-1985-11672, última
+modificación de 2 de julio de 2026):
+
+- **Congreso y municipales.** Las juntas competentes proclaman a los electos
+  al día siguiente de terminar el plazo de reclamaciones sin que las haya, o
+  de resolverlas la Junta Electoral Central (artículo 108.4). Son las juntas
+  provinciales en el Congreso (artículo 173) y las de zona en las municipales
+  (artículo 191.1). La proclamación consta en un acta de proclamación con
+  electores, votantes, votos de cada candidatura, en blanco, válidos y nulos,
+  escaños de cada candidatura y relación de electos (artículo 108.5). La
+  Junta Electoral Central publica en el BOE los resultados generales y por
+  circunscripciones en cuarenta días, «sin perjuicio de los recursos
+  contencioso-electorales contra la proclamación de electos» (artículo 108.6).
+- **Parlamento Europeo.** La Junta Electoral Central hace el recuento
+  nacional, atribuye los escaños y proclama a los electos no más tarde del
+  vigésimo día posterior a las elecciones (artículo 224.1).
+- **Para publicar una ficha**, una elección cuenta como proclamada cuando lo
+  está cada circunscripción de su ficha: las 52 provincias en el Congreso, el
+  país en las europeas y cada municipio de la ficha en las municipales. La
+  prueba pública que un lector puede comprobar es la publicación en el BOE
+  del artículo 108.6; no consta que se publiquen las actas de proclamación de
+  las juntas.
+- **Recursos.** Un recurso contencioso-electoral contra la proclamación
+  (artículos 109 y 112.1, en tres días) no retrasa la publicación. La ficha
+  se publica tras la proclamación; la circunscripción con recurso pendiente
+  lleva la marca «recurso pendiente», solo si consta en una fuente citable.
+  La marca va en el objeto `proclamation` del contexto, que la ficha copia
+  tal cual: `appeals_pending`, una lista de `{"constituency", "source"}`, en
+  el Congreso y las europeas; en las municipales solo
+  `appeals_pending_count` con sus fuentes, porque los municipios nunca se
+  listan. Al resolverse, se rehace la ficha y se publica una versión nueva
+  sin borrar la anterior.

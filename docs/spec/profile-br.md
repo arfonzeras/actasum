@@ -243,3 +243,45 @@ reader of the reports had to change for them (section 3.1).
    second, 30 and 27 appear in the files like the others, as *Apurada*; the
    files do not tell them apart. The others give no statement (section 6,
    point 4).
+
+## 9. What counts as proclaimed
+
+For the observatory's rule that an election is published once its result is
+proclaimed (it applies to the web and to anything spread from it, not to this
+repository):
+
+- **What counts:** the proclamation of the elected president and
+  vice-president by the TSE. A TSE news article of 25 September 2026 ("Por
+  Dentro das Eleições: saiba como a Justiça Eleitoral totaliza e proclama os
+  resultados"), read through an automatic extract, says that at national
+  level "cabe ao TSE proclamar os eleitos para presidente e vice-presidente da
+  República", and that the diplomas of president and vice-president are
+  issued by the TSE. Both rounds of an election wait for it: a first round
+  elects no one.
+- **2026:** not found as of 30 October 2026. On 25 October the president of the
+  TSE announced the result of the second round ("O resultado foi anunciado
+  neste domingo (25) pelo presidente do Tribunal Superior Eleitoral", TSE
+  news article of 26 October 2026, read through an automatic extract); an
+  announcement is not taken here as the proclamation.
+- In 2022 the TSE published, in December, a news article titled "TSE proclama
+  eleitos presidente e vice-presidente da República Luiz Inácio Lula da Silva
+  e Geraldo Alckmin". Only its title and address were seen; its text could
+  not be read.
+
+The web waits for that proclamation with both rounds of 2026.
+
+**What was searched, on 30 October 2026.** A web search limited to
+tse.jus.br for the proclamation of the 2026 presidential result; a wider
+search for the proclamation of the elected president and vice-president and
+their *diplomação*; the TSE's election calendar page, through an automatic
+extract, which has no entry for the proclamation or the *diplomação* of the
+president in 2026; and the news articles above.
+
+**What was not found:** any act or news item of the TSE proclaiming the
+elected of 2026, and the date of their *diplomação*.
+
+**What was not searched:** the TSE's resolutions for 2026 ("Normas e
+documentações"), its electronic official journal, and the records of its
+plenary sessions.
+
+The law has not been read on this point either (section 8, point 1).

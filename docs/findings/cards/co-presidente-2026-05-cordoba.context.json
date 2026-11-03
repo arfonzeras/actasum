@@ -1,0 +1,62 @@
+{
+  "spec": "actasum/card-context/v0.1",
+  "election": "co/presidente/2026-05",
+  "contest": {
+    "kind": "partial",
+    "reason": "Córdoba is one of the departments of a national election"
+  },
+  "channels": [],
+  "images": {
+    "value": "published, not counted",
+    "status": "reported",
+    "source": "Registraduría Nacional del Estado Civil (2026b), as the thesis cites it in section 6.2: the three copies of the E-14 are scanned and published"
+  },
+  "hashes": {
+    "value": "the AGE records the SHA-256 of the per-station file, and the published file has it",
+    "status": "computed",
+    "source": "docs/findings/co-presidente-2026.md"
+  },
+  "practices": [
+    {
+      "n": 1,
+      "value": "yes",
+      "status": "reported",
+      "source": "thesis, section 7.1"
+    },
+    {
+      "n": 2,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 3,
+      "value": "yes",
+      "status": "reported",
+      "source": "thesis, section 7.1"
+    },
+    {
+      "n": 4,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 5,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 6,
+      "value": null,
+      "status": "unverified"
+    },
+    {
+      "n": 7,
+      "value": null,
+      "status": "unverified"
+    }
+  ],
+  "proclamation": {
+    "status": "unverified",
+    "note": "not fixed: the law has not been read (profile-co.md, section 6)"
+  }
+}

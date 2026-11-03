@@ -25,7 +25,9 @@ tally sheet is still wrong.
 
 Not yet specified (planned for later versions): signatures and submitter
 credentials, and image evidence. The append-only log and its witnesses are
-specified in [`log.md`](log.md) and [`witness.md`](witness.md).
+specified in [`log.md`](log.md) and [`witness.md`](witness.md), and the
+verifiability card, which is computed from statements and official totals and
+changes neither, in [`verifiability.md`](verifiability.md).
 
 ## 2. Canonical JSON
 
@@ -414,6 +416,7 @@ core, the change is listed here.
 | Mexico | A figure the tally sheet does not have (blank votes) | `counts.not_on_sheet`; `blank` and `null` optional in official totals; "not comparable" and "inconsistent" in the report |
 | Mexico | Official totals whose own source could not read a figure | `unread` in official totals; two lower bounds say nothing |
 | Brazil | Official totals that count a candidature's votes as null (a candidate who withdrew) | `count_as` in official totals: `null`, `blank` or `other:<category>`; the report always says what was counted as what, with the votes |
+| Verifiability card (not a profile) | A summary of how much it takes to change a result and what of it can be checked | A new document, `actasum/verifiability/v0.1` ([`verifiability.md`](verifiability.md)); it does not change the statement or the official totals |
 
 The Mexico profile also showed things that were left as they are, and are
 known limits: one earlier statement replaced by several later ones, a later

@@ -1,0 +1,234 @@
+{
+  "spec": "actasum/verifiability/v0.1",
+  "election": "br/presidente/2026-10-25",
+  "profile": "br/codigo-eleitoral/v0.1",
+  "inputs": {
+    "statements": {
+      "file": "statements-br2t.jsonl",
+      "sha256": "sha256:6a959c225915cf4fd32f61abe6620920148a956a7b8c26431997588a6edd3163",
+      "statements": 499205
+    },
+    "official": [
+      {
+        "file": "br-presidente-2026-10-25-states.official.json",
+        "sha256": "sha256:85a97c7b60c4444bbf1c221931f2345a917cd02c421a5abf4d9c03b6d90aac4c"
+      },
+      {
+        "file": "br-presidente-2026-10-25-brasil.official.json",
+        "sha256": "sha256:914ae1e6cf5e8f35410223e344c541445a4d04b999965ac51f5c40deda30b651"
+      }
+    ],
+    "context": {
+      "file": "br-presidente-2026-10-25.context.json",
+      "sha256": "sha256:09bf561c009261b1610f0707eca6bf7ca0565c498e0cf0e7d42a799eb39059c2"
+    }
+  },
+  "sum": "standing",
+  "units": {
+    "stations": 499205,
+    "aggregates": 0
+  },
+  "contest": {
+    "kind": "single_winner",
+    "outcome_rule": {
+      "value": "most_votes",
+      "status": "unverified",
+      "note": "assumed: the second round is decided by the most valid votes between two candidates; the Constitution and the electoral law have not been read (a declared assumption until before publication)"
+    },
+    "margin_votes": {
+      "value": 4430191,
+      "between": [
+        "13",
+        "22"
+      ],
+      "status": "computed",
+      "source": "statements"
+    },
+    "margin_diluted": {
+      "value": {
+        "numerator": 4430191,
+        "denominator": 128236074,
+        "percent": "3.4547"
+      },
+      "ballots": 128236074,
+      "status": "computed",
+      "source": "statements"
+    },
+    "margin_units": [
+      {
+        "assumption": "rewrite",
+        "of": 499205,
+        "margin_units_needed": 4430192,
+        "value": 7003,
+        "share": {
+          "numerator": 7003,
+          "denominator": 499205,
+          "percent": "1.4028"
+        },
+        "status": "computed",
+        "source": "statements"
+      },
+      {
+        "assumption": "move",
+        "of": 499205,
+        "margin_units_needed": 4430192,
+        "value": 8478,
+        "share": {
+          "numerator": 8478,
+          "denominator": 499205,
+          "percent": "1.6983"
+        },
+        "status": "computed",
+        "source": "statements"
+      },
+      {
+        "assumption": "add_to_census",
+        "of": 499205,
+        "margin_units_needed": 4430192,
+        "value": 38994,
+        "share": {
+          "numerator": 38994,
+          "denominator": 499205,
+          "percent": "7.8112"
+        },
+        "status": "computed",
+        "source": "statements"
+      }
+    ]
+  },
+  "remote_vote": [
+    {
+      "channel": "abroad (ZZ)",
+      "published_at": {
+        "value": "station",
+        "source": "TSE ballot-box report files, state code ZZ"
+      },
+      "custody_chain": {
+        "value": null,
+        "status": "unverified"
+      },
+      "units": 1308,
+      "ballots": 381443,
+      "weight": {
+        "numerator": 381443,
+        "denominator": 128236074,
+        "percent": "0.2975"
+      },
+      "status": "computed",
+      "source": "statements",
+      "against_margin": {
+        "value": false,
+        "margin_votes": 4430191,
+        "status": "computed"
+      }
+    }
+  ],
+  "verifiability": {
+    "stations": 499205,
+    "units_with_result": [
+      {
+        "level": "state",
+        "stations_in_statements": 499205,
+        "stations_in_official_totals": 499207,
+        "share": {
+          "numerator": 499205,
+          "denominator": 499207,
+          "percent": "99.9996"
+        },
+        "status": "computed",
+        "source": "statements, official"
+      },
+      {
+        "level": "country",
+        "stations_in_statements": 499205,
+        "stations_in_official_totals": 499207,
+        "share": {
+          "numerator": 499205,
+          "denominator": 499207,
+          "percent": "99.9996"
+        },
+        "status": "computed",
+        "source": "statements, official"
+      }
+    ],
+    "sheet_images": {
+      "value": null,
+      "status": "unverified",
+      "note": "whether images of the printed ballot-box reports are published has not been checked"
+    },
+    "file_hashes": {
+      "value": "SHA-512 of each ballot-box ZIP file, published by the TSE next to it; all 28 equal those of the files read",
+      "status": "computed",
+      "source": "docs/findings/br-presidente-2026-2t.md and br-presidente-2026-2t.sha512"
+    },
+    "publications_agree": [
+      {
+        "level": "state",
+        "areas_compared": 28,
+        "areas_matching": 27,
+        "figures_differing": 1,
+        "official_matches": "neither",
+        "status": "computed",
+        "source": "verifier"
+      },
+      {
+        "level": "country",
+        "areas_compared": 1,
+        "areas_matching": 0,
+        "figures_differing": 1,
+        "official_matches": "neither",
+        "status": "computed",
+        "source": "verifier"
+      }
+    ],
+    "practices": [
+      {
+        "n": 1,
+        "value": null,
+        "status": "unverified",
+        "note": "a TSE news article read through an automatic extract says the report is printed in five copies"
+      },
+      {
+        "n": 2,
+        "value": "yes",
+        "status": "reported",
+        "source": "thesis, section 7.1"
+      },
+      {
+        "n": 3,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 4,
+        "value": null,
+        "status": "unverified",
+        "note": "according to a TSE news article read through an automatic extract the printed report carries a QR code; not checked on any report"
+      },
+      {
+        "n": 5,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 6,
+        "value": null,
+        "status": "unverified"
+      },
+      {
+        "n": 7,
+        "value": null,
+        "status": "unverified"
+      }
+    ]
+  },
+  "coverage_bound": {
+    "status": "not_computed",
+    "reason": "the context gives no census of the stations without a statement"
+  },
+  "proclamation": {
+    "status": "not_found",
+    "what_counts": "the proclamation of the elected president and vice-president by the TSE (docs/spec/profile-br.md, section 9)",
+    "note": "not found for 2026 as of 30 October 2026"
+  }
+}

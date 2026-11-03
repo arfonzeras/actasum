@@ -1,0 +1,109 @@
+# Verifiability cards
+
+One card per election (docs/spec/verifiability.md), with the context it was
+computed from. **Status: run, not verified**, like the runs they come from:
+the cards compare publications of one authority with each other and add
+nothing to them.
+
+| Election | Card | Context | Notes |
+| --- | --- | --- | --- |
+| Spain, Congreso, March 2008 | [card](es-congreso-2008-03.card.json) | [context](es-congreso-2008-03.context.json) | As November 2019 |
+| Spain, Congreso, June 2016 | [card](es-congreso-2016-06.card.json) | [context](es-congreso-2016-06.context.json) | As November 2019 |
+| Spain, Congreso, April 2019 | [card](es-congreso-2019-04.card.json) | [context](es-congreso-2019-04.context.json) | As November 2019 |
+| Spain, Congreso, November 2019 | [card](es-congreso-2019-11.card.json) | [context](es-congreso-2019-11.context.json) | Seats per province, listed by name; overseas (CERA) row per province |
+| Spain, Congreso, July 2023 | [card](es-congreso-2023-07.card.json) | [context](es-congreso-2023-07.context.json) | As November 2019 |
+| Spain, European Parliament, May 2019 | [card](es-europeas-2019-05.card.json) | [context](es-europeas-2019-05.context.json) | One national constituency, 54 seats, no threshold (below) |
+| Same, variant with 59 seats | [card](es-europeas-2019-05-59.card.json) | [context](es-europeas-2019-05-59.context.json) | The five seats proclaimed in January 2020 (below) |
+| Spain, European Parliament, June 2024 | [card](es-europeas-2024-06.card.json) | [context](es-europeas-2024-06.context.json) | Same, 61 seats |
+| Spain, local, May 2019 | [card](es-municipales-2019-05.card.json) | [context](es-municipales-2019-05.context.json) | Municipalities only as a distribution; 9 decided by lot left out |
+| Spain, local, May 2023 | [card](es-municipales-2023-05.card.json) | [context](es-municipales-2023-05.context.json) | Same; 9 decided by lot left out |
+| Colombia, president, 31 May 2026, Bogotá D.C. | [card](co-presidente-2026-05-bogota.card.json) | [context](co-presidente-2026-05-bogota.context.json) | Partial: no margin |
+| Colombia, same election, Córdoba | [card](co-presidente-2026-05-cordoba.card.json) | [context](co-presidente-2026-05-cordoba.context.json) | Partial: no margin |
+| Mexico, president, 2 June 2024 | [card](mx-presidencia-2024-06.card.json) | [context](mx-presidencia-2024-06.context.json) | Margin bounded by figures that could not be read (below) |
+| Brazil, president, 4 October 2026, first round | [card](br-presidente-2026-10-04.card.json) | [context](br-presidente-2026-10-04.context.json) | Descriptive margins only |
+| Brazil, president, 25 October 2026, second round | [card](br-presidente-2026-10-25.card.json) | [context](br-presidente-2026-10-25.context.json) | Margin of 4,430,191 votes; the outcome rule is assumed, not read |
+
+In every Spanish card the allocation computed from the station sums gives
+each candidature the seats file 08 publishes for it: per province in the five
+Congreso elections, and in the national row in both European ones. That
+comparison was run outside the card, on 31 October 2026.
+
+**Mexico.** Three of the 16 stations whose package was not received keep
+their PREP statement in the standing sum (profile-mx.md, section 6,
+point 5), and those statements have 16 figures that could not be read. Each
+is taken from 0 to the census of its station, and the margin is the interval
+from 19,419,032 to 19,427,046 votes, which does not include a change of
+winner.
+
+**Spain, European Parliament.** Article 216 of the LOREG applies
+article 163 without its threshold, so `threshold_percent` is 0. The seats are
+those of article 2 of each convocation decree, which file 08 also gives: 54 in
+2019 and 61 in 2024. Moving 68,144 votes (0.3006 per cent of the ballots)
+changes the 2019 allocation, and 18,910 (0.1071 per cent) the 2024 one.
+
+The 2019 decree gave Spain five more seats once the United Kingdom's
+withdrawal was legally effective, to be allocated by the Junta Electoral
+Central under article 216 to the results of 26 May 2019. The Junta proclaimed
+them on 23 January 2020 (BOE-A-2020-1104), one each to PSOE, Vox, PP,
+Ciudadanos and Lliures per Europa. The 2019 card says in its `seats_source`
+that it computes 54 seats; the variant computes 59. Allocating 59 seats, on
+the station sums and on the national totals alike, gives the five extra
+seats to those same candidatures (checked outside the card, on 3 November
+2026). In the variant, moving 18,391 votes (0.0811 per cent) changes the
+allocation.
+
+**Spain.** The overseas row of a province is one unit with a census much
+larger than its ballots. Under `rewrite` and `add_to_census` it alone often
+reaches the margin of the last seat, so each figure in units also comes
+without aggregates. A text for readers gives the figure without aggregates
+first, and then the one that includes the overseas row. In local elections,
+a municipality where no move of votes changes the allocation (a single
+candidature, for example) counts as `not_reachable` in the distribution of
+votes.
+
+**Spain, local elections.** That one unit under `rewrite` reaches the margin
+of the last seat in 5,234 of the 5,263 municipalities computed in 2023 reads
+differently once the size of each municipality is known: 2,039 of them have
+a single polling station, 1,728 have 2 to 5 and 1,496 have 6 or more. As a
+share of each municipality's stations, the units needed are 10 per cent or
+less in 967 municipalities, more than 10 and up to 25 in 1,079, more than 25
+and up to 50 in 1,160, and every station in 2,057. In 2019: 5,244 of 5,282
+with one unit; 2,048 with a single station, 1,750 with 2 to 5 and 1,484 with
+6 or more; shares of 946, 1,098, 1,164, 1 (more than 50 and less than 100)
+and 2,073.
+
+## How to reproduce
+
+```sh
+# Spain (02201911_MESA.zip from the Ministry; the same for the other Spanish ZIPs)
+actasum es convert  --mesa 02201911_MESA.zip --out es.jsonl
+actasum es official --tota 02201911_MESA.zip --out es.official.json
+actasum card --statements es.jsonl --official es.official.json \
+    --context docs/findings/cards/es-congreso-2019-11.context.json
+
+# Mexico: the statements of `actasum mx replay` (docs/findings/mx-presidencia-2024.md)
+actasum card --statements mx.jsonl \
+    --official docs/findings/official/mx-presidencia-2024-06.official.json \
+    --context docs/findings/cards/mx-presidencia-2024-06.context.json
+
+# Colombia: the statements of `actasum co convert` (docs/findings/co-presidente-2026.md)
+actasum card --statements bogota.jsonl \
+    --official docs/findings/official/co-presidente-2026-05-bogota.official.json \
+    --context docs/findings/cards/co-presidente-2026-05-bogota.context.json
+
+# Brazil: the statements of `actasum br replay` for the first round
+actasum card --statements br.jsonl \
+    --official docs/findings/official/br-presidente-2026-10-04-states.official.json \
+    --official docs/findings/official/br-presidente-2026-10-04-brasil.official.json \
+    --context docs/findings/cards/br-presidente-2026-10-04.context.json
+
+# Brazil, second round: the statements of `actasum br replay` (docs/findings/br-presidente-2026-2t.md)
+actasum card --statements br2t.jsonl \
+    --official docs/findings/official/br-presidente-2026-10-25-states.official.json \
+    --official docs/findings/official/br-presidente-2026-10-25-brasil.official.json \
+    --context docs/findings/cards/br-presidente-2026-10-25.context.json
+```
+
+The draft context of a Spanish election comes from `actasum es context
+--mesa MESA.zip`; the facts it cannot read from the files were added by hand,
+each with its source. Each card records the SHA-256 of its inputs.

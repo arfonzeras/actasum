@@ -35,6 +35,7 @@ from typing import Iterator
 
 from ...statement import AreaTotals, FormatError, OfficialTotals, Statement
 from . import PROFILE
+from .seats import LOCAL_THRESHOLD_PERCENT
 
 ENCODING = "iso-8859-1"
 
@@ -529,6 +530,152 @@ def read_municipal_seats(dataset: Dataset) -> dict[str, tuple[int, dict[str, int
         key = f"es/{_field(line, 12, 13)}/{_field(line, 14, 16)}"
         result[key] = (_number(line, 214, 216, where), published.get(key, {}))
     return result
+
+
+def read_province_seats(dataset: Dataset) -> tuple[dict[str, int], dict[str, str]]:
+    """Seats won per province, added up over its candidatures, and the
+    province names, for the Congreso.
+
+    File 08 gives, after the votes, the "número de candidatos obtenidos por la
+    candidatura" (columns 29-33), and file 07 the province name (columns
+    15-64). Those positions were taken from the rows themselves, in the order
+    of fields the record-layout document lists; the seats add up to 350 in
+    the Congreso of November 2019.
+    """
+    if _scope(dataset, "08") != "province":
+        raise FormatError(f"{dataset.path}: seats per province are only read for the Congreso")
+    seats: dict[str, int] = {}
+    for where, line in _rows(dataset, "08", 33):
+        province = _field(line, 12, 13)
+        if province == AGGREGATE_PROVINCE:
+            continue
+        key = f"es/{province}"
+        seats[key] = seats.get(key, 0) + _number(line, 29, 33, where)
+    names: dict[str, str] = {}
+    for _, line in _rows(dataset, "07", 64):
+        province = _field(line, 12, 13)
+        if province != AGGREGATE_PROVINCE:
+            names[f"es/{province}"] = _field(line, 15, 64).strip()
+    return seats, names
+
+
+def read_national_seats(dataset: Dataset) -> int:
+    """Seats won in the country, added up over the candidature rows of the
+    national row of file 08 (region 99, province 99), for the European
+    Parliament. Columns 29-33, as for the Congreso; they add up to 54 in May
+    2019 and 61 in June 2024, the number in article 2 of each convocation
+    decree (Real Decreto 206/2019 and 363/2024)."""
+    if _scope(dataset, "08") != "country":
+        raise FormatError(
+            f"{dataset.path}: national seats are only read for the European Parliament"
+        )
+    name = dataset.name("08")
+    total = 0
+    found = False
+    for index, line in enumerate(dataset.lines("08"), start=1):
+        if not line.strip():
+            continue
+        where = f"{name}:{index}"
+        if len(line) < 33:
+            raise FormatError(f"{where}: line has {len(line)} characters, expected at least 33")
+        if _field(line, 10, 13) != "9999":
+            continue
+        found = True
+        total += _number(line, 29, 33, where)
+    if not found:
+        raise FormatError(f"{name}: no national row found")
+    return total
+
+
+def card_context(dataset: Dataset) -> dict:
+    """What a verifiability card needs to know about a Spanish election, as
+    far as the Ministry's files say it. Facts the files do not give are left
+    for a person to fill in, with their source."""
+    scope = _scope(dataset, "09")
+    statements_election = None
+    for index, line in enumerate(dataset.lines("09"), start=1):
+        if line.strip():
+            statements_election = _election_id(line, f"{dataset.name('09')}:{index}")
+            break
+    layout = {
+        "document": "Ministerio del Interior, Ficheros de Carga de Datos de Elecciones "
+        "(FICHEROS.doc, inside the ZIP)",
+        "sha256": dataset.sha256,
+    }
+    channels: list[dict] = []
+    if scope != "municipality":
+        channels.append(
+            {
+                "name": "abroad (CERA)",
+                "match": {"unit": "aggregate"},
+                "published_at": "province",
+                "by_area": True,
+                "custody_chain": {"value": None, "status": "unverified"},
+                "source": dict(layout, note="one row per province, municipality code 999"),
+            }
+        )
+    channels.append(
+        {
+            "name": "postal",
+            "published_at": "not_published_separately",
+            "custody_chain": {"value": None, "status": "unverified"},
+            "source": dict(
+                layout,
+                note="the fields of files 09 and 10 have no postal vote; read in the text "
+                "extracted from the document, which may miss a field",
+            ),
+        }
+    )
+    if scope == "province":
+        seats, names = read_province_seats(dataset)
+        contest = {
+            "kind": "seats",
+            "seats": seats,
+            "names": names,
+            "threshold_percent": 3,
+            "ties": "more_votes_then_lot",
+            "detail": "by_constituency",
+            "source": dict(
+                layout,
+                file=dataset.name("08"),
+                note="seats to fill: the candidates each candidature obtained, added up; "
+                "rule: LOREG, article 163.1",
+            ),
+        }
+    elif scope == "municipality":
+        contest = {
+            "kind": "seats",
+            "seats": {key: to_fill for key, (to_fill, _) in read_municipal_seats(dataset).items()},
+            "threshold_percent": LOCAL_THRESHOLD_PERCENT,
+            "ties": "more_votes_then_lot",
+            "detail": "distribution_only",
+            "source": dict(
+                layout,
+                file=dataset.name("05"),
+                note="seats to fill, columns 214-216; rule: LOREG, articles 163.1 and 180",
+            ),
+        }
+    else:
+        contest = {
+            "kind": "seats",
+            "seats": {COUNTRY: read_national_seats(dataset)},
+            "threshold_percent": 0,
+            "ties": "more_votes_then_lot",
+            "detail": "by_constituency",
+            "source": dict(
+                layout,
+                file=dataset.name("08"),
+                note="seats to fill: the candidates each candidature obtained in the national "
+                "row, added up; rule: LOREG, articles 214 and 216 (article 163.1 without "
+                "its threshold)",
+            ),
+        }
+    return {
+        "spec": "actasum/card-context/v0.1",
+        "election": statements_election,
+        "contest": contest,
+        "channels": channels,
+    }
 
 
 def read_overseas_residuals(dataset: Dataset) -> OfficialTotals:
